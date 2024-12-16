@@ -26,7 +26,7 @@ const GoogleMap = () => {
 
 	return (
 		<Map
-			className="w-screen h-screen outline-none"
+			className="w-screen h-screen outline-none focus:outline-none"
 			defaultCenter={DEFAULT_CENTER}
 			defaultZoom={14}
 			gestureHandling="greedy"
