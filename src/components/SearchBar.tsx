@@ -1,5 +1,6 @@
+import { AnimatePresence, motion } from 'motion/react';
 import { forwardRef, useState } from 'react';
-import { FaMagnifyingGlass } from 'react-icons/fa6';
+import { FaMagnifyingGlass, FaXmark } from 'react-icons/fa6';
 
 interface SearchBarProps {
 	searchTerm: string;
@@ -13,7 +14,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
 		return (
 			<div className="absolute top-0 flex justify-center items-center flex-row w-full p-4">
 				<div
-					className={`w-full max-w-[500px] bg-slate-50/95 flex justify-center items-center px-4 shadow-xl rounded-lg overflow-hidden border-slate-300/5 ${
+					className={`w-full max-w-[500px] bg-slate-50/95 flex justify-center items-center px-3 gap-2 shadow-xl rounded-lg overflow-hidden border-slate-300/5 ${
 						isFocused && 'outline-2 outline-red-500'
 					}`}
 				>
@@ -28,9 +29,24 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
 						onChange={(e) => setSearchTerm(e.target.value)}
 						onFocus={() => setIsFocused(true)}
 						onBlur={() => setIsFocused(false)}
-						className="w-full h-[48px] bg-transparent outline-none text-lg text-gray-900 p-3 rounded-lg"
+						className="w-full h-[48px] bg-transparent outline-none text-lg text-gray-900 rounded-lg"
 					/>
-					<button onClick={() => setSearchTerm('')}></button>
+					<AnimatePresence>
+						{searchTerm !== '' && (
+							<motion.div
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								exit={{ opacity: 0 }}
+								transition={{ duration: 0.1 }}
+								onClick={() => setSearchTerm('')}
+								className="h-[36px] w-[36px] flex justify-center items-center cursor-pointer"
+							>
+								<div className="w-[24px] h-[24px] flex justify-center items-center bg-neutral-400 rounded-full">
+									<FaXmark size={16} color={'white'} />
+								</div>
+							</motion.div>
+						)}
+					</AnimatePresence>
 				</div>
 			</div>
 		);

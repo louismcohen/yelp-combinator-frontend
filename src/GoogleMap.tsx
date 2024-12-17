@@ -36,7 +36,7 @@ const GoogleMap = () => {
 			searchInputRef.current?.focus();
 		}
 	};
-	const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
+	const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
 	const handleMarkerPress = useCallback((marker: Business) => {
 		setSelectedBusiness(marker);
@@ -64,7 +64,13 @@ const GoogleMap = () => {
 						.toLocaleLowerCase()
 						.includes(debouncedSearchTerm.toLocaleLowerCase()),
 				);
-				return isName || isNote || isCategory;
+				const showBusiness = isName || isNote || isCategory;
+
+				if (selectedBusiness?.alias === business.alias) {
+					if (!showBusiness) deselectBusiness();
+				}
+
+				return showBusiness;
 			});
 			return filtered;
 		}
@@ -97,15 +103,16 @@ const GoogleMap = () => {
 					setBounds(e.detail.bounds)
 				}
 			>
-				{visibleMarkers.map((marker) => (
-					<AnimatePresence key={marker.alias}>
+				<AnimatePresence>
+					{visibleMarkers.map((marker) => (
 						<YCMarker
 							key={marker.alias}
 							business={marker}
 							onMarkerPress={handleMarkerPress}
 						/>
-					</AnimatePresence>
-				))}
+					))}
+				</AnimatePresence>
+
 				<SearchBar
 					ref={searchInputRef}
 					searchTerm={searchTerm}
