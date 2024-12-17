@@ -1,6 +1,7 @@
 import { AdvancedMarker, Marker } from '@vis.gl/react-google-maps';
 import { Business } from '../types';
 import { motion } from 'motion/react';
+import { memo } from 'react';
 
 interface YCMarkerProps {
 	business: Business;
@@ -26,4 +27,4 @@ const YCMarker = ({ business, onMarkerPress }: YCMarkerProps) => {
 	);
 };
 
-export default YCMarker;
+export default memo(YCMarker);

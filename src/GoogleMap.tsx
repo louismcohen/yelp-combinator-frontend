@@ -1,4 +1,9 @@
-import { Map, Marker, useMap } from '@vis.gl/react-google-maps';
+import {
+	Map,
+	MapCameraChangedEvent,
+	Marker,
+	useMap,
+} from '@vis.gl/react-google-maps';
 import useMarkers from './hooks/useMarkers';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Business } from './types';
@@ -15,6 +20,7 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 
 const GoogleMap = () => {
 	const map = useMap();
+	const [bounds, setBounds] = useState<google.maps.LatLngBoundsLiteral>();
 	const { data: businesses, isLoading } = useMarkers();
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 	const [searchTerm, setSearchTerm] = useState<string>('');
@@ -30,11 +36,6 @@ const GoogleMap = () => {
 			searchInputRef.current?.focus();
 		}
 	};
-
-	const handleSearchTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setSearchTerm(e.target.value);
-	};
-
 	const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 
 	const handleMarkerPress = useCallback((marker: Business) => {
@@ -43,7 +44,7 @@ const GoogleMap = () => {
 
 	const deselectBusiness = () => setSelectedBusiness(undefined);
 
-	const markers = useMemo(() => {
+	const filteredMarkers = useMemo(() => {
 		if (!businesses || businesses.length === 0 || isLoading) return [];
 
 		if (debouncedSearchTerm === '' || !debouncedSearchTerm) {
@@ -69,6 +70,19 @@ const GoogleMap = () => {
 		}
 	}, [businesses, debouncedSearchTerm]);
 
+	const visibleMarkers = useMemo(() => {
+		if (!bounds) return filteredMarkers;
+
+		return filteredMarkers.filter((marker) => {
+			return (
+				marker.coordinates.latitude >= bounds.south &&
+				marker.coordinates.latitude <= bounds.north &&
+				marker.coordinates.longitude >= bounds.west &&
+				marker.coordinates.longitude <= bounds.east
+			);
+		});
+	}, [bounds, filteredMarkers]);
+
 	return (
 		<div onKeyDown={handleKeyDown}>
 			<Map
@@ -79,8 +93,11 @@ const GoogleMap = () => {
 				gestureHandling="greedy"
 				disableDefaultUI
 				onClick={deselectBusiness}
+				onBoundsChanged={(e: MapCameraChangedEvent) =>
+					setBounds(e.detail.bounds)
+				}
 			>
-				{markers.map((marker) => (
+				{visibleMarkers.map((marker) => (
 					<AnimatePresence key={marker.alias}>
 						<YCMarker
 							key={marker.alias}
