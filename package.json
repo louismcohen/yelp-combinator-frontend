@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.62.7",
     "@vis.gl/react-google-maps": "^1.4.2",
     "axios": "^1.7.9",
     "react": "^18.3.1",
@@ -20,6 +21,7 @@
     "@stylistic/eslint-plugin": "^2.12.1",
     "@stylistic/eslint-plugin-jsx": "^2.12.1",
     "@stylistic/eslint-plugin-ts": "^2.12.1",
+    "@tanstack/eslint-plugin-query": "^5.62.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react-swc": "^3.5.0",

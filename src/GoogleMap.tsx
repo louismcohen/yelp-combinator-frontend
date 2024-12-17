@@ -1,6 +1,6 @@
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps';
 import useMarkers from './hooks/useMarkers';
-import { useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Business } from './types';
 import BusinessInfoWindow from './components/BusinessInfoWindow';
 
@@ -11,18 +11,24 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 
 const GoogleMap = () => {
 	const map = useMap();
-	const { markers, isLoading, error } = useMarkers();
+	const { data: businesses, isLoading } = useMarkers();
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 
 	map?.setClickableIcons(false);
 
-	const handleMarkerPress = (marker: Business) => {
+	const handleMarkerPress = useCallback((marker: Business) => {
 		setSelectedBusiness(marker);
-	};
+	}, []);
 
 	const handleMapPress = () => {
 		setSelectedBusiness(undefined);
 	};
+
+	const markers = useMemo(() => {
+		if (!businesses || businesses.length === 0 || isLoading) return [];
+
+		return businesses;
+	}, [businesses]);
 
 	return (
 		<Map
@@ -33,19 +39,16 @@ const GoogleMap = () => {
 			disableDefaultUI
 			onClick={handleMapPress}
 		>
-			{markers.length > 0 &&
-				!error &&
-				!isLoading &&
-				markers.map((marker, index) => (
-					<Marker
-						key={index}
-						position={{
-							lat: marker.coordinates.latitude,
-							lng: marker.coordinates.longitude,
-						}}
-						onClick={() => handleMarkerPress(marker)}
-					/>
-				))}
+			{markers.map((marker) => (
+				<Marker
+					key={marker.alias}
+					position={{
+						lat: marker.coordinates.latitude,
+						lng: marker.coordinates.longitude,
+					}}
+					onClick={() => handleMarkerPress(marker)}
+				/>
+			))}
 			<BusinessInfoWindow business={selectedBusiness} />
 		</Map>
 	);

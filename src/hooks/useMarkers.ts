@@ -1,31 +1,21 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Business } from "../types";
+import { useQuery } from "@tanstack/react-query";
 
 const useMarkers = () => {
-  const [markers, setMarkers] = useState<Business[]>([]);
-  const [error, setError] = useState<Error | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const fetchBusinesses = async () => {
+    const response = await axios.get(import.meta.env.VITE_BACKEND_API_URL);
+    return response.data;
+  }
 
-  useEffect(() => {
-    const fetchMarkers = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get(import.meta.env.VITE_BACKEND_API_URL);
-        setMarkers(response.data)
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err : new Error('Unknown error occurred'));
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  const query = useQuery<Business[]>({
+    queryKey: ['businesses'],
+    queryFn: fetchBusinesses,
+    placeholderData: [],
+  });
 
-    fetchMarkers();
-  }, [])
-
-  return { markers, error, isLoading}
-  
+  return query;
 };
 
 export default useMarkers;
