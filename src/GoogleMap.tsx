@@ -12,6 +12,7 @@ import SearchBar from './components/SearchBar';
 import { AnimatePresence } from 'motion/react';
 import { useDebounce } from 'use-debounce';
 import YCMarker from './components/YCMarker';
+import IconMarker from './components/IconMarker';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
@@ -36,6 +37,7 @@ const GoogleMap = () => {
 			searchInputRef.current?.focus();
 		}
 	};
+
 	const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 	const [debouncedBounds] = useDebounce(bounds, 300);
 
@@ -106,14 +108,13 @@ const GoogleMap = () => {
 			>
 				<AnimatePresence>
 					{visibleMarkers.map((marker) => (
-						<YCMarker
+						<IconMarker
 							key={marker.alias}
 							business={marker}
 							onMarkerPress={handleMarkerPress}
 						/>
 					))}
 				</AnimatePresence>
-
 				<SearchBar
 					ref={searchInputRef}
 					searchTerm={searchTerm}

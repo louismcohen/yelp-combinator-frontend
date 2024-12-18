@@ -2,6 +2,7 @@ import { AdvancedMarker, Marker } from '@vis.gl/react-google-maps';
 import { Business } from '../types';
 import { motion } from 'motion/react';
 import { memo } from 'react';
+import { Restaurant } from '../icons';
 
 interface YCMarkerProps {
 	business: Business;
@@ -22,7 +23,9 @@ const YCMarker = ({ business, onMarkerPress }: YCMarkerProps) => {
 					lng: business.coordinates.longitude,
 				}}
 				onClick={() => onMarkerPress(business)}
-			/>
+			>
+				<Restaurant height={24} width={24} color={'red'} />
+			</AdvancedMarker>
 		</motion.div>
 	);
 };
