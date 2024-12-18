@@ -14,8 +14,10 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
 		return (
 			<div className="absolute top-0 flex justify-center items-center flex-row w-full p-4">
 				<div
-					className={`w-full max-w-[500px] bg-neutral-50/95 transition-all flex justify-center items-center px-3 gap-2 shadow-xl rounded-lg overflow-hidden border-neutral-300/5 ${
-						isFocused && 'outline-2 outline-red-500' && 'backdrop-blur-md'
+					className={`w-full max-w-[500px] bg-neutral-50/95 transition-all flex justify-center items-center px-3 gap-2 shadow-xl rounded-lg overflow-hidden border border-neutral-500/10 outline ${
+						isFocused
+							? 'outline-2 outline-offset-0 outline-red-500 backdrop-blur-md'
+							: 'outline-none'
 					}`}
 				>
 					<p className="text-lg text-neutral-400">
