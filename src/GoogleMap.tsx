@@ -37,6 +37,7 @@ const GoogleMap = () => {
 		}
 	};
 	const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
+	const [debouncedBounds] = useDebounce(bounds, 300);
 
 	const handleMarkerPress = useCallback((marker: Business) => {
 		setSelectedBusiness(marker);
@@ -77,17 +78,17 @@ const GoogleMap = () => {
 	}, [businesses, debouncedSearchTerm]);
 
 	const visibleMarkers = useMemo(() => {
-		if (!bounds) return filteredMarkers;
+		if (!debouncedBounds) return filteredMarkers;
 
 		return filteredMarkers.filter((marker) => {
 			return (
-				marker.coordinates.latitude >= bounds.south &&
-				marker.coordinates.latitude <= bounds.north &&
-				marker.coordinates.longitude >= bounds.west &&
-				marker.coordinates.longitude <= bounds.east
+				marker.coordinates.latitude >= debouncedBounds.south &&
+				marker.coordinates.latitude <= debouncedBounds.north &&
+				marker.coordinates.longitude >= debouncedBounds.west &&
+				marker.coordinates.longitude <= debouncedBounds.east
 			);
 		});
-	}, [bounds, filteredMarkers]);
+	}, [debouncedBounds, filteredMarkers]);
 
 	return (
 		<div onKeyDown={handleKeyDown}>

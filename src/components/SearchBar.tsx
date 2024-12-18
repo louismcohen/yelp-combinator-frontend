@@ -14,8 +14,8 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
 		return (
 			<div className="absolute top-0 flex justify-center items-center flex-row w-full p-4">
 				<div
-					className={`w-full max-w-[500px] bg-slate-50/95 flex justify-center items-center px-3 gap-2 shadow-xl rounded-lg overflow-hidden border-slate-300/5 ${
-						isFocused && 'outline-2 outline-red-500'
+					className={`w-full max-w-[500px] bg-neutral-50/95 transition-all flex justify-center items-center px-3 gap-2 shadow-xl rounded-lg overflow-hidden border-neutral-300/5 ${
+						isFocused && 'outline-2 outline-red-500' && 'backdrop-blur-md'
 					}`}
 				>
 					<p className="text-lg text-neutral-400">
@@ -41,7 +41,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
 								onClick={() => setSearchTerm('')}
 								className="h-[36px] w-[36px] flex justify-center items-center cursor-pointer"
 							>
-								<div className="w-[24px] h-[24px] flex justify-center items-center bg-neutral-400 rounded-full">
+								<div className="w-[24px] h-[24px] flex justify-center items-center bg-neutral-400 hover:bg-neutral-500 rounded-full">
 									<FaXmark size={16} color={'white'} />
 								</div>
 							</motion.div>
