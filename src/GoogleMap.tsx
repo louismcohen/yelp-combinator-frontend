@@ -5,7 +5,7 @@ import {
 	useMap,
 } from '@vis.gl/react-google-maps';
 import useMarkers from './hooks/useMarkers';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Business } from './types';
 import BusinessInfoWindow from './components/BusinessInfoWindow';
 import SearchBar from './components/SearchBar';
@@ -29,14 +29,19 @@ const GoogleMap = () => {
 
 	map?.setClickableIcons(false);
 
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-		if (e.key === 'Escape') {
-			deselectBusiness();
-			searchInputRef.current?.blur();
-		} else if (e.metaKey && e.key === 'k') {
-			searchInputRef.current?.focus();
-		}
-	};
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				deselectBusiness();
+				searchInputRef.current?.blur();
+			} else if (e.metaKey && e.key === 'k') {
+				searchInputRef.current?.focus();
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, []);
 
 	const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 	const [debouncedBounds] = useDebounce(bounds, 300);
@@ -93,43 +98,39 @@ const GoogleMap = () => {
 	}, [debouncedBounds, filteredMarkers]);
 
 	return (
-		<div onKeyDown={handleKeyDown}>
-			<Map
-				className="w-screen h-screen outline-none focus:outline-none"
-				mapId={import.meta.env.VITE_GOOGLE_MAP_ID}
-				defaultCenter={DEFAULT_CENTER}
-				defaultZoom={14}
-				gestureHandling="greedy"
-				disableDefaultUI
-				onClick={deselectBusiness}
-				onBoundsChanged={(e: MapCameraChangedEvent) =>
-					setBounds(e.detail.bounds)
-				}
-			>
-				<AnimatePresence>
-					{visibleMarkers.map((marker) => (
-						<IconMarker
-							key={marker.alias}
-							business={marker}
-							onMarkerPress={handleMarkerPress}
-						/>
-					))}
-				</AnimatePresence>
-				<SearchBar
-					ref={searchInputRef}
-					searchTerm={searchTerm}
-					setSearchTerm={setSearchTerm}
-				/>
-				<AnimatePresence>
-					{selectedBusiness && (
-						<BusinessInfoWindow
-							business={selectedBusiness}
-							handleClose={() => deselectBusiness()}
-						/>
-					)}
-				</AnimatePresence>
-			</Map>
-		</div>
+		<Map
+			className="w-screen h-screen outline-none focus:outline-none"
+			mapId={import.meta.env.VITE_GOOGLE_MAP_ID}
+			defaultCenter={DEFAULT_CENTER}
+			defaultZoom={14}
+			gestureHandling="greedy"
+			disableDefaultUI
+			onClick={deselectBusiness}
+			onBoundsChanged={(e: MapCameraChangedEvent) => setBounds(e.detail.bounds)}
+		>
+			<AnimatePresence>
+				{visibleMarkers.map((marker) => (
+					<IconMarker
+						key={marker.alias}
+						business={marker}
+						onMarkerPress={handleMarkerPress}
+					/>
+				))}
+			</AnimatePresence>
+			<SearchBar
+				ref={searchInputRef}
+				searchTerm={searchTerm}
+				setSearchTerm={setSearchTerm}
+			/>
+			<AnimatePresence>
+				{selectedBusiness && (
+					<BusinessInfoWindow
+						business={selectedBusiness}
+						handleClose={() => deselectBusiness()}
+					/>
+				)}
+			</AnimatePresence>
+		</Map>
 	);
 };
 
