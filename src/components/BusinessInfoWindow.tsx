@@ -1,6 +1,7 @@
 import { Business } from '../types';
 import { motion } from 'motion/react';
 import { FaXmark } from 'react-icons/fa6';
+import { generateHexColorFromCategoryAlias } from '../utils/IconGenerator';
 
 const CloseButton = ({ onClick }: { onClick: () => void }) => {
 	return (
@@ -21,6 +22,10 @@ const BusinessInfoWindow = ({
 }) => {
 	if (!business) return;
 
+	const categoryColor = generateHexColorFromCategoryAlias(
+		business.categories[0].alias,
+	);
+
 	return (
 		<motion.div
 			initial={{ opacity: 0, scale: 0.95, transform: 'translateY(32px)' }}
@@ -34,12 +39,13 @@ const BusinessInfoWindow = ({
 					className="bg-cover bg-center w-full h-[200px] absolute inset-0 -z-10"
 					style={{
 						backgroundImage: `url(${business.image_url})`,
+						backgroundColor: categoryColor,
 					}}
 				>
 					{/* <div className="absolute top-0 right-0 p-4">
 						<CloseButton onClick={handleClose} />
 					</div> */}
-					<div className="flex flex-row w-full justify-between items-end p-4 bg-gradient-to-b from-black/0 to-black/50 ">
+					<div className="flex flex-row w-full justify-between items-end p-4 bg-gradient-to-b from-black/0 via-25% via-black/0 to-black/75 ">
 						<div className="flex-grow gap-0">
 							<p className="text-3xl font-bold text-white/95 leading-tight">
 								{business.name}
