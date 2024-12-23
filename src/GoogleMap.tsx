@@ -11,7 +11,6 @@ import BusinessInfoWindow from './components/BusinessInfoWindow';
 import SearchBar from './components/SearchBar';
 import { AnimatePresence } from 'motion/react';
 import { useDebounce } from 'use-debounce';
-import YCMarker from './components/YCMarker';
 import IconMarker from './components/IconMarker';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
@@ -72,7 +71,8 @@ const GoogleMap = () => {
 						.toLocaleLowerCase()
 						.includes(debouncedSearchTerm.toLocaleLowerCase()),
 				);
-				const showBusiness = isName || isNote || isCategory;
+				const isClosed = business.is_closed;
+				const showBusiness = (isName || isNote || isCategory) && !isClosed;
 
 				if (selectedBusiness?.alias === business.alias) {
 					if (!showBusiness) deselectBusiness();

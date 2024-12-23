@@ -2,6 +2,7 @@ import { Business } from '../types';
 import { motion } from 'motion/react';
 import { FaXmark } from 'react-icons/fa6';
 import { generateHexColorFromCategoryAlias } from '../utils/IconGenerator';
+import { getBusinessHoursStatus } from '../utils/businessHours';
 
 const CloseButton = ({ onClick }: { onClick: () => void }) => {
 	return (
@@ -22,9 +23,17 @@ const BusinessInfoWindow = ({
 }) => {
 	if (!business) return;
 
+	console.log(business);
+
 	const categoryColor = generateHexColorFromCategoryAlias(
 		business.categories[0].alias,
 	);
+
+	const { status, auxStatus } = getBusinessHoursStatus(business.hours);
+
+	const statusColor = status.includes('Open')
+		? 'text-green-600'
+		: 'text-red-600';
 
 	return (
 		<motion.div
@@ -55,10 +64,21 @@ const BusinessInfoWindow = ({
 									.map((category) => category.title)
 									.join(', ')}
 							</p>
+							{business?.note && (
+								<p className="text-sm md:text-md text-white/85 leading-tight">
+									{business.note}
+								</p>
+							)}
 						</div>
 					</div>
 				</div>
-				<div className="absolute h-full w-full border border-black/5" />
+				<div className="absolute flex-grow flex-col gap-2 pt-[200px]">
+					<p className="p-4 text-md text-neutral-500">
+						<span className={`font-bold ${statusColor}`}>{status}</span>
+						{auxStatus}
+					</p>
+				</div>
+				<div className="absolute h-full w-full border border-black/10 rounded-xl" />
 			</div>
 		</motion.div>
 	);

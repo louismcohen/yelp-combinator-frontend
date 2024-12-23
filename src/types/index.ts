@@ -11,7 +11,7 @@ export interface Business {
   yelpCollectionId: string
   categories: Category[]
   display_phone: string
-  hours: Hour[]
+  hours: BusinessHours[]
   image_url: string
   name: string
   phone: string
@@ -48,14 +48,14 @@ export interface Category {
   _id: string
 }
 
-export interface Hour {
-  open: Open[]
+export interface BusinessHours {
+  open: OpeningHours[]
   hours_type: string
   is_open_now: boolean
   _id: string
 }
 
-export interface Open {
+export interface OpeningHours {
   is_overnight: boolean
   start: string
   end: string
