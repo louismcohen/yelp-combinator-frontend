@@ -20,6 +20,7 @@ const GoogleMap = () => {
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 	const [searchTerm, setSearchTerm] = useState<string>('');
 	const searchInputRef = useRef<HTMLInputElement>(null);
+	const [searchInputFocused, setSearchInputFocused] = useState<boolean>(false);
 
 	map?.setClickableIcons(false);
 
@@ -27,9 +28,9 @@ const GoogleMap = () => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') {
 				deselectBusiness();
-				searchInputRef.current?.blur();
+				setSearchInputFocused(false);
 			} else if (e.metaKey && e.key === 'k') {
-				searchInputRef.current?.focus();
+				setSearchInputFocused(true);
 			}
 		};
 
@@ -117,6 +118,8 @@ const GoogleMap = () => {
 				ref={searchInputRef}
 				searchTerm={searchTerm}
 				setSearchTerm={setSearchTerm}
+				searchInputFocused={searchInputFocused}
+				setSearchInputFocused={setSearchInputFocused}
 			/>
 			<AnimatePresence>
 				{selectedBusiness && <BusinessInfoWindow business={selectedBusiness} />}

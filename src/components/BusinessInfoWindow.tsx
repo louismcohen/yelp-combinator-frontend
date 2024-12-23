@@ -65,7 +65,7 @@ const ResponsiveAddress = ({
 	displayAddress: DisplayAddress;
 }) => {
 	return (
-		<div className="flex flex-wrap justify-end">
+		<div className="flex flex-wrap justify-end text-sm text-neutral-700 text-right">
 			<span>{displayAddress[0]}</span>
 			<span className="ml-1">{displayAddress[1]}</span>
 		</div>
@@ -95,9 +95,9 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 			animate={{ opacity: 1, scale: 1.0, transform: 'translateY(0px)' }}
 			exit={{ opacity: 0, scale: 1.02, transform: 'translateY(32px)' }}
 			transition={{ duration: 0.15 }}
-			className="absolute flex justify-center bottom-0 outline-none h-[400px] min-h-[50%] w-full p-2 focus:outline-none"
+			className="absolute flex justify-center bottom-0 outline-none h-[400px] sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none"
 		>
-			<div className="relative overflow-hidden *:flex flex-col items-start h-full w-screen max-w-[500px] rounded-xl bg-neutral-50/95  backdrop-blur-sm shadow-[0_16px_20px_-4px_rgba(0,0,0,0.25),0_6px_8px_-4px_rgba(0,0,0,0.25)]">
+			<div className="relative overflow-hidden *:flex flex-col items-start h-full w-screen max-w-[500px] rounded-xl bg-neutral-50/95  backdrop-blur-sm shadow-[0_16px_20px_-4px_rgba(0,0,0,0.25),0_6px_8px_-4px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.1)]">
 				<div
 					className="bg-cover bg-center w-full h-[200px] absolute inset-0 -z-10"
 					style={{
@@ -145,14 +145,12 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 							</>
 						)}
 						<InfoSection title="address">
-							<p className="text-sm text-neutral-700 text-right">
-								<ResponsiveAddress displayAddress={displayAddress} />
-							</p>
+							<ResponsiveAddress displayAddress={displayAddress} />
 						</InfoSection>
 					</div>
 				</div>
 				<div
-					className={`absolute h-full w-full border border-black/10 rounded-xl`}
+					className={`absolute h-full w-full border border-white/55 rounded-xl`}
 					style={{
 						backgroundImage: `linear-gradient(to top, ${categoryColor}34 0%, transparent 40px)`,
 					}}
