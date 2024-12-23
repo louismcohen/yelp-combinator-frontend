@@ -4,15 +4,21 @@ import {
 	generateHexColorFromCategoryAlias,
 	IconGenerated,
 } from '../utils/IconGenerator';
+import { motion } from 'motion/react';
 
 const iconFillVisited = `#ffffff`;
 
 interface IconMarkerProps {
 	business: Business;
 	onMarkerPress: (marker: Business) => void;
+	selected: boolean;
 }
 
-const IconMarker = ({ business, onMarkerPress }: IconMarkerProps) => {
+const IconMarker = ({
+	business,
+	onMarkerPress,
+	selected = false,
+}: IconMarkerProps) => {
 	const isVisited = business?.visited;
 	const primaryCategoryAlias = business.categories[0].alias;
 	const iconHexColor = generateHexColorFromCategoryAlias(primaryCategoryAlias);
@@ -28,19 +34,29 @@ const IconMarker = ({ business, onMarkerPress }: IconMarkerProps) => {
 			}}
 			onClick={() => onMarkerPress(business)}
 		>
-			<div
-				className={`w-[32px] h-[32px] flex justify-center items-center rounded-full opacity-[0.97] cursor-pointer shadow-[0px_3px_5px_rgba(0,0,0,0.33)]`}
+			<motion.div
+				className={`w-[32px] h-[32px] flex justify-center items-center rounded-full opacity-[0.97] cursor-pointer`}
 				style={{
 					backgroundColor,
 					borderColor,
 					borderWidth: '1px',
+					boxShadow: selected
+						? `0px 0px 5px 2px ${iconHexColor}80, 0px 3px 5px rgba(0,0,0,0.33)`
+						: '0px 3px 5px rgba(0,0,0,0.33)',
+				}}
+				animate={{
+					scale: selected ? 1.25 : 1,
+				}}
+				transition={{
+					type: 'spring',
+					visualDuration: 0.15,
 				}}
 			>
 				<IconGenerated
 					categoryAlias={primaryCategoryAlias}
 					iconProps={{ fill: iconColor }}
 				/>
-			</div>
+			</motion.div>
 		</AdvancedMarker>
 	);
 };

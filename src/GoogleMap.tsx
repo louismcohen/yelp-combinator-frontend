@@ -1,9 +1,4 @@
-import {
-	Map,
-	MapCameraChangedEvent,
-	Marker,
-	useMap,
-} from '@vis.gl/react-google-maps';
+import { Map, MapCameraChangedEvent, useMap } from '@vis.gl/react-google-maps';
 import useMarkers from './hooks/useMarkers';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Business } from './types';
@@ -113,6 +108,7 @@ const GoogleMap = () => {
 					<IconMarker
 						key={marker.alias}
 						business={marker}
+						selected={selectedBusiness?.alias === marker.alias}
 						onMarkerPress={handleMarkerPress}
 					/>
 				))}
@@ -123,12 +119,7 @@ const GoogleMap = () => {
 				setSearchTerm={setSearchTerm}
 			/>
 			<AnimatePresence>
-				{selectedBusiness && (
-					<BusinessInfoWindow
-						business={selectedBusiness}
-						handleClose={() => deselectBusiness()}
-					/>
-				)}
+				{selectedBusiness && <BusinessInfoWindow business={selectedBusiness} />}
 			</AnimatePresence>
 		</Map>
 	);

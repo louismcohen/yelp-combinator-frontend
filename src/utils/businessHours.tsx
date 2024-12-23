@@ -72,8 +72,8 @@ export const getBusinessHoursStatus = (
 		if (currentTime < startTime) {
 			const timeString = formatTime(todayHours.start);
 			return {
-				status: 'Closed. ',
-				auxStatus: `Opens at ${timeString}`,
+				status: 'Closed',
+				auxStatus: ` | Opens at ${timeString}`,
 			};
 		}
 	}
@@ -93,8 +93,8 @@ export const getBusinessHoursStatus = (
 
 			if (daysAhead === 1) {
 				return {
-					status: 'Closed. ',
-					auxStatus: `Opens tomorrow at ${timeString}`,
+					status: 'Closed',
+					auxStatus: ` | Opens tomorrow at ${timeString}`,
 				};
 			} else {
 				const days = [
@@ -107,8 +107,8 @@ export const getBusinessHoursStatus = (
 					'Saturday',
 				];
 				return {
-					status: 'Closed. ',
-					auxStatus: `Opens ${days[nextDay]} at ${timeString}`,
+					status: 'Closed',
+					auxStatus: ` | Opens ${days[nextDay]} at ${timeString}`,
 				};
 			}
 		}
