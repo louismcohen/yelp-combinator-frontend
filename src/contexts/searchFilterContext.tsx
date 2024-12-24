@@ -32,7 +32,7 @@ export interface Filter {
 	falseIcon: React.ReactNode;
 }
 
-const initialFilterState: Record<FilterType, Filter> = {
+export const initialFilterState: Record<FilterType, Filter> = {
 	open: {
 		type: 'open',
 		mode: FilterMode.Disabled,

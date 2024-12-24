@@ -3,6 +3,9 @@ import { motion } from 'motion/react';
 import { FaXmark } from 'react-icons/fa6';
 import { generateHexColorFromCategoryAlias } from '../utils/IconGenerator';
 import { getBusinessHoursStatus } from '../utils/businessHours';
+import { FaCheckCircle } from 'react-icons/fa';
+import { initialFilterState } from '../contexts/searchFilterContext';
+import { useState } from 'react';
 
 const CloseButton = ({ onClick }: { onClick: () => void }) => {
 	return (
@@ -27,6 +30,35 @@ const InfoSection = ({
 			<p className="text-sm font-bold text-neutral-700 uppercase">{title}</p>
 			{children}
 		</div>
+	);
+};
+
+const VisitedButton = ({
+	visited,
+	onClick,
+}: {
+	visited: boolean;
+	onClick: () => void;
+}) => {
+	const [visitedState, setVisited] = useState(visited);
+	const visitedColor = 'text-green-400';
+
+	return (
+		<motion.button
+			whileHover={{ scale: 1.02 }}
+			whileTap={{ scale: 0.95 }}
+			className={`h-[24px] flex px-3 py-4 gap-2 pointer-events-auto cursor-pointer justify-center items-center transition-all duration-150 ease-in-out bg-gray-900/50 rounded-lg outline-none hover:outline-none focus:outline-none hover:border-green-400/50 shadow-md hover:drop-shadow-lg backdrop-blur-sm text-sm text-gray-50 ${
+				visited ? '' : ''
+			}`}
+			onClick={() => setVisited(!visitedState)}
+		>
+			<span className={`${visitedColor}`}>
+				{visitedState
+					? initialFilterState.visited.trueIcon
+					: initialFilterState.visited.falseIcon}
+			</span>
+			{visitedState ? `Visited` : `Not Visited`}
+		</motion.button>
 	);
 };
 
@@ -100,7 +132,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 				transition: { duration: 0.3 },
 			}}
 			transition={{ duration: 0.15 }}
-			className="absolute flex justify-center bottom-0 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none"
+			className="absolute flex justify-center bottom-0 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none pointer-events-auto"
 		>
 			<motion.div
 				layout
@@ -108,7 +140,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 				className="relative overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-xl bg-neutral-50/95  backdrop-blur-sm shadow-[0_16px_20px_-4px_rgba(0,0,0,0.25),0_6px_8px_-4px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.1)]"
 			>
 				<div
-					className="bg-cover bg-center w-full h-[200px] absolute inset-0 -z-10"
+					className="bg-cover bg-center w-full h-[200px] pointer-events-auto"
 					style={{
 						backgroundImage: `url(${business.image_url})`,
 						backgroundColor: categoryColor,
@@ -117,8 +149,9 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 					{/* <div className="absolute top-0 right-0 p-4">
 						<CloseButton onClick={handleClose} />
 					</div> */}
-					<div className="flex flex-row w-full justify-between items-end p-4 bg-gradient-to-b from-transparent via-25% via-transparent to-black/75 ">
-						<div className="flex-grow gap-0">
+					<div className="flex flex-col w-full justify-between items-start p-4 bg-gradient-to-b from-transparent via-25% via-transparent to-black/75 pointer-events-auto">
+						<VisitedButton visited={business.visited} onClick={() => {}} />
+						<div className="flex-shrink gap-0">
 							<p className="text-3xl font-bold text-white/95 leading-tight">
 								{business.name}
 							</p>
@@ -131,7 +164,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 					</div>
 				</div>
 				<div
-					className="pt-[200px] h-full w-full transition-all pb-4"
+					className="h-full w-full transition-all pb-4"
 					style={{
 						backgroundImage: `linear-gradient(to top, ${categoryColor}34 0%, transparent 40px)`,
 					}}

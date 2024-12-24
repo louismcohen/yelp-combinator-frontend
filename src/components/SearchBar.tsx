@@ -23,7 +23,8 @@ const ClearButton = ({ state, dispatch }: SearchFilterContext) => {
 			}
 			className="w-fit h-[36px] flex flex-row items-center"
 		>
-			<button
+			<motion.button
+				whileHover={{ scale: 1.02 }}
 				className={`w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-none hover:outline-none hover:border-none focus:outline-none p-0 ${
 					state.searchTerm === ''
 						? 'disabled opacity-50 cursor-default'
@@ -31,7 +32,7 @@ const ClearButton = ({ state, dispatch }: SearchFilterContext) => {
 				}`}
 			>
 				<FaXmark size={16} color={'white'} />
-			</button>
+			</motion.button>
 		</motion.div>
 	);
 };
@@ -51,10 +52,10 @@ const textColorVariants = {
 
 const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	const containerColorVariants = {
-		green: `border-green-700 drop-shadow-lg drop-shadow-green`,
-		red: 'border-red-70 drop-shadow-lg drop-shadow-red',
-		purple: 'border-purple-700 drop-shadow-lg drop-shadow-purple',
-		blue: 'border-blue-700 drop-shadow-lg drop-shadow-blue',
+		green: `border-green-700 drop-shadow-lg`,
+		red: 'border-red-70 drop-shadow-lg',
+		purple: 'border-purple-700 drop-shadow-lg',
+		blue: 'border-blue-700 drop-shadow-lg',
 	};
 
 	const hoverColorVariants = {
@@ -75,7 +76,8 @@ const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	};
 
 	return (
-		<button
+		<motion.button
+			whileHover={{ scale: 1.02 }}
 			className={`relative w-1/3 flex flex-row gap-2 justify-center items-center outline-none transition-all ${
 				hoverColorVariants[filter.color]
 			} focus:outline-none bg-neutral-50/95 border rounded-md py-2 px-3 shadow-lg z-10 text-xs md:text-sm  ${determineFilterStyles(
@@ -90,7 +92,7 @@ const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 			</div>
 			{/* <div className="relative w-full flex flex-row justify-end md:justify-center items-center"></div> */}
 			<p className={`font-semibold`}>{text}</p>
-		</button>
+		</motion.button>
 	);
 };
 
