@@ -10,11 +10,15 @@ import { FilterMode, useSearchFilter } from './contexts/searchFilterContext';
 import { getBusinessHoursStatus } from './utils/businessHours';
 import useBusinesses from './hooks/useBusinesses';
 import { CircleLoader, GridLoader } from 'react-spinners';
+import Supercluster from 'supercluster';
+import ClusterMarker from './components/ClusterMarker';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
 	lng: -118.26326182991187,
 };
+
+const DEFAULT_ZOOM = 14;
 
 const LoadingOverlay = () => {
 	return (
@@ -33,6 +37,7 @@ const LoadingOverlay = () => {
 const GoogleMap = () => {
 	const map = useMap();
 	const [bounds, setBounds] = useState<google.maps.LatLngBoundsLiteral>();
+	const [zoom, setZoom] = useState<number>(DEFAULT_ZOOM);
 	const { data: businesses, isFetching } = useBusinesses();
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 
@@ -56,6 +61,7 @@ const GoogleMap = () => {
 
 	const [debouncedSearchTerm] = useDebounce(state?.searchTerm, 300);
 	const [debouncedBounds] = useDebounce(bounds, 300);
+	const [debouncedZoom] = useDebounce(zoom, 300);
 
 	const deselectBusiness = () => setSelectedBusiness(undefined);
 
@@ -64,6 +70,7 @@ const GoogleMap = () => {
 	}, []);
 
 	const handleMapPress = () => {
+		console.log('handleMapPress');
 		deselectBusiness();
 		dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: false });
 	};
@@ -135,6 +142,62 @@ const GoogleMap = () => {
 		});
 	}, [debouncedBounds, filteredMarkers]);
 
+	const supercluster = useMemo(() => {
+		const instance = new Supercluster({
+			extent: 256,
+			radius: 50,
+			maxZoom: 20,
+			minPoints: 2, // Minimum points to form a cluster
+		});
+
+		// Load your points into the index
+		instance.load(
+			visibleMarkers.map((business) => ({
+				type: 'Feature',
+				geometry: {
+					type: 'Point',
+					coordinates: [
+						business.coordinates.longitude,
+						business.coordinates.latitude,
+					],
+				},
+				properties: business,
+			})),
+		);
+
+		return instance;
+	}, [visibleMarkers]);
+
+	const clusters = useMemo(() => {
+		if (!debouncedBounds || !supercluster || !debouncedZoom) return [];
+
+		return supercluster.getClusters(
+			[
+				debouncedBounds.west,
+				debouncedBounds.south,
+				debouncedBounds.east,
+				debouncedBounds.north,
+			],
+			Math.floor(debouncedZoom),
+		);
+	}, [debouncedBounds, debouncedZoom, supercluster]);
+
+	const handleClusterClick = (cluster: Supercluster.ClusterFeature<any>) => {
+		const [longitude, latitude] = cluster.geometry.coordinates;
+
+		// Get the cluster expansion zoom
+		const expansionZoom = Math.min(
+			supercluster.getClusterExpansionZoom(cluster.properties.cluster_id),
+			20,
+		);
+
+		// Smoothly zoom and pan to the cluster
+		if (map) {
+			map.panTo({ lat: latitude, lng: longitude });
+			map.setZoom(expansionZoom);
+		}
+	};
+
 	useEffect(() => {
 		if (businesses && businesses.length > 0 && selectedBusiness) {
 			const selected = businesses.find(
@@ -148,27 +211,62 @@ const GoogleMap = () => {
 		}
 	}, [businesses]);
 
-	return (
-		<Map
-			className="w-screen h-screen outline-none focus:outline-none"
-			mapId={import.meta.env.VITE_GOOGLE_MAP_ID}
-			defaultCenter={DEFAULT_CENTER}
-			defaultZoom={14}
-			gestureHandling="greedy"
-			disableDefaultUI
-			onClick={handleMapPress}
-			onBoundsChanged={(e: MapCameraChangedEvent) => setBounds(e.detail.bounds)}
-		>
-			<AnimatePresence>
-				{isFetching && <LoadingOverlay />}
-				{visibleMarkers.map((marker) => (
+	const renderMarkers = useMemo(() => {
+		return clusters.map((cluster) => {
+			const [longitude, latitude] = cluster.geometry.coordinates;
+			const { cluster: isCluster, point_count: pointCount } =
+				cluster.properties;
+
+			if (isCluster) {
+				return (
+					<ClusterMarker
+						key={cluster.id}
+						position={{ lat: latitude, lng: longitude }}
+						points={pointCount}
+						onClick={() => handleClusterClick(cluster)}
+					/>
+				);
+			} else {
+				const marker = cluster.properties as Business;
+				return (
 					<IconMarker
 						key={marker.alias}
 						business={marker}
 						selected={selectedBusiness?.alias === marker.alias}
 						onMarkerPress={handleMarkerPress}
 					/>
-				))}
+				);
+			}
+		});
+	}, [clusters]);
+
+	return (
+		<Map
+			className="w-screen h-screen outline-none focus:outline-none"
+			mapId={import.meta.env.VITE_GOOGLE_MAP_ID}
+			defaultCenter={DEFAULT_CENTER}
+			defaultZoom={DEFAULT_ZOOM}
+			gestureHandling="greedy"
+			disableDefaultUI
+			onClick={handleMapPress}
+			onBoundsChanged={(e: MapCameraChangedEvent) => {
+				console.log('onBoundsChanged');
+				setBounds(e.detail.bounds);
+				setZoom(e.detail.zoom);
+			}}
+		>
+			<AnimatePresence>
+				{isFetching && <LoadingOverlay />}
+				{renderMarkers}
+				{/* {visibleMarkers.map((marker) => (
+					<IconMarker
+						key={marker.alias}
+						business={marker}
+						selected={selectedBusiness?.alias === marker.alias}
+						onMarkerPress={handleMarkerPress}
+						setMarkerRef={setMarkerRef}
+					/>
+				))} */}
 			</AnimatePresence>
 			<SearchBar />
 			<AnimatePresence>

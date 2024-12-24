@@ -8,7 +8,8 @@ import {
 	IconGenerated,
 } from '../utils/IconGenerator';
 import { motion } from 'motion/react';
-import { memo, useEffect } from 'react';
+import { memo, useCallback, useEffect } from 'react';
+import { Marker } from '@googlemaps/markerclusterer';
 
 const iconFillVisited = `#ffffff`;
 
