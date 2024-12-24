@@ -70,7 +70,6 @@ const GoogleMap = () => {
 	}, []);
 
 	const handleMapPress = () => {
-		console.log('handleMapPress');
 		deselectBusiness();
 		dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: false });
 	};
@@ -129,18 +128,18 @@ const GoogleMap = () => {
 		return filtered;
 	}, [businesses, debouncedSearchTerm, state.filters]);
 
-	const visibleMarkers = useMemo(() => {
-		if (!debouncedBounds) return filteredMarkers;
+	// const visibleMarkers = useMemo(() => {
+	// 	if (!debouncedBounds) return filteredMarkers;
 
-		return filteredMarkers.filter((marker) => {
-			return (
-				marker.coordinates.latitude >= debouncedBounds.south &&
-				marker.coordinates.latitude <= debouncedBounds.north &&
-				marker.coordinates.longitude >= debouncedBounds.west &&
-				marker.coordinates.longitude <= debouncedBounds.east
-			);
-		});
-	}, [debouncedBounds, filteredMarkers]);
+	// 	return filteredMarkers.filter((marker) => {
+	// 		return (
+	// 			marker.coordinates.latitude >= debouncedBounds.south &&
+	// 			marker.coordinates.latitude <= debouncedBounds.north &&
+	// 			marker.coordinates.longitude >= debouncedBounds.west &&
+	// 			marker.coordinates.longitude <= debouncedBounds.east
+	// 		);
+	// 	});
+	// }, [debouncedBounds, filteredMarkers]);
 
 	const supercluster = useMemo(() => {
 		const instance = new Supercluster({
@@ -152,7 +151,7 @@ const GoogleMap = () => {
 
 		// Load your points into the index
 		instance.load(
-			visibleMarkers.map((business) => ({
+			filteredMarkers.map((business) => ({
 				type: 'Feature',
 				geometry: {
 					type: 'Point',
@@ -166,7 +165,7 @@ const GoogleMap = () => {
 		);
 
 		return instance;
-	}, [visibleMarkers]);
+	}, [filteredMarkers]);
 
 	const clusters = useMemo(() => {
 		if (!debouncedBounds || !supercluster || !debouncedZoom) return [];
@@ -238,7 +237,7 @@ const GoogleMap = () => {
 				);
 			}
 		});
-	}, [clusters]);
+	}, [clusters, selectedBusiness?.alias]);
 
 	return (
 		<Map

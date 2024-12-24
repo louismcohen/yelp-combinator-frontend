@@ -77,4 +77,11 @@ const IconMarker = ({
 	);
 };
 
-export default memo(IconMarker);
+const MemoizedIconMarker = memo(IconMarker, (prevProps, nextProps) => {
+	return (
+		prevProps.selected === nextProps.selected &&
+		prevProps.business.visited === nextProps.business.visited
+	);
+});
+
+export default MemoizedIconMarker;

@@ -153,12 +153,12 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 				transition: { duration: 0.3 },
 			}}
 			transition={{ duration: 0.15 }}
-			className="absolute flex justify-center bottom-0 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none pointer-events-auto"
+			className="absolute flex justify-center bottom-0 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none pointer-events-none"
 		>
 			<motion.div
 				layout
 				transition={{ duration: 0.15 }}
-				className="relative overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-xl bg-neutral-50/95  backdrop-blur-sm shadow-[0_16px_20px_-4px_rgba(0,0,0,0.25),0_6px_8px_-4px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.1)]"
+				className="relative pointer-events-auto overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-xl bg-neutral-50/95  backdrop-blur-sm shadow-[0_16px_20px_-4px_rgba(0,0,0,0.25),0_6px_8px_-4px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.1)]"
 			>
 				<div
 					className="bg-cover bg-center w-full h-[200px] pointer-events-auto"
