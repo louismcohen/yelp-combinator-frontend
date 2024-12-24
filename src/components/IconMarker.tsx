@@ -1,10 +1,14 @@
-import { AdvancedMarker } from '@vis.gl/react-google-maps';
+import {
+	AdvancedMarker,
+	useAdvancedMarkerRef,
+} from '@vis.gl/react-google-maps';
 import { Business } from '../types';
 import {
 	generateHexColorFromCategoryAlias,
 	IconGenerated,
 } from '../utils/IconGenerator';
 import { motion } from 'motion/react';
+import { memo, useEffect } from 'react';
 
 const iconFillVisited = `#ffffff`;
 
@@ -26,6 +30,15 @@ const IconMarker = ({
 	const backgroundColor = isVisited ? iconHexColor : '#fff';
 	const borderColor = isVisited ? 'rgba(255,255,255,0.1)' : iconHexColor;
 
+	const [markerRef, marker] = useAdvancedMarkerRef();
+
+	useEffect(() => {
+		if (marker) {
+			const delay = (Math.random() * 0.5).toFixed(2) + 's';
+			(marker.content as HTMLElement).style.setProperty('--delay-time', delay);
+		}
+	}, [marker]);
+
 	return (
 		<AdvancedMarker
 			position={{
@@ -33,6 +46,8 @@ const IconMarker = ({
 				lng: business.coordinates.longitude,
 			}}
 			onClick={() => onMarkerPress(business)}
+			ref={markerRef}
+			className="pop-in"
 		>
 			<motion.div
 				className={`w-[32px] h-[32px] flex justify-center items-center rounded-full opacity-[0.97] cursor-pointer`}
@@ -61,4 +76,4 @@ const IconMarker = ({
 	);
 };
 
-export default IconMarker;
+export default memo(IconMarker);

@@ -1,5 +1,4 @@
 import { Map, MapCameraChangedEvent, useMap } from '@vis.gl/react-google-maps';
-import useMarkers from './hooks/useBusinesses';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Business } from './types';
 import BusinessInfoWindow from './components/BusinessInfoWindow';
