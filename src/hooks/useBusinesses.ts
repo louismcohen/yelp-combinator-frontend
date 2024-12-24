@@ -3,8 +3,6 @@ import { Business } from "../types";
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const useBusinesses = () => {
-  const queryClient = useQueryClient();
-
   const fetchBusinesses = async (): Promise<Business[]> => {
     console.log('fetching businesses');
     const response = await axios.get(import.meta.env.VITE_BACKEND_API_URL);
@@ -17,32 +15,7 @@ const useBusinesses = () => {
     placeholderData: [],
   });
 
-  const updateBusiness = async (business: Business): Promise<Business> => {
-    const params = {
-      action: 'updateSaved',
-    }
-    const response = await axios.put(`${import.meta.env.VITE_BACKEND_API_URL}yelp-business`, business, { params });
-    console.log('updateBusiness response', response);
-    return response.data;
-  }
-
-  const mutation = useMutation({
-    mutationFn: (business: Business) => updateBusiness(business),
-    onMutate: async (updateBusiness) => {
-      await queryClient.cancelQueries({queryKey: ['businesses']});
-      const previousData = queryClient.getQueryData<Business[]>(['businesses']);
-      queryClient.setQueryData(['businesses'], (previousData: Business[] | undefined) => previousData?.map((business) => business.alias === updateBusiness.alias ? updateBusiness : business));
-
-      return { previousData }
-    },
-    onError(error, updatedBusiness, context) {
-      queryClient.setQueryData(['businsesses'], context?.previousData);
-      throw new Error(`Error updating business ${updatedBusiness}: ${error}`);
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['businesses'], refetchType: 'none'}),
-  })
-
-  return { query, mutation };
+  return query;
 };
 
 export default useBusinesses;

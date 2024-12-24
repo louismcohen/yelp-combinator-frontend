@@ -4,23 +4,37 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Business } from './types';
 import BusinessInfoWindow from './components/BusinessInfoWindow';
 import SearchBar from './components/SearchBar';
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useDebounce } from 'use-debounce';
 import IconMarker from './components/IconMarker';
 import { FilterMode, useSearchFilter } from './contexts/searchFilterContext';
 import { getBusinessHoursStatus } from './utils/businessHours';
 import useBusinesses from './hooks/useBusinesses';
+import { CircleLoader, GridLoader } from 'react-spinners';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
 	lng: -118.26326182991187,
 };
 
+const LoadingOverlay = () => {
+	return (
+		<motion.div
+			exit={{ opacity: 0 }}
+			transition={{ duration: 0.3 }}
+			className="fixed inset-0 flex flex-col gap-2 justify-center items-center bg-black/65 z-50"
+		>
+			{/* <CircleLoader color="#fff" size={48} /> */}
+			<GridLoader color="#fff" size={12} />
+			<p className="text-gray-50 text-lg">Loading businesses</p>
+		</motion.div>
+	);
+};
+
 const GoogleMap = () => {
 	const map = useMap();
 	const [bounds, setBounds] = useState<google.maps.LatLngBoundsLiteral>();
-	const { query, mutation } = useBusinesses();
-	const { data: businesses, isLoading } = query;
+	const { data: businesses, isFetching } = useBusinesses();
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 
 	const { state, dispatch } = useSearchFilter();
@@ -56,7 +70,7 @@ const GoogleMap = () => {
 	};
 
 	const filteredMarkers = useMemo(() => {
-		if (!businesses || businesses.length === 0 || isLoading) return [];
+		if (!businesses || businesses.length === 0 || isFetching) return [];
 
 		if (state.isReset) return businesses;
 
@@ -147,6 +161,7 @@ const GoogleMap = () => {
 			onBoundsChanged={(e: MapCameraChangedEvent) => setBounds(e.detail.bounds)}
 		>
 			<AnimatePresence>
+				{isFetching && <LoadingOverlay />}
 				{visibleMarkers.map((marker) => (
 					<IconMarker
 						key={marker.alias}

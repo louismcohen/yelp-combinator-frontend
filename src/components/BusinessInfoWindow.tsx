@@ -3,11 +3,9 @@ import { motion } from 'motion/react';
 import { FaXmark } from 'react-icons/fa6';
 import { generateHexColorFromCategoryAlias } from '../utils/IconGenerator';
 import { getBusinessHoursStatus } from '../utils/businessHours';
-import { FaCheckCircle } from 'react-icons/fa';
 import { initialFilterState } from '../contexts/searchFilterContext';
-import { useState } from 'react';
-import useBusinesses from '../hooks/useBusinesses';
 import yelpLogo from '../assets/yelp_logo_dark_bg.png';
+import useUpdateBusiness from '../hooks/useUpdateBusiness';
 
 const CloseButton = ({ onClick }: { onClick: () => void }) => {
 	return (
@@ -121,7 +119,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 
 	console.log(business);
 
-	const { mutation } = useBusinesses();
+	const mutation = useUpdateBusiness();
 
 	const handleVisitedButtonClick = (business: Business) => {
 		const updatedBusiness: Business = {
@@ -177,7 +175,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 							visited={business.visited}
 							onClick={() => handleVisitedButtonClick(business)}
 						/>
-						<div className="flex flex-grow w-full flex-row justify-between items-end gap-0">
+						<div className="flex flex-grow w-full flex-row justify-between items-end gap-3">
 							<div className="flex flex-shrink flex-col gap-0">
 								<a
 									href={business?.website}

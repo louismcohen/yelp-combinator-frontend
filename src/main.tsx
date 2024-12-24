@@ -6,7 +6,13 @@ import { APIProvider } from '@vis.gl/react-google-maps';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SearchFilterProvider } from './contexts/searchFilterContext.tsx';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			refetchOnWindowFocus: false,
+		},
+	},
+});
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
