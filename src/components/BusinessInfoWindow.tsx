@@ -95,9 +95,13 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 			animate={{ opacity: 1, scale: 1.0, transform: 'translateY(0px)' }}
 			exit={{ opacity: 0, scale: 1.02, transform: 'translateY(32px)' }}
 			transition={{ duration: 0.15 }}
-			className="absolute flex justify-center bottom-0 outline-none h-[400px] sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none"
+			className="absolute flex justify-center bottom-0 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none"
 		>
-			<div className="relative overflow-hidden *:flex flex-col items-start h-full w-screen max-w-[500px] rounded-xl bg-neutral-50/95  backdrop-blur-sm shadow-[0_16px_20px_-4px_rgba(0,0,0,0.25),0_6px_8px_-4px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.1)]">
+			<motion.div
+				layout
+				transition={{ duration: 0.15 }}
+				className="relative overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-xl bg-neutral-50/95  backdrop-blur-sm shadow-[0_16px_20px_-4px_rgba(0,0,0,0.25),0_6px_8px_-4px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.1)]"
+			>
 				<div
 					className="bg-cover bg-center w-full h-[200px] absolute inset-0 -z-10"
 					style={{
@@ -121,7 +125,12 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 						</div>
 					</div>
 				</div>
-				<div className="absolute pt-[200px] h-full w-full">
+				<div
+					className="pt-[200px] h-full w-full transition-all"
+					style={{
+						backgroundImage: `linear-gradient(to top, ${categoryColor}34 0%, transparent 40px)`,
+					}}
+				>
 					<div className="relative flex-grow flex-col p-4 gap-4">
 						{business.hours.length > 0 && (
 							<>
@@ -149,13 +158,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 						</InfoSection>
 					</div>
 				</div>
-				<div
-					className={`absolute h-full w-full border border-white/55 rounded-xl`}
-					style={{
-						backgroundImage: `linear-gradient(to top, ${categoryColor}34 0%, transparent 40px)`,
-					}}
-				/>
-			</div>
+			</motion.div>
 		</motion.div>
 	);
 };
