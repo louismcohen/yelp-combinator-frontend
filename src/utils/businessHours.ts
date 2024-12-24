@@ -1,4 +1,6 @@
-import { BusinessHours } from '../types';
+import { Business } from '../types';
+import tz_lookup from '@photostructure/tz-lookup';
+import { DateTime } from 'luxon';
 
 interface BusinessStatus {
 	isOpen: boolean;
@@ -14,19 +16,26 @@ const formatTime = (timeStr: string): string => {
 	return `${hour12}:${minute.toString().padStart(2, '0')} ${period}`;
 };
 
+// const getTimeZone = async (latitude: number, longitude: number) => await GeoTZ.find(latitude, longitude);
+
 export const getBusinessHoursStatus = (
-	hoursData: BusinessHours[],
+	business: Business
 ): BusinessStatus => {
-	if (!hoursData || hoursData.length === 0) {
+	if (!business.hours || business.hours.length === 0) {
 		return {
 			isOpen: true,
 			status: '',
 			auxStatus: '',
 		};
 	}
-	const now = new Date();
-	const currentDay = now.getDay();
-	const currentTime = now.getHours() * 100 + now.getMinutes();
+	const timeZone = tz_lookup(business.coordinates.latitude, business.coordinates.longitude);
+	const hoursData = business.hours;
+
+	const now = DateTime.now().setZone(timeZone);
+	const currentDay = now.weekday - 1;
+	const currentTime = now.hour * 100 + now.minute;
+	console.log(now, currentDay, now.hour, currentTime, hoursData);
+
 
 	// Check if open from previous day's overnight hours
 	const previousDay = (currentDay - 1 + 7) % 7;

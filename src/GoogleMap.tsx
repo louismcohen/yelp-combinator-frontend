@@ -96,7 +96,7 @@ const GoogleMap = () => {
 				);
 				const isClosed = business.is_closed;
 
-				const { isOpen } = getBusinessHoursStatus(business.hours);
+				const { isOpen } = getBusinessHoursStatus(business);
 				const isVisited = business.visited;
 				const isClaimed = business.is_claimed;
 

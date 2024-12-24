@@ -134,7 +134,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 		business.categories[0].alias,
 	);
 
-	const { status, auxStatus } = getBusinessHoursStatus(business.hours);
+	const { status, auxStatus } = getBusinessHoursStatus(business);
 
 	const statusColor = status.includes('Open')
 		? 'text-green-600'
