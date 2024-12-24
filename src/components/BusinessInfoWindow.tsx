@@ -7,6 +7,7 @@ import { FaCheckCircle } from 'react-icons/fa';
 import { initialFilterState } from '../contexts/searchFilterContext';
 import { useState } from 'react';
 import useBusinesses from '../hooks/useBusinesses';
+import yelpLogo from '../assets/yelp_logo_dark_bg.png';
 
 const CloseButton = ({ onClick }: { onClick: () => void }) => {
 	return (
@@ -104,6 +105,17 @@ const ResponsiveAddress = ({
 	);
 };
 
+const YelpLogo = ({ alias }: { alias: string }) => (
+	<a
+		href={`https://www.yelp.com/biz/${alias}`}
+		target="_blank"
+		rel="noopener noreferrer"
+		title="Go to Yelp page"
+	>
+		<img className="h-[24px]" src={yelpLogo} alt="Yelp Logo" />
+	</a>
+);
+
 const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 	if (!business) return;
 
@@ -165,15 +177,23 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 							visited={business.visited}
 							onClick={() => handleVisitedButtonClick(business)}
 						/>
-						<div className="flex-shrink gap-0">
-							<p className="text-3xl font-bold text-white/95 leading-tight">
-								{business.name}
-							</p>
-							<p className="text-sm md:text-md text-white/85 leading-none">
-								{business.categories
-									.map((category) => category.title)
-									.join(', ')}
-							</p>
+						<div className="flex flex-grow w-full flex-row justify-between items-end gap-0">
+							<div className="flex flex-shrink flex-col gap-0">
+								<a
+									href={business?.website}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="text-3xl font-bold text-white/95 hover:text-white/95 leading-tight"
+								>
+									{business.name}
+								</a>
+								<p className="text-sm md:text-md text-white/85 leading-none">
+									{business.categories
+										.map((category) => category.title)
+										.join(', ')}
+								</p>
+							</div>
+							<YelpLogo alias={business.alias} />
 						</div>
 					</div>
 				</div>

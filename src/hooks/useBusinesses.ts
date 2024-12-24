@@ -6,6 +6,7 @@ const useBusinesses = () => {
   const queryClient = useQueryClient();
 
   const fetchBusinesses = async (): Promise<Business[]> => {
+    console.log('fetching businesses');
     const response = await axios.get(import.meta.env.VITE_BACKEND_API_URL);
     return response.data;
   }
@@ -38,7 +39,7 @@ const useBusinesses = () => {
       queryClient.setQueryData(['businsesses'], context?.previousData);
       throw new Error(`Error updating business ${updatedBusiness}: ${error}`);
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['businesses'] }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['businesses'], refetchType: 'none'}),
   })
 
   return { query, mutation };
