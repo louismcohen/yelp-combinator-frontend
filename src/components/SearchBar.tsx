@@ -1,61 +1,67 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { forwardRef, useEffect, useRef, useState } from 'react';
+import { MouseEventHandler, useEffect, useRef } from 'react';
+import { FaMagnifyingGlass, FaXmark } from 'react-icons/fa6';
 import {
-	FaMagnifyingGlass,
-	FaXmark,
-	FaDoorOpen,
-	FaDoorClosed,
-	FaCircleCheck,
-	FaRegCircleCheck,
-	FaHandshakeSimple,
-	FaHandshakeSimpleSlash,
-} from 'react-icons/fa6';
-import { useSearchFilter } from '../contexts/searchFilterContext';
+	Filter,
+	FilterColor,
+	FilterMode,
+	SearchFilterState,
+	useSearchFilter,
+	SearchFilterContext,
+} from '../contexts/searchFilterContext';
 
-interface SearchBarProps {
-	searchTerm: string;
-	setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
-	searchInputFocused: boolean;
-	setSearchInputFocused: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-enum FilterMode {
-	Disabled,
-	True,
-	False,
-}
-
-type FilterColor = 'green' | 'red' | 'purple' | 'blue';
-
-type FilterType = 'open' | 'visited' | 'claimed';
-
-interface Filter {
-	type: FilterType;
-	mode: FilterMode;
-	color: FilterColor;
-	trueIcon: React.ReactNode;
-	falseIcon: React.ReactNode;
-}
+const ClearButton = ({ state, dispatch }: SearchFilterContext) => {
+	return (
+		<motion.div
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
+			exit={{ opacity: 0 }}
+			transition={{ duration: 0.1 }}
+			onClick={() =>
+				state.searchTerm !== '' &&
+				dispatch({ type: 'SET_SEARCH_TERM', payload: '' })
+			}
+			className="w-fit h-[36px] flex flex-row items-center"
+		>
+			<button
+				className={`w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-none hover:outline-none hover:border-none focus:outline-none p-0 ${
+					state.searchTerm === ''
+						? 'disabled opacity-50 cursor-default'
+						: ' hover:bg-neutral-500'
+				}`}
+			>
+				<FaXmark size={16} color={'white'} />
+			</button>
+		</motion.div>
+	);
+};
 
 interface FilterButtonProps {
 	text: string;
 	filter: Filter;
-	onClick: () => void;
+	onClick: MouseEventHandler<HTMLButtonElement> | (() => void);
 }
 
-const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
-	const textColorVariants = {
-		green: 'text-green-600',
-		red: 'text-red-600',
-		purple: 'text-purple-600',
-		blue: 'text-blue-600',
-	};
+const textColorVariants = {
+	green: 'text-green-600',
+	red: 'text-red-600',
+	purple: 'text-purple-600',
+	blue: 'text-blue-600',
+};
 
+const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	const containerColorVariants = {
 		green: `border-green-700 drop-shadow-lg drop-shadow-green`,
 		red: 'border-red-70 drop-shadow-lg drop-shadow-red',
 		purple: 'border-purple-700 drop-shadow-lg drop-shadow-purple',
 		blue: 'border-blue-700 drop-shadow-lg drop-shadow-blue',
+	};
+
+	const hoverColorVariants = {
+		green: 'hover:border-green-700/70',
+		red: 'hover:border-red-700/70',
+		purple: 'hover:border-purple-700/70',
+		blue: 'hover:border-blue-700/70',
 	};
 
 	const determineFilterStyles = (status: FilterMode, color: FilterColor) => {
@@ -69,139 +75,181 @@ const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	};
 
 	return (
-		<div
-			className={`relative w-1/3 flex flex-row gap-2 justify-center items-center bg-neutral-50/95 border rounded-md py-2 px-3 shadow-lg z-10 cursor-pointer ${determineFilterStyles(
+		<button
+			className={`relative w-1/3 flex flex-row gap-2 justify-center items-center outline-none transition-all ${
+				hoverColorVariants[filter.color]
+			} focus:outline-none bg-neutral-50/95 border rounded-md py-2 px-3 shadow-lg z-10 text-xs md:text-sm  ${determineFilterStyles(
 				filter.mode,
 				filter.color,
 			)}`}
 			onClick={onClick}
 		>
-			<div className="absolute left-0 py-2 px-3">
+			{/* <div className="md:absolute md:left-0 md:py-2 md:px-3"> */}
+			<div>
 				{filter.mode === FilterMode.False ? filter.falseIcon : filter.trueIcon}
 			</div>
-			<div className="relative w-full flex flex-row justify-center items-center">
-				<p className={`text-sm font-semibold`}>{text}</p>
-			</div>
-		</div>
+			{/* <div className="relative w-full flex flex-row justify-end md:justify-center items-center"></div> */}
+			<p className={`font-semibold`}>{text}</p>
+		</button>
 	);
 };
 
-const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
-	(
-		{ searchTerm, setSearchTerm, searchInputFocused, setSearchInputFocused },
-		ref,
-	) => {
-		const searchBarRef = useRef<HTMLInputElement>(null);
-		const { state, dispatch } = useSearchFilter();
+const ActiveFilters = ({ state }: { state: SearchFilterState }) => {
+	if (!state) return null;
 
-		console.log({ state, dispatch });
+	const showOpenFilter = state.filters.open.mode !== FilterMode.Disabled;
+	const showVisitedFilter = state.filters.visited.mode !== FilterMode.Disabled;
+	const showClaimedFilter = state.filters.claimed.mode !== FilterMode.Disabled;
 
-		useEffect(() => {
-			if (searchBarRef.current) {
-				searchInputFocused
-					? searchBarRef.current.focus()
-					: searchBarRef.current.blur();
-			}
-		}, [searchInputFocused]);
+	const returnRelevantIcon = (filter: Filter): React.ReactNode => {
+		if (filter.mode === FilterMode.True) {
+			return filter.trueIcon;
+		} else if (filter.mode === FilterMode.False) {
+			return filter.falseIcon;
+		} else {
+			return null;
+		}
+	};
 
-		return (
-			<div className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4">
-				<div
-					tabIndex={0}
-					className={`w-full max-w-[500px] hover:outline-2 hover:outline-offset-0 hover:outline-red-500 bg-neutral-50/95 transition-all duration-300 flex justify-center items-center px-3 gap-2 rounded-lg overflow-hidden border border-neutral-500/10 outline ${
-						searchInputFocused
-							? 'outline-2 outline-offset-0 outline-red-500 backdrop-blur-md shadow-xl'
-							: 'outline-none shadow-lg'
-					}`}
-					onClick={() => setSearchInputFocused(true)}
-					onBlur={(e) => console.log('div onBlur', e.relatedTarget)}
-				>
-					<p className="text-lg text-neutral-400">
-						<FaMagnifyingGlass />
-					</p>
-					<input
-						ref={searchBarRef}
-						type="text"
-						placeholder="Search by name, note, or category"
-						value={state?.searchTerm}
-						onChange={(e) =>
-							dispatch({
-								type: 'SET_SEARCH_TERM',
-								payload: e.target.value,
-							})
-						}
-						// onFocus={() => setSearchInputFocused(true)}
-						// onBlur={(e) => {
-						// 	console.log(e.relatedTarget);
-						// 	if (e.relatedTarget === null) {
-						// 		e.target.focus();
-						// 		setSearchInputFocused(true);
-						// 	} else {
-						// 		setSearchInputFocused(false);
-						// 	}
-						// }}
-						className="w-full h-[48px] bg-transparent outline-none text-lg text-gray-900 rounded-lg"
-					/>
-					<AnimatePresence>
-						{searchTerm !== '' && (
-							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								transition={{ duration: 0.1 }}
-								onClick={() => setSearchTerm('')}
-								className="h-[36px] w-[36px] flex justify-center items-center cursor-pointer"
-							>
-								<div className="w-[24px] h-[24px] flex justify-center items-center bg-neutral-400 hover:bg-neutral-500 rounded-full">
-									<FaXmark size={16} color={'white'} />
-								</div>
-							</motion.div>
-						)}
-					</AnimatePresence>
-				</div>
+	const animationSettings = {
+		initial: { opacity: 0 },
+		animate: { opacity: 1 },
+		exit: { opacity: 0 },
+		transition: { duration: 0.15 },
+	};
+
+	return (
+		<AnimatePresence>
+			<div className="flex flex-grow flex-row gap-2 justify-end items-center transition-all text-md">
 				<AnimatePresence>
-					{searchInputFocused && (
+					{showOpenFilter && (
 						<motion.div
-							onClick={(e) => e.preventDefault()}
-							className="w-full max-w-[500px] flex flex-row gap-2 justify-starttransition-all"
-							initial={{ opacity: 0, transform: 'translateY(-16px)' }}
-							animate={{ opacity: 1, transform: 'translateY(0px)' }}
-							exit={{ opacity: 0, transform: 'translateY(-16px)' }}
-							transition={{ duration: 0.15 }}
+							{...animationSettings}
+							className={`${textColorVariants[state.filters.open.color]}`}
 						>
-							<FilterButton
-								text={
-									state.openFilter.mode === FilterMode.False
-										? 'Closed now'
-										: 'Open now'
-								}
-								filter={state.openFilter}
-								onClick={() => dispatch({ type: 'SET_OPEN_FILTER' })}
-							/>
-							<FilterButton
-								text={
-									state.visitedFilter.mode === FilterMode.False
-										? 'Not visited'
-										: 'Visited'
-								}
-								filter={state.visitedFilter}
-								onClick={() => dispatch({ type: 'SET_VISITED_FILTER' })}
-							/>
-							<FilterButton
-								text={
-									state.claimedFilter.mode === FilterMode.False
-										? 'Unclaimed'
-										: 'Claimed'
-								}
-								filter={state.claimedFilter}
-								onClick={() => dispatch({ type: 'SET_CLAIMED_FILTER' })}
-							/>
+							{returnRelevantIcon(state.filters.open)}
 						</motion.div>
 					)}
 				</AnimatePresence>
+				{showVisitedFilter && (
+					<motion.div
+						{...animationSettings}
+						className={`${textColorVariants[state.filters.visited.color]}`}
+					>
+						{returnRelevantIcon(state.filters.visited)}
+					</motion.div>
+				)}
+				{showClaimedFilter && (
+					<motion.div
+						{...animationSettings}
+						className={`${textColorVariants[state.filters.claimed.color]}`}
+					>
+						{returnRelevantIcon(state.filters.claimed)}
+					</motion.div>
+				)}
 			</div>
-		);
-	},
-);
+		</AnimatePresence>
+	);
+};
+
+const SearchBar = () => {
+	const searchBarRef = useRef<HTMLInputElement>(null);
+	const { state, dispatch } = useSearchFilter();
+	console.log('searchbar state', state);
+
+	useEffect(() => {
+		if (searchBarRef.current) {
+			state.searchInputFocused
+				? searchBarRef.current.focus()
+				: searchBarRef.current.blur();
+		}
+	}, [state.searchInputFocused]);
+
+	return (
+		<div className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4 pointer-events-none">
+			<div
+				tabIndex={0}
+				className={`w-full max-w-[500px] pointer-events-auto hover:outline-2 hover:outline-offset-0 hover:outline-red-500 bg-neutral-50/95 transition-all duration-300 flex justify-center items-center px-3 gap-2 rounded-lg overflow-hidden border border-neutral-500/10 outline ${
+					state.searchInputFocused
+						? 'outline-2 outline-offset-0 outline-red-500 backdrop-blur-md shadow-xl'
+						: 'outline-none shadow-lg'
+				}`}
+				onClick={() =>
+					dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: true })
+				}
+				onBlur={(e) => console.log('div onBlur', e.relatedTarget)}
+			>
+				<p className="text-lg text-neutral-400">
+					<FaMagnifyingGlass />
+				</p>
+				<input
+					ref={searchBarRef}
+					type="text"
+					placeholder="Search by name, note, or category"
+					value={state?.searchTerm}
+					onChange={(e) =>
+						dispatch({
+							type: 'SET_SEARCH_TERM',
+							payload: e.target.value,
+						})
+					}
+					// onFocus={() => setSearchInputFocused(true)}
+					// onBlur={(e) => {
+					// 	console.log(e.relatedTarget);
+					// 	if (e.relatedTarget === null) {
+					// 		e.target.focus();
+					// 		setSearchInputFocused(true);
+					// 	} else {
+					// 		setSearchInputFocused(false);
+					// 	}
+					// }}
+					className="w-full h-[48px] bg-transparent outline-none text-md md:text-lg text-gray-900 text-ellipsis"
+				/>
+				<ActiveFilters state={state} />
+				<ClearButton state={state} dispatch={dispatch} />
+			</div>
+			<AnimatePresence>
+				{state.searchInputFocused && (
+					<motion.div
+						onClick={(e) => e.preventDefault()}
+						className="w-full max-w-[500px] flex flex-row gap-2 justify-center pointer-events-auto"
+						initial={{ opacity: 0, transform: 'translateY(-16px)' }}
+						animate={{ opacity: 1, transform: 'translateY(0px)' }}
+						exit={{ opacity: 0, transform: 'translateY(-16px)' }}
+						transition={{ duration: 0.15 }}
+					>
+						<FilterButton
+							text={
+								state.filters.open.mode === FilterMode.False
+									? 'Closed now'
+									: 'Open now'
+							}
+							filter={state.filters.open}
+							onClick={() => dispatch({ type: 'SET_OPEN_FILTER' })}
+						/>
+						<FilterButton
+							text={
+								state.filters.visited.mode === FilterMode.False
+									? 'Not visited'
+									: 'Visited'
+							}
+							filter={state.filters.visited}
+							onClick={() => dispatch({ type: 'SET_VISITED_FILTER' })}
+						/>
+						<FilterButton
+							text={
+								state.filters.claimed.mode === FilterMode.False
+									? 'Unclaimed'
+									: 'Claimed'
+							}
+							filter={state.filters.claimed}
+							onClick={() => dispatch({ type: 'SET_CLAIMED_FILTER' })}
+						/>
+					</motion.div>
+				)}
+			</AnimatePresence>
+		</div>
+	);
+};
 
 export default SearchBar;

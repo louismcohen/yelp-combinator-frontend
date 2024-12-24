@@ -1,4 +1,10 @@
-import { createContext, Dispatch, useContext, useReducer } from 'react';
+import {
+	createContext,
+	Dispatch,
+	useCallback,
+	useContext,
+	useReducer,
+} from 'react';
 import {
 	FaDoorOpen,
 	FaDoorClosed,
@@ -14,11 +20,11 @@ export enum FilterMode {
 	False,
 }
 
-type FilterColor = 'green' | 'red' | 'purple' | 'blue';
+export type FilterColor = 'green' | 'red' | 'purple' | 'blue';
 
-type FilterType = 'open' | 'visited' | 'claimed';
+export type FilterType = 'open' | 'visited' | 'claimed';
 
-interface Filter {
+export interface Filter {
 	type: FilterType;
 	mode: FilterMode;
 	color: FilterColor;
@@ -43,27 +49,25 @@ const initialFilterState: Record<FilterType, Filter> = {
 	},
 	claimed: {
 		type: 'claimed',
-		mode: FilterMode.True,
+		mode: FilterMode.Disabled,
 		color: 'blue',
 		trueIcon: <FaHandshakeSimple />,
 		falseIcon: <FaHandshakeSimpleSlash />,
 	},
 };
 
-interface SearchFilterState {
+export interface SearchFilterState {
 	searchTerm: string;
 	searchInputFocused: boolean;
-	openFilter: Filter;
-	visitedFilter: Filter;
-	claimedFilter: Filter;
+	filters: Record<FilterType, Filter>;
+	isReset: boolean;
 }
 
 const initialSearchFilterState: SearchFilterState = {
 	searchTerm: '',
 	searchInputFocused: false,
-	openFilter: initialFilterState.open,
-	visitedFilter: initialFilterState.visited,
-	claimedFilter: initialFilterState.claimed,
+	filters: initialFilterState,
+	isReset: true,
 };
 
 interface SearchFilterAction {
@@ -82,7 +86,7 @@ interface SearchFilterProviderProps {
 
 const incrementFilterMode = (mode: FilterMode): FilterMode => (mode + 1) % 3;
 
-interface SearchFilterContext {
+export interface SearchFilterContext {
 	state: SearchFilterState;
 	dispatch: Dispatch<SearchFilterAction>;
 }
@@ -91,6 +95,15 @@ export const SearchFilterContext = createContext<SearchFilterContext>({
 	state: initialSearchFilterState,
 	dispatch: () => undefined,
 });
+
+const determineIsReset = (state: SearchFilterState) => {
+	const noSearchTerm = state.searchTerm === '';
+	const noFilters = Object.values(state.filters).every(
+		(filter) => filter.mode === FilterMode.Disabled,
+	);
+
+	return noSearchTerm && noFilters;
+};
 
 export const SearchFilterProvider = ({
 	children,
@@ -101,38 +114,56 @@ export const SearchFilterProvider = ({
 				state: SearchFilterState,
 				action: SearchFilterAction,
 			): SearchFilterState => {
+				let updated: SearchFilterState;
 				switch (action.type) {
 					case 'SET_SEARCH_TERM':
-						return { ...state, searchTerm: action.payload };
+						updated = { ...state, searchTerm: action.payload };
+						break;
 					case 'SET_SEARCH_INPUT_FOCUSED':
-						return { ...state, searchInputFocused: action.payload };
+						updated = { ...state, searchInputFocused: action.payload };
+						break;
 					case 'SET_OPEN_FILTER':
-						return {
+						updated = {
 							...state,
-							openFilter: {
-								...state.openFilter,
-								mode: incrementFilterMode(state.openFilter.mode),
+							filters: {
+								...state.filters,
+								open: {
+									...state.filters.open,
+									mode: incrementFilterMode(state.filters.open.mode),
+								},
 							},
 						};
+						break;
 					case 'SET_VISITED_FILTER':
-						return {
+						updated = {
 							...state,
-							visitedFilter: {
-								...state.visitedFilter,
-								mode: incrementFilterMode(state.visitedFilter.mode),
+							filters: {
+								...state.filters,
+								visited: {
+									...state.filters.visited,
+									mode: incrementFilterMode(state.filters.visited.mode),
+								},
 							},
 						};
+						break;
 					case 'SET_CLAIMED_FILTER':
-						return {
+						updated = {
 							...state,
-							claimedFilter: {
-								...state.claimedFilter,
-								mode: incrementFilterMode(state.claimedFilter.mode),
+							filters: {
+								...state.filters,
+								claimed: {
+									...state.filters.claimed,
+									mode: incrementFilterMode(state.filters.claimed.mode),
+								},
 							},
 						};
+						break;
 					default:
 						return state;
 				}
+
+				updated.isReset = determineIsReset(updated);
+				return updated;
 			},
 			initialSearchFilterState,
 		);

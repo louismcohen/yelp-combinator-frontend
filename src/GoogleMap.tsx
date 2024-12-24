@@ -1,6 +1,6 @@
 import { Map, MapCameraChangedEvent, useMap } from '@vis.gl/react-google-maps';
 import useMarkers from './hooks/useMarkers';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Business } from './types';
 import BusinessInfoWindow from './components/BusinessInfoWindow';
 import SearchBar from './components/SearchBar';
@@ -20,9 +20,6 @@ const GoogleMap = () => {
 	const [bounds, setBounds] = useState<google.maps.LatLngBoundsLiteral>();
 	const { data: businesses, isLoading } = useMarkers();
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
-	const [searchTerm, setSearchTerm] = useState<string>('');
-	const searchInputRef = useRef<HTMLInputElement>(null);
-	const [searchInputFocused, setSearchInputFocused] = useState<boolean>(false);
 
 	const { state, dispatch } = useSearchFilter();
 
@@ -32,9 +29,9 @@ const GoogleMap = () => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') {
 				deselectBusiness();
-				setSearchInputFocused(false);
+				dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: false });
 			} else if (e.metaKey && e.key === 'k') {
-				setSearchInputFocused(true);
+				dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: true });
 			}
 		};
 
@@ -45,14 +42,21 @@ const GoogleMap = () => {
 	const [debouncedSearchTerm] = useDebounce(state?.searchTerm, 300);
 	const [debouncedBounds] = useDebounce(bounds, 300);
 
+	const deselectBusiness = () => setSelectedBusiness(undefined);
+
 	const handleMarkerPress = useCallback((marker: Business) => {
 		setSelectedBusiness(marker);
 	}, []);
 
-	const deselectBusiness = () => setSelectedBusiness(undefined);
+	const handleMapPress = () => {
+		deselectBusiness();
+		dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: false });
+	};
 
 	const filteredMarkers = useMemo(() => {
 		if (!businesses || businesses.length === 0 || isLoading) return [];
+
+		if (state.isReset) return businesses;
 
 		const filtered = businesses.reduce(
 			(acc: Business[], business: Business) => {
@@ -78,15 +82,15 @@ const GoogleMap = () => {
 				if (
 					(isName || isNote || isCategory) &&
 					!isClosed &&
-					(state.openFilter.mode === FilterMode.Disabled ||
-						(state.openFilter.mode === FilterMode.True && isOpen) ||
-						(state.openFilter.mode === FilterMode.False && !isOpen)) &&
-					(state.visitedFilter.mode === FilterMode.Disabled ||
-						(state.visitedFilter.mode === FilterMode.True && isVisited) ||
-						(state.visitedFilter.mode === FilterMode.False && !isVisited)) &&
-					(state.claimedFilter.mode === FilterMode.Disabled ||
-						(state.claimedFilter.mode === FilterMode.True && isClaimed) ||
-						(state.claimedFilter.mode === FilterMode.False && !isClaimed))
+					(state.filters.open.mode === FilterMode.Disabled ||
+						(state.filters.open.mode === FilterMode.True && isOpen) ||
+						(state.filters.open.mode === FilterMode.False && !isOpen)) &&
+					(state.filters.visited.mode === FilterMode.Disabled ||
+						(state.filters.visited.mode === FilterMode.True && isVisited) ||
+						(state.filters.visited.mode === FilterMode.False && !isVisited)) &&
+					(state.filters.claimed.mode === FilterMode.Disabled ||
+						(state.filters.claimed.mode === FilterMode.True && isClaimed) ||
+						(state.filters.claimed.mode === FilterMode.False && !isClaimed))
 				) {
 					acc.push(business);
 				} else {
@@ -101,13 +105,7 @@ const GoogleMap = () => {
 		);
 
 		return filtered;
-	}, [
-		businesses,
-		debouncedSearchTerm,
-		state.openFilter.mode,
-		state.visitedFilter.mode,
-		state.claimedFilter.mode,
-	]);
+	}, [businesses, debouncedSearchTerm, state.filters]);
 
 	const visibleMarkers = useMemo(() => {
 		if (!debouncedBounds) return filteredMarkers;
@@ -130,7 +128,7 @@ const GoogleMap = () => {
 			defaultZoom={14}
 			gestureHandling="greedy"
 			disableDefaultUI
-			onClick={deselectBusiness}
+			onClick={handleMapPress}
 			onBoundsChanged={(e: MapCameraChangedEvent) => setBounds(e.detail.bounds)}
 		>
 			<AnimatePresence>
@@ -143,13 +141,7 @@ const GoogleMap = () => {
 					/>
 				))}
 			</AnimatePresence>
-			<SearchBar
-				ref={searchInputRef}
-				searchTerm={searchTerm}
-				setSearchTerm={setSearchTerm}
-				searchInputFocused={searchInputFocused}
-				setSearchInputFocused={setSearchInputFocused}
-			/>
+			<SearchBar />
 			<AnimatePresence>
 				{selectedBusiness && <BusinessInfoWindow business={selectedBusiness} />}
 			</AnimatePresence>
