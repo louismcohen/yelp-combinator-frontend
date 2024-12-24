@@ -131,7 +131,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 					</div>
 				</div>
 				<div
-					className="pt-[200px] h-full w-full transition-all"
+					className="pt-[200px] h-full w-full transition-all pb-4"
 					style={{
 						backgroundImage: `linear-gradient(to top, ${categoryColor}34 0%, transparent 40px)`,
 					}}
