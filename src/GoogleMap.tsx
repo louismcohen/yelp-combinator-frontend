@@ -7,6 +7,8 @@ import SearchBar from './components/SearchBar';
 import { AnimatePresence } from 'motion/react';
 import { useDebounce } from 'use-debounce';
 import IconMarker from './components/IconMarker';
+import { FilterMode, useSearchFilter } from './contexts/searchFilterContext';
+import { getBusinessHoursStatus } from './utils/businessHours';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
@@ -21,6 +23,8 @@ const GoogleMap = () => {
 	const [searchTerm, setSearchTerm] = useState<string>('');
 	const searchInputRef = useRef<HTMLInputElement>(null);
 	const [searchInputFocused, setSearchInputFocused] = useState<boolean>(false);
+
+	const { state, dispatch } = useSearchFilter();
 
 	map?.setClickableIcons(false);
 
@@ -38,7 +42,7 @@ const GoogleMap = () => {
 		return () => window.removeEventListener('keydown', handleKeyDown);
 	}, []);
 
-	const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
+	const [debouncedSearchTerm] = useDebounce(state?.searchTerm, 300);
 	const [debouncedBounds] = useDebounce(bounds, 300);
 
 	const handleMarkerPress = useCallback((marker: Business) => {
@@ -50,10 +54,8 @@ const GoogleMap = () => {
 	const filteredMarkers = useMemo(() => {
 		if (!businesses || businesses.length === 0 || isLoading) return [];
 
-		if (debouncedSearchTerm === '' || !debouncedSearchTerm) {
-			return businesses;
-		} else {
-			const filtered = businesses.filter((business: Business) => {
+		const filtered = businesses.reduce(
+			(acc: Business[], business: Business) => {
 				const isName = business.name
 					.toLocaleLowerCase()
 					.includes(debouncedSearchTerm.toLocaleLowerCase());
@@ -68,17 +70,44 @@ const GoogleMap = () => {
 						.includes(debouncedSearchTerm.toLocaleLowerCase()),
 				);
 				const isClosed = business.is_closed;
-				const showBusiness = (isName || isNote || isCategory) && !isClosed;
 
-				if (selectedBusiness?.alias === business.alias) {
-					if (!showBusiness) deselectBusiness();
+				const { isOpen } = getBusinessHoursStatus(business.hours);
+				const isVisited = business.visited;
+				const isClaimed = business.is_claimed;
+
+				if (
+					(isName || isNote || isCategory) &&
+					!isClosed &&
+					(state.openFilter.mode === FilterMode.Disabled ||
+						(state.openFilter.mode === FilterMode.True && isOpen) ||
+						(state.openFilter.mode === FilterMode.False && !isOpen)) &&
+					(state.visitedFilter.mode === FilterMode.Disabled ||
+						(state.visitedFilter.mode === FilterMode.True && isVisited) ||
+						(state.visitedFilter.mode === FilterMode.False && !isVisited)) &&
+					(state.claimedFilter.mode === FilterMode.Disabled ||
+						(state.claimedFilter.mode === FilterMode.True && isClaimed) ||
+						(state.claimedFilter.mode === FilterMode.False && !isClaimed))
+				) {
+					acc.push(business);
+				} else {
+					if (selectedBusiness?.alias === business.alias) {
+						deselectBusiness();
+					}
 				}
 
-				return showBusiness;
-			});
-			return filtered;
-		}
-	}, [businesses, debouncedSearchTerm]);
+				return acc;
+			},
+			[],
+		);
+
+		return filtered;
+	}, [
+		businesses,
+		debouncedSearchTerm,
+		state.openFilter.mode,
+		state.visitedFilter.mode,
+		state.claimedFilter.mode,
+	]);
 
 	const visibleMarkers = useMemo(() => {
 		if (!debouncedBounds) return filteredMarkers;

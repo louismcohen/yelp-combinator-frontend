@@ -10,6 +10,7 @@ import {
 	FaHandshakeSimple,
 	FaHandshakeSimpleSlash,
 } from 'react-icons/fa6';
+import { useSearchFilter } from '../contexts/searchFilterContext';
 
 interface SearchBarProps {
 	searchTerm: string;
@@ -39,9 +40,10 @@ interface Filter {
 interface FilterButtonProps {
 	text: string;
 	filter: Filter;
+	onClick: () => void;
 }
 
-const FilterButton = ({ text, filter }: FilterButtonProps) => {
+const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	const textColorVariants = {
 		green: 'text-green-600',
 		red: 'text-red-600',
@@ -50,16 +52,10 @@ const FilterButton = ({ text, filter }: FilterButtonProps) => {
 	};
 
 	const containerColorVariants = {
-		green: 'border-green-700',
-		red: 'border-red-700',
-		purple: 'border-purple-700',
-		blue: 'border-blue-700',
-	};
-
-	const statusVariants = {
-		[FilterMode.Disabled]: 'text-neutral-600',
-		[FilterMode.True]: 'opacity-100',
-		[FilterMode.False]: 'opacity-100',
+		green: `border-green-700 drop-shadow-lg drop-shadow-green`,
+		red: 'border-red-70 drop-shadow-lg drop-shadow-red',
+		purple: 'border-purple-700 drop-shadow-lg drop-shadow-purple',
+		blue: 'border-blue-700 drop-shadow-lg drop-shadow-blue',
 	};
 
 	const determineFilterStyles = (status: FilterMode, color: FilterColor) => {
@@ -68,19 +64,24 @@ const FilterButton = ({ text, filter }: FilterButtonProps) => {
 		} else if (status === FilterMode.False) {
 			return `${containerColorVariants[color]} ${textColorVariants[color]}`;
 		} else {
-			return 'text-neutral-600 border-neutral-400';
+			return 'text-neutral-500 border-neutral-400';
 		}
 	};
 
 	return (
 		<div
-			className={`flex flex-row gap-2 justify-center items-center bg-neutral-50/95 border rounded-md py-2 px-3 shadow-lg z-10 cursor-pointer ${determineFilterStyles(
+			className={`relative w-1/3 flex flex-row gap-2 justify-center items-center bg-neutral-50/95 border rounded-md py-2 px-3 shadow-lg z-10 cursor-pointer ${determineFilterStyles(
 				filter.mode,
 				filter.color,
 			)}`}
+			onClick={onClick}
 		>
-			{filter.mode === FilterMode.False ? filter.falseIcon : filter.trueIcon}
-			<p className={`text-sm font-semibold`}>{text}</p>
+			<div className="absolute left-0 py-2 px-3">
+				{filter.mode === FilterMode.False ? filter.falseIcon : filter.trueIcon}
+			</div>
+			<div className="relative w-full flex flex-row justify-center items-center">
+				<p className={`text-sm font-semibold`}>{text}</p>
+			</div>
 		</div>
 	);
 };
@@ -91,6 +92,9 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
 		ref,
 	) => {
 		const searchBarRef = useRef<HTMLInputElement>(null);
+		const { state, dispatch } = useSearchFilter();
+
+		console.log({ state, dispatch });
 
 		useEffect(() => {
 			if (searchBarRef.current) {
@@ -119,8 +123,13 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
 						ref={searchBarRef}
 						type="text"
 						placeholder="Search by name, note, or category"
-						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
+						value={state?.searchTerm}
+						onChange={(e) =>
+							dispatch({
+								type: 'SET_SEARCH_TERM',
+								payload: e.target.value,
+							})
+						}
 						// onFocus={() => setSearchInputFocused(true)}
 						// onBlur={(e) => {
 						// 	console.log(e.relatedTarget);
@@ -161,34 +170,31 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
 							transition={{ duration: 0.15 }}
 						>
 							<FilterButton
-								text="Open now"
-								filter={{
-									type: 'open',
-									mode: FilterMode.Disabled,
-									color: 'purple',
-									trueIcon: <FaDoorOpen />,
-									falseIcon: <FaDoorClosed />,
-								}}
+								text={
+									state.openFilter.mode === FilterMode.False
+										? 'Closed now'
+										: 'Open now'
+								}
+								filter={state.openFilter}
+								onClick={() => dispatch({ type: 'SET_OPEN_FILTER' })}
 							/>
 							<FilterButton
-								text="Visited"
-								filter={{
-									type: 'visited',
-									mode: FilterMode.True,
-									color: 'green',
-									trueIcon: <FaCircleCheck />,
-									falseIcon: <FaRegCircleCheck />,
-								}}
+								text={
+									state.visitedFilter.mode === FilterMode.False
+										? 'Not visited'
+										: 'Visited'
+								}
+								filter={state.visitedFilter}
+								onClick={() => dispatch({ type: 'SET_VISITED_FILTER' })}
 							/>
 							<FilterButton
-								text="Claimed"
-								filter={{
-									type: 'claimed',
-									mode: FilterMode.False,
-									color: 'blue',
-									trueIcon: <FaHandshakeSimple />,
-									falseIcon: <FaHandshakeSimpleSlash />,
-								}}
+								text={
+									state.claimedFilter.mode === FilterMode.False
+										? 'Unclaimed'
+										: 'Claimed'
+								}
+								filter={state.claimedFilter}
+								onClick={() => dispatch({ type: 'SET_CLAIMED_FILTER' })}
 							/>
 						</motion.div>
 					)}

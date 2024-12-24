@@ -1,6 +1,7 @@
 import { BusinessHours } from '../types';
 
 interface BusinessStatus {
+	isOpen: boolean;
 	status: string;
 	auxStatus: string | null;
 }
@@ -18,6 +19,7 @@ export const getBusinessHoursStatus = (
 ): BusinessStatus => {
 	if (!hoursData || hoursData.length === 0) {
 		return {
+			isOpen: true,
 			status: '',
 			auxStatus: '',
 		};
@@ -34,6 +36,7 @@ export const getBusinessHoursStatus = (
 		const endTime = parseInt(previousDayHours.end);
 		if (currentTime < endTime) {
 			return {
+				isOpen: true,
 				status: 'Open ',
 				auxStatus: `until ${formatTime(previousDayHours.end)}`,
 			};
@@ -55,6 +58,7 @@ export const getBusinessHoursStatus = (
 			if (currentTime >= startTime || currentTime < endTime) {
 				const nextDay = currentTime >= startTime ? 'tomorrow' : 'today';
 				return {
+					isOpen: true,
 					status: 'Open ',
 					auxStatus: `until ${formatTime(todayHours.end)} ${nextDay}`,
 				};
@@ -62,6 +66,7 @@ export const getBusinessHoursStatus = (
 		} else {
 			if (currentTime >= startTime && currentTime < endTime) {
 				return {
+					isOpen: true,
 					status: 'Open ',
 					auxStatus: `until ${formatTime(todayHours.end)}`,
 				};
@@ -72,6 +77,7 @@ export const getBusinessHoursStatus = (
 		if (currentTime < startTime) {
 			const timeString = formatTime(todayHours.start);
 			return {
+				isOpen: false,
 				status: 'Closed',
 				auxStatus: ` | Opens at ${timeString}`,
 			};
@@ -93,6 +99,7 @@ export const getBusinessHoursStatus = (
 
 			if (daysAhead === 1) {
 				return {
+					isOpen: false,
 					status: 'Closed',
 					auxStatus: ` | Opens tomorrow at ${timeString}`,
 				};
@@ -107,6 +114,7 @@ export const getBusinessHoursStatus = (
 					'Saturday',
 				];
 				return {
+					isOpen: false,
 					status: 'Closed',
 					auxStatus: ` | Opens ${days[nextDay]} at ${timeString}`,
 				};
@@ -117,6 +125,7 @@ export const getBusinessHoursStatus = (
 	}
 
 	return {
+		isOpen: true,
 		status: '',
 		auxStatus: null,
 	};
