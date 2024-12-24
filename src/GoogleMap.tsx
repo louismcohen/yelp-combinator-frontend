@@ -1,5 +1,5 @@
 import { Map, MapCameraChangedEvent, useMap } from '@vis.gl/react-google-maps';
-import useMarkers from './hooks/useMarkers';
+import useMarkers from './hooks/useBusinesses';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Business } from './types';
 import BusinessInfoWindow from './components/BusinessInfoWindow';
@@ -9,6 +9,7 @@ import { useDebounce } from 'use-debounce';
 import IconMarker from './components/IconMarker';
 import { FilterMode, useSearchFilter } from './contexts/searchFilterContext';
 import { getBusinessHoursStatus } from './utils/businessHours';
+import useBusinesses from './hooks/useBusinesses';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
@@ -18,7 +19,8 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 const GoogleMap = () => {
 	const map = useMap();
 	const [bounds, setBounds] = useState<google.maps.LatLngBoundsLiteral>();
-	const { data: businesses, isLoading } = useMarkers();
+	const { query, mutation } = useBusinesses();
+	const { data: businesses, isLoading } = query;
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 
 	const { state, dispatch } = useSearchFilter();
@@ -119,6 +121,19 @@ const GoogleMap = () => {
 			);
 		});
 	}, [debouncedBounds, filteredMarkers]);
+
+	useEffect(() => {
+		if (businesses && businesses.length > 0 && selectedBusiness) {
+			const selected = businesses.find(
+				(business) => business.alias === selectedBusiness.alias,
+			);
+			if (!selected) {
+				deselectBusiness();
+			} else {
+				setSelectedBusiness(selected);
+			}
+		}
+	}, [businesses]);
 
 	return (
 		<Map

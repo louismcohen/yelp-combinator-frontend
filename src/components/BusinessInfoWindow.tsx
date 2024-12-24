@@ -6,6 +6,7 @@ import { getBusinessHoursStatus } from '../utils/businessHours';
 import { FaCheckCircle } from 'react-icons/fa';
 import { initialFilterState } from '../contexts/searchFilterContext';
 import { useState } from 'react';
+import useBusinesses from '../hooks/useBusinesses';
 
 const CloseButton = ({ onClick }: { onClick: () => void }) => {
 	return (
@@ -40,7 +41,6 @@ const VisitedButton = ({
 	visited: boolean;
 	onClick: () => void;
 }) => {
-	const [visitedState, setVisited] = useState(visited);
 	const visitedColor = 'text-green-400';
 
 	return (
@@ -50,14 +50,14 @@ const VisitedButton = ({
 			className={`h-[24px] flex px-3 py-4 gap-2 pointer-events-auto cursor-pointer justify-center items-center transition-all duration-150 ease-in-out bg-gray-900/50 rounded-lg outline-none hover:outline-none focus:outline-none hover:border-green-400/50 shadow-md hover:drop-shadow-lg backdrop-blur-sm text-sm text-gray-50 ${
 				visited ? '' : ''
 			}`}
-			onClick={() => setVisited(!visitedState)}
+			onClick={onClick}
 		>
 			<span className={`${visitedColor}`}>
-				{visitedState
+				{visited
 					? initialFilterState.visited.trueIcon
 					: initialFilterState.visited.falseIcon}
 			</span>
-			{visitedState ? `Visited` : `Not Visited`}
+			{visited ? `Visited` : `Not Visited`}
 		</motion.button>
 	);
 };
@@ -109,6 +109,17 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 
 	console.log(business);
 
+	const { mutation } = useBusinesses();
+
+	const handleVisitedButtonClick = (business: Business) => {
+		const updatedBusiness: Business = {
+			...business,
+			visited: !business?.visited,
+		};
+
+		mutation.mutate(updatedBusiness);
+	};
+
 	const categoryColor = generateHexColorFromCategoryAlias(
 		business.categories[0].alias,
 	);
@@ -150,7 +161,10 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 						<CloseButton onClick={handleClose} />
 					</div> */}
 					<div className="flex flex-col w-full justify-between items-start p-4 bg-gradient-to-b from-transparent via-25% via-transparent to-black/75 pointer-events-auto">
-						<VisitedButton visited={business.visited} onClick={() => {}} />
+						<VisitedButton
+							visited={business.visited}
+							onClick={() => handleVisitedButtonClick(business)}
+						/>
 						<div className="flex-shrink gap-0">
 							<p className="text-3xl font-bold text-white/95 leading-tight">
 								{business.name}
