@@ -145,7 +145,7 @@ const GoogleMap = () => {
 		const instance = new Supercluster({
 			extent: 256,
 			radius: 50,
-			maxZoom: 20,
+			maxZoom: 15,
 			minPoints: 2, // Minimum points to form a cluster
 		});
 
