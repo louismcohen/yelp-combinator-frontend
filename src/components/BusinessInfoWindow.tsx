@@ -93,7 +93,12 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 		<motion.div
 			initial={{ opacity: 0, scale: 0.95, transform: 'translateY(32px)' }}
 			animate={{ opacity: 1, scale: 1.0, transform: 'translateY(0px)' }}
-			exit={{ opacity: 0, scale: 1.02, transform: 'translateY(32px)' }}
+			exit={{
+				opacity: 0,
+				scale: 1.0,
+				transform: 'translateY(32px)',
+				transition: { duration: 0.3 },
+			}}
 			transition={{ duration: 0.15 }}
 			className="absolute flex justify-center bottom-0 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none"
 		>
