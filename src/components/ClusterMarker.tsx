@@ -1,6 +1,6 @@
 import { AdvancedMarker } from '@vis.gl/react-google-maps';
 import { Marker } from 'react-map-gl';
-import { MapProvider } from '../types';
+import { MapService } from '../types';
 
 const ClusterBubble = ({ children }: { children: React.ReactNode }) => {
 	return (
@@ -11,19 +11,26 @@ const ClusterBubble = ({ children }: { children: React.ReactNode }) => {
 };
 
 interface ClusterMarkerProps {
-	mapProvider: MapProvider;
+	mapService: MapService;
 	points: number;
 	position: google.maps.LatLngLiteral;
 	onClick: () => void;
 }
 
 const ClusterMarker = ({
-	mapProvider = MapProvider.Google,
+	mapService,
 	points,
 	position,
 	onClick,
 }: ClusterMarkerProps) => {
-	if (mapProvider === MapProvider.Mapbox) {
+	console.log('cluster marker', points, position);
+	if (mapService === MapService.Google) {
+		return (
+			<AdvancedMarker position={position} className="pop-in" onClick={onClick}>
+				<ClusterBubble>{points}</ClusterBubble>
+			</AdvancedMarker>
+		);
+	} else if (mapService === MapService.Mapbox) {
 		return (
 			<Marker
 				className="pop-in"
@@ -33,12 +40,6 @@ const ClusterMarker = ({
 			>
 				<ClusterBubble>{points}</ClusterBubble>
 			</Marker>
-		);
-	} else if (mapProvider === MapProvider.Google) {
-		return (
-			<AdvancedMarker position={position} className="pop-in" onClick={onClick}>
-				<ClusterBubble>{points}</ClusterBubble>
-			</AdvancedMarker>
 		);
 	}
 

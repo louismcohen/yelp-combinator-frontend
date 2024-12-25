@@ -1,10 +1,12 @@
-import {
-	Map as GoogleMap,
-	MapCameraChangedEvent,
-	useMap as useGoogleMap,
-} from '@vis.gl/react-google-maps';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Business, MapProvider } from '../types';
+import { MapCameraChangedEvent } from '@vis.gl/react-google-maps';
+import React, {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
+import { Business, MapService } from '../types';
 import BusinessInfoWindow from './BusinessInfoWindow';
 import SearchBar from './SearchBar';
 import { AnimatePresence, motion } from 'motion/react';
@@ -16,7 +18,17 @@ import useBusinesses from '../hooks/useBusinesses';
 import { CircleLoader, GridLoader } from 'react-spinners';
 import Supercluster from 'supercluster';
 import ClusterMarker from './ClusterMarker';
-import { Map as MapboxMap, useMap as useMapboxMap } from 'react-map-gl';
+import { MapRef, ViewStateChangeEvent } from 'react-map-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import {
+	getBbox,
+	getMapboxBounds,
+	GoogleMapScreen,
+	MapboxMapScreen,
+	panTo,
+} from './Map.google';
+import { MapEvent } from 'mapbox-gl';
+import { BBox } from 'geojson';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
@@ -39,16 +51,38 @@ const LoadingOverlay = () => {
 	);
 };
 
-const MapCenter = () => {
-	const map = useGoogleMap();
-	const [bounds, setBounds] = useState<google.maps.LatLngBoundsLiteral>();
+interface MapContentsProps {
+	isFetching: boolean;
+	renderMarkers: React.ReactNode;
+	selectedBusiness: Business | undefined;
+}
+
+const MapContents = React.memo(
+	({ isFetching, renderMarkers, selectedBusiness }: MapContentsProps) => {
+		return (
+			<>
+				<AnimatePresence>
+					{isFetching && <LoadingOverlay />}
+					{renderMarkers}
+				</AnimatePresence>
+				<SearchBar />
+				<AnimatePresence>
+					{selectedBusiness && (
+						<BusinessInfoWindow business={selectedBusiness} />
+					)}
+				</AnimatePresence>
+			</>
+		);
+	},
+);
+
+const MapCenter = ({ mapService }: { mapService: MapService }) => {
+	const [bounds, setBounds] = useState<BBox>();
 	const [zoom, setZoom] = useState<number>(DEFAULT_ZOOM);
 	const { data: businesses, isFetching } = useBusinesses();
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 
 	const { state, dispatch } = useSearchFilter();
-
-	map?.setClickableIcons(false);
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -133,19 +167,6 @@ const MapCenter = () => {
 		return filtered;
 	}, [businesses, debouncedSearchTerm, state.filters]);
 
-	// const visibleMarkers = useMemo(() => {
-	// 	if (!debouncedBounds) return filteredMarkers;
-
-	// 	return filteredMarkers.filter((marker) => {
-	// 		return (
-	// 			marker.coordinates.latitude >= debouncedBounds.south &&
-	// 			marker.coordinates.latitude <= debouncedBounds.north &&
-	// 			marker.coordinates.longitude >= debouncedBounds.west &&
-	// 			marker.coordinates.longitude <= debouncedBounds.east
-	// 		);
-	// 	});
-	// }, [debouncedBounds, filteredMarkers]);
-
 	const supercluster = useMemo(() => {
 		const instance = new Supercluster({
 			extent: 256,
@@ -154,20 +175,22 @@ const MapCenter = () => {
 			minPoints: 2, // Minimum points to form a cluster
 		});
 
+		const points = filteredMarkers.map((business) => ({
+			type: 'Feature',
+			geometry: {
+				type: 'Point',
+				coordinates: [
+					business.coordinates.longitude,
+					business.coordinates.latitude,
+				],
+			},
+			properties: business,
+		})) as Supercluster.PointFeature<Supercluster.AnyProps>[];
+
 		// Load your points into the index
-		instance.load(
-			filteredMarkers.map((business) => ({
-				type: 'Feature',
-				geometry: {
-					type: 'Point',
-					coordinates: [
-						business.coordinates.longitude,
-						business.coordinates.latitude,
-					],
-				},
-				properties: business,
-			})),
-		);
+		instance.load(points);
+
+		console.log('supercluster', filteredMarkers.length, points, instance);
 
 		return instance;
 	}, [filteredMarkers]);
@@ -175,15 +198,15 @@ const MapCenter = () => {
 	const clusters = useMemo(() => {
 		if (!debouncedBounds || !supercluster || !debouncedZoom) return [];
 
-		return supercluster.getClusters(
-			[
-				debouncedBounds.west,
-				debouncedBounds.south,
-				debouncedBounds.east,
-				debouncedBounds.north,
-			],
+		console.log('clusters', supercluster, debouncedBounds, debouncedZoom);
+
+		const clusters = supercluster.getClusters(
+			debouncedBounds as BBox,
 			Math.floor(debouncedZoom),
 		);
+
+		console.log('clusters', clusters);
+		return clusters;
 	}, [debouncedBounds, debouncedZoom, supercluster]);
 
 	const handleClusterClick = (cluster: Supercluster.ClusterFeature<any>) => {
@@ -195,11 +218,7 @@ const MapCenter = () => {
 			20,
 		);
 
-		// Smoothly zoom and pan to the cluster
-		if (map) {
-			map.panTo({ lat: latitude, lng: longitude });
-			map.setZoom(expansionZoom);
-		}
+		panTo(mapService, latitude, longitude, expansionZoom);
 	};
 
 	useEffect(() => {
@@ -224,7 +243,7 @@ const MapCenter = () => {
 			if (isCluster) {
 				return (
 					<ClusterMarker
-						mapProvider={MapProvider.Google}
+						mapService={mapService}
 						key={cluster.id}
 						position={{ lat: latitude, lng: longitude }}
 						points={pointCount}
@@ -235,7 +254,7 @@ const MapCenter = () => {
 				const marker = cluster.properties as Business;
 				return (
 					<IconMarker
-						mapProvider={MapProvider.Google}
+						mapService={mapService}
 						key={marker.alias}
 						business={marker}
 						selected={selectedBusiness?.alias === marker.alias}
@@ -244,42 +263,62 @@ const MapCenter = () => {
 				);
 			}
 		});
-	}, [clusters, selectedBusiness?.alias]);
+	}, [clusters, selectedBusiness?.alias, mapService]);
 
-	return (
-		<GoogleMap
-			className="w-screen h-screen outline-none focus:outline-none"
-			mapId={import.meta.env.VITE_GOOGLE_MAP_ID}
-			defaultCenter={DEFAULT_CENTER}
-			defaultZoom={DEFAULT_ZOOM}
-			gestureHandling="greedy"
-			disableDefaultUI
-			onClick={handleMapPress}
-			onBoundsChanged={(e: MapCameraChangedEvent) => {
-				console.log('onBoundsChanged');
-				setBounds(e.detail.bounds);
-				setZoom(e.detail.zoom);
-			}}
-		>
-			<AnimatePresence>
-				{isFetching && <LoadingOverlay />}
-				{renderMarkers}
-				{/* {visibleMarkers.map((marker) => (
-					<IconMarker
-						key={marker.alias}
-						business={marker}
-						selected={selectedBusiness?.alias === marker.alias}
-						onMarkerPress={handleMarkerPress}
-						setMarkerRef={setMarkerRef}
-					/>
-				))} */}
-			</AnimatePresence>
-			<SearchBar />
-			<AnimatePresence>
-				{selectedBusiness && <BusinessInfoWindow business={selectedBusiness} />}
-			</AnimatePresence>
-		</GoogleMap>
-	);
+	const mapContentsProps = {
+		isFetching,
+		renderMarkers,
+		selectedBusiness,
+	};
+
+	const mapRef = useRef<MapRef>(null);
+
+	if (mapService === MapService.Google) {
+		return (
+			<GoogleMapScreen
+				defaultCenter={DEFAULT_CENTER}
+				defaultZoom={DEFAULT_ZOOM}
+				onBoundsChanged={(e: MapCameraChangedEvent) => {
+					setBounds([
+						e.detail.bounds.west,
+						e.detail.bounds.south,
+						e.detail.bounds.east,
+						e.detail.bounds.north,
+					]);
+					setZoom(e.detail.zoom);
+				}}
+				handleMapPress={handleMapPress}
+			>
+				<MapContents {...mapContentsProps} />
+			</GoogleMapScreen>
+		);
+	} else if (mapService === MapService.Mapbox) {
+		const handleMapMoveEnd = (e: ViewStateChangeEvent) => {
+			if (mapRef.current) {
+				setBounds(getBbox(mapRef.current));
+				setZoom(e.viewState.zoom);
+			}
+		};
+
+		const handleMapLoad = (m: MapEvent) => {
+			if (mapRef.current) {
+				setBounds(getBbox(mapRef.current));
+			}
+		};
+
+		return (
+			<MapboxMapScreen
+				defaultCenter={DEFAULT_CENTER}
+				defaultZoom={DEFAULT_ZOOM}
+				handleMapPress={handleMapPress}
+				onLoad={handleMapLoad}
+				onMoveEnd={handleMapMoveEnd}
+				ref={mapRef}
+			>
+				<MapContents {...mapContentsProps} />
+			</MapboxMapScreen>
+		);
+	}
 };
 
 export default MapCenter;

@@ -34,8 +34,6 @@ export const getBusinessHoursStatus = (
 	const now = DateTime.now().setZone(timeZone);
 	const currentDay = now.weekday - 1;
 	const currentTime = now.hour * 100 + now.minute;
-	console.log(now, currentDay, now.hour, currentTime, hoursData);
-
 
 	// Check if open from previous day's overnight hours
 	const previousDay = (currentDay - 1 + 7) % 7;

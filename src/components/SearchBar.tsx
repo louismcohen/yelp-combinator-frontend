@@ -157,7 +157,6 @@ const ActiveFilters = ({ state }: { state: SearchFilterState }) => {
 const SearchBar = () => {
 	const searchBarRef = useRef<HTMLInputElement>(null);
 	const { state, dispatch } = useSearchFilter();
-	console.log('searchbar state', state);
 
 	useEffect(() => {
 		if (searchBarRef.current) {
@@ -179,7 +178,6 @@ const SearchBar = () => {
 				onClick={() =>
 					dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: true })
 				}
-				onBlur={(e) => console.log('div onBlur', e.relatedTarget)}
 			>
 				<p className="text-lg text-neutral-400">
 					<FaMagnifyingGlass />

@@ -2,7 +2,7 @@ import {
 	AdvancedMarker,
 	useAdvancedMarkerRef,
 } from '@vis.gl/react-google-maps';
-import { Business, MapProvider } from '../types';
+import { Business, MapService } from '../types';
 import {
 	generateHexColorFromCategoryAlias,
 	IconGenerated,
@@ -54,6 +54,8 @@ const MapboxMarker = ({ business, onMarkerPress, children }: MarkerProps) => {
 		}
 	}, [markerRef.current]);
 
+	console.log('mapbox marker');
+
 	return (
 		<Marker
 			latitude={business.coordinates.latitude}
@@ -67,14 +69,14 @@ const MapboxMarker = ({ business, onMarkerPress, children }: MarkerProps) => {
 };
 
 interface IconMarkerProps {
-	mapProvider: MapProvider;
+	mapService: MapService;
 	business: Business;
 	onMarkerPress: (marker: Business) => void;
 	selected: boolean;
 }
 
 const IconMarker = ({
-	mapProvider,
+	mapService,
 	business,
 	onMarkerPress,
 	selected = false,
@@ -114,17 +116,17 @@ const IconMarker = ({
 		);
 	};
 
-	if (mapProvider === MapProvider.Mapbox) {
-		return (
-			<MapboxMarker business={business} onMarkerPress={onMarkerPress}>
-				<InnerMarker />
-			</MapboxMarker>
-		);
-	} else if (mapProvider === MapProvider.Google) {
+	if (mapService === MapService.Google) {
 		return (
 			<GoogleMarker business={business} onMarkerPress={onMarkerPress}>
 				<InnerMarker />
 			</GoogleMarker>
+		);
+	} else if (mapService === MapService.Mapbox) {
+		return (
+			<MapboxMarker business={business} onMarkerPress={onMarkerPress}>
+				<InnerMarker />
+			</MapboxMarker>
 		);
 	}
 };
