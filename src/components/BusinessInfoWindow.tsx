@@ -1,6 +1,11 @@
 import { Business, Location } from '../types';
 import { motion } from 'motion/react';
-import { FaXmark } from 'react-icons/fa6';
+import {
+	FaRegClock,
+	FaXmark,
+	FaRegNoteSticky,
+	FaRegMap,
+} from 'react-icons/fa6';
 import { generateHexColorFromCategoryAlias } from '../utils/IconGenerator';
 import { getBusinessHoursStatus } from '../utils/businessHours';
 import { initialFilterState } from '../contexts/searchFilterContext';
@@ -20,14 +25,20 @@ const CloseButton = ({ onClick }: { onClick: () => void }) => {
 
 const InfoSection = ({
 	title,
+	icon,
 	children,
 }: {
 	title: string;
+	icon: React.ReactNode;
 	children?: any;
 }) => {
 	return (
 		<div className="flex flex-row justify-between items-start w-full gap-8 md:gap-12">
-			<p className="text-sm font-bold text-neutral-700 uppercase">{title}</p>
+			<div className="flex flex-row justify-start items-center gap-2">
+				{icon}
+				<p className="text-sm font-bold text-neutral-700 uppercase">{title}</p>
+			</div>
+
 			{children}
 		</div>
 	);
@@ -205,7 +216,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 					<div className="relative flex-grow flex-col p-4 gap-4">
 						{business.hours.length > 0 && (
 							<>
-								<InfoSection title="hours">
+								<InfoSection title="hours" icon={<FaRegClock />}>
 									<p className="text-sm text-neutral-700 text-right">
 										<span className={`font-bold ${statusColor}`}>{status}</span>
 										{auxStatus}
@@ -216,7 +227,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 						)}
 						{business?.note && (
 							<>
-								<InfoSection title="note">
+								<InfoSection title="note" icon={<FaRegNoteSticky />}>
 									<p className="text-sm text-neutral-700 text-right">
 										{business.note || ''}
 									</p>
@@ -224,7 +235,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 								<Divider />
 							</>
 						)}
-						<InfoSection title="address">
+						<InfoSection title="address" icon={<FaRegMap />}>
 							<ResponsiveAddress displayAddress={displayAddress} />
 						</InfoSection>
 					</div>
