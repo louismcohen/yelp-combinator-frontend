@@ -2,35 +2,24 @@ import {
 	AdvancedMarker,
 	useAdvancedMarkerRef,
 } from '@vis.gl/react-google-maps';
-import { Business } from '../types';
+import { Business, MapProvider } from '../types';
 import {
 	generateHexColorFromCategoryAlias,
 	IconGenerated,
 } from '../utils/IconGenerator';
 import { motion } from 'motion/react';
-import { memo, useCallback, useEffect } from 'react';
-import { Marker } from '@googlemaps/markerclusterer';
+import { memo, useCallback, useEffect, useRef } from 'react';
+import { Marker } from 'react-map-gl';
 
 const iconFillVisited = `#ffffff`;
 
-interface IconMarkerProps {
+interface MarkerProps {
 	business: Business;
 	onMarkerPress: (marker: Business) => void;
-	selected: boolean;
+	children: React.ReactNode;
 }
 
-const IconMarker = ({
-	business,
-	onMarkerPress,
-	selected = false,
-}: IconMarkerProps) => {
-	const isVisited = business?.visited;
-	const primaryCategoryAlias = business.categories[0].alias;
-	const iconHexColor = generateHexColorFromCategoryAlias(primaryCategoryAlias);
-	const iconColor = isVisited ? iconFillVisited : iconHexColor;
-	const backgroundColor = isVisited ? iconHexColor : '#fff';
-	const borderColor = isVisited ? 'rgba(255,255,255,0.1)' : iconHexColor;
-
+const GoogleMarker = ({ business, onMarkerPress, children }: MarkerProps) => {
 	const [markerRef, marker] = useAdvancedMarkerRef();
 
 	useEffect(() => {
@@ -50,6 +39,55 @@ const IconMarker = ({
 			ref={markerRef}
 			className="pop-in"
 		>
+			{children}
+		</AdvancedMarker>
+	);
+};
+
+const MapboxMarker = ({ business, onMarkerPress, children }: MarkerProps) => {
+	const markerRef = useRef<mapboxgl.Marker>(null);
+
+	useEffect(() => {
+		if (markerRef?.current) {
+			const delay = (Math.random() * 0.5).toFixed(2) + 's';
+			markerRef.current.getElement().style.setProperty('--delay-time', delay);
+		}
+	}, [markerRef.current]);
+
+	return (
+		<Marker
+			latitude={business.coordinates.latitude}
+			longitude={business.coordinates.longitude}
+			onClick={() => onMarkerPress(business)}
+			ref={markerRef}
+		>
+			{children}
+		</Marker>
+	);
+};
+
+interface IconMarkerProps {
+	mapProvider: MapProvider;
+	business: Business;
+	onMarkerPress: (marker: Business) => void;
+	selected: boolean;
+}
+
+const IconMarker = ({
+	mapProvider,
+	business,
+	onMarkerPress,
+	selected = false,
+}: IconMarkerProps) => {
+	const isVisited = business?.visited;
+	const primaryCategoryAlias = business.categories[0].alias;
+	const iconHexColor = generateHexColorFromCategoryAlias(primaryCategoryAlias);
+	const iconColor = isVisited ? iconFillVisited : iconHexColor;
+	const backgroundColor = isVisited ? iconHexColor : '#fff';
+	const borderColor = isVisited ? 'rgba(255,255,255,0.1)' : iconHexColor;
+
+	const InnerMarker = () => {
+		return (
 			<motion.div
 				className={`w-[32px] h-[32px] flex justify-center items-center rounded-full opacity-[0.97] cursor-pointer`}
 				style={{
@@ -73,8 +111,22 @@ const IconMarker = ({
 					iconProps={{ fill: iconColor }}
 				/>
 			</motion.div>
-		</AdvancedMarker>
-	);
+		);
+	};
+
+	if (mapProvider === MapProvider.Mapbox) {
+		return (
+			<MapboxMarker business={business} onMarkerPress={onMarkerPress}>
+				<InnerMarker />
+			</MapboxMarker>
+		);
+	} else if (mapProvider === MapProvider.Google) {
+		return (
+			<GoogleMarker business={business} onMarkerPress={onMarkerPress}>
+				<InnerMarker />
+			</GoogleMarker>
+		);
+	}
 };
 
 const MemoizedIconMarker = memo(IconMarker, (prevProps, nextProps) => {

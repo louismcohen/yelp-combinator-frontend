@@ -1,17 +1,22 @@
-import { Map, MapCameraChangedEvent, useMap } from '@vis.gl/react-google-maps';
+import {
+	Map as GoogleMap,
+	MapCameraChangedEvent,
+	useMap as useGoogleMap,
+} from '@vis.gl/react-google-maps';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Business } from './types';
-import BusinessInfoWindow from './components/BusinessInfoWindow';
-import SearchBar from './components/SearchBar';
+import { Business, MapProvider } from '../types';
+import BusinessInfoWindow from './BusinessInfoWindow';
+import SearchBar from './SearchBar';
 import { AnimatePresence, motion } from 'motion/react';
 import { useDebounce } from 'use-debounce';
-import IconMarker from './components/IconMarker';
-import { FilterMode, useSearchFilter } from './contexts/searchFilterContext';
-import { getBusinessHoursStatus } from './utils/businessHours';
-import useBusinesses from './hooks/useBusinesses';
+import IconMarker from './IconMarker';
+import { FilterMode, useSearchFilter } from '../contexts/searchFilterContext';
+import { getBusinessHoursStatus } from '../utils/businessHours';
+import useBusinesses from '../hooks/useBusinesses';
 import { CircleLoader, GridLoader } from 'react-spinners';
 import Supercluster from 'supercluster';
-import ClusterMarker from './components/ClusterMarker';
+import ClusterMarker from './ClusterMarker';
+import { Map as MapboxMap, useMap as useMapboxMap } from 'react-map-gl';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
@@ -34,8 +39,8 @@ const LoadingOverlay = () => {
 	);
 };
 
-const GoogleMap = () => {
-	const map = useMap();
+const MapCenter = () => {
+	const map = useGoogleMap();
 	const [bounds, setBounds] = useState<google.maps.LatLngBoundsLiteral>();
 	const [zoom, setZoom] = useState<number>(DEFAULT_ZOOM);
 	const { data: businesses, isFetching } = useBusinesses();
@@ -219,6 +224,7 @@ const GoogleMap = () => {
 			if (isCluster) {
 				return (
 					<ClusterMarker
+						mapProvider={MapProvider.Google}
 						key={cluster.id}
 						position={{ lat: latitude, lng: longitude }}
 						points={pointCount}
@@ -229,6 +235,7 @@ const GoogleMap = () => {
 				const marker = cluster.properties as Business;
 				return (
 					<IconMarker
+						mapProvider={MapProvider.Google}
 						key={marker.alias}
 						business={marker}
 						selected={selectedBusiness?.alias === marker.alias}
@@ -240,7 +247,7 @@ const GoogleMap = () => {
 	}, [clusters, selectedBusiness?.alias]);
 
 	return (
-		<Map
+		<GoogleMap
 			className="w-screen h-screen outline-none focus:outline-none"
 			mapId={import.meta.env.VITE_GOOGLE_MAP_ID}
 			defaultCenter={DEFAULT_CENTER}
@@ -271,8 +278,8 @@ const GoogleMap = () => {
 			<AnimatePresence>
 				{selectedBusiness && <BusinessInfoWindow business={selectedBusiness} />}
 			</AnimatePresence>
-		</Map>
+		</GoogleMap>
 	);
 };
 
-export default GoogleMap;
+export default MapCenter;

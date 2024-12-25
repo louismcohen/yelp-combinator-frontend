@@ -62,3 +62,8 @@ export interface OpeningHours {
   day: number
   _id: string
 }
+
+export enum MapProvider {
+  Google = 'google',
+  Mapbox = 'mapbox',
+}

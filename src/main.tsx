@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import GoogleMap from './GoogleMap.tsx';
+import GoogleMap from './components/MapCenter.tsx';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SearchFilterProvider } from './contexts/searchFilterContext.tsx';
