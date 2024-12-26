@@ -10,6 +10,7 @@ import {
 import { motion } from 'motion/react';
 import { memo, useEffect, useRef } from 'react';
 import { Marker } from 'react-map-gl';
+import { randomMarkerDelay } from '../utils';
 
 const iconFillVisited = `#ffffff`;
 
@@ -28,8 +29,10 @@ const GoogleMarker = ({
 
 	useEffect(() => {
 		if (marker) {
-			const delay = (Math.random() * 0.5).toFixed(2) + 's';
-			(marker.content as HTMLElement).style.setProperty('--delay-time', delay);
+			(marker.content as HTMLElement).style.setProperty(
+				'--delay-time',
+				randomMarkerDelay,
+			);
 		}
 	}, [marker]);
 
@@ -57,8 +60,9 @@ export const MapboxMarker = ({
 
 	useEffect(() => {
 		if (markerRef?.current) {
-			const delay = (Math.random() * 0.5).toFixed(2) + 's';
-			markerRef.current.getElement().style.setProperty('--delay-time', delay);
+			markerRef.current
+				.getElement()
+				.style.setProperty('--delay-time', randomMarkerDelay);
 		}
 	}, [markerRef.current]);
 
