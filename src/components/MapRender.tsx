@@ -7,6 +7,7 @@ import React, { forwardRef } from 'react';
 import { Map as MapboxMap, MapRef, ViewStateChangeEvent } from 'react-map-gl';
 import { MapEvent } from 'mapbox-gl';
 import { BBox } from 'geojson';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 const mapClassName = 'w-screen h-screen outline-none focus:outline-none';
 

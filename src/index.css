@@ -16,7 +16,7 @@
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-  --delay-time: 0s;
+	--delay-time: 0s;
 }
 
 a {
@@ -24,6 +24,7 @@ a {
 	color: #646cff;
 	text-decoration: inherit;
 }
+
 a:hover {
 	color: #535bf2;
 }
@@ -53,9 +54,11 @@ button {
 	cursor: pointer;
 	transition: border-color 0.25s;
 }
+
 button:hover {
 	border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
 	outline: 4px auto -webkit-focus-ring-color;
@@ -66,59 +69,68 @@ button:focus-visible {
 		color: #213547;
 		background-color: #ffffff;
 	}
+
 	a:hover {
 		color: #747bff;
 	}
+
 	button {
 		background-color: #f9f9f9;
 	}
 }
 
 @keyframes bounce {
-  0% {
-    transform: translateY(0);
-  }
-  65% {
-    transform: translateY(-15px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
+	0% {
+		transform: translateY(0);
+	}
+
+	65% {
+		transform: translateY(-15px);
+	}
+
+	100% {
+		transform: translateY(0px);
+	}
 }
 
 .bounce {
-  animation: bounce .75s ease-out;
+	animation: bounce .75s ease-out;
 }
 
 @keyframes drop {
-  0% {
-    transform: translateY(-200px) scaleY(0.9);
-    opacity: 0;
-  }
-  5% {
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateY(0px) scaleY(1);
-    opacity: 1;
-  }
-  65% {
-    transform: translateY(-17px) scaleY(0.9);
-    opacity: 1;
-  }
-  75% {
-    transform: translateY(-22px) scaleY(0.9);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(0px) scaleY(1);
-    opacity: 1;
-  }
+	0% {
+		transform: translateY(-200px) scaleY(0.9);
+		opacity: 0;
+	}
+
+	5% {
+		opacity: 0.7;
+	}
+
+	50% {
+		transform: translateY(0px) scaleY(1);
+		opacity: 1;
+	}
+
+	65% {
+		transform: translateY(-17px) scaleY(0.9);
+		opacity: 1;
+	}
+
+	75% {
+		transform: translateY(-22px) scaleY(0.9);
+		opacity: 1;
+	}
+
+	100% {
+		transform: translateY(0px) scaleY(1);
+		opacity: 1;
+	}
 }
 
 .drop {
 	opacity: 0;
-  animation: drop 0.3s linear forwards var(--delay-time);
+	animation: drop 0.3s linear forwards var(--delay-time);
 }
 
 @keyframes popIn {
@@ -126,9 +138,11 @@ button:focus-visible {
 		transform: scale(0.5);
 		opacity: 0;
 	}
+
 	75% {
 		transform: scale(1.15);
 	}
+
 	100% {
 		transform: scale(1);
 		opacity: 1;
@@ -140,7 +154,6 @@ button:focus-visible {
 	animation: popIn 0.3s ease-in-out forwards var(--delay-time);
 }
 
-.marker-animation {
-	opacity: 0;
-	animation: popIn 0.3s ease-in-out forwards var(--delay-time);
+.mapboxgl-map {
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
 }

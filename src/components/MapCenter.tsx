@@ -19,7 +19,6 @@ import { CircleLoader, GridLoader } from 'react-spinners';
 import Supercluster from 'supercluster';
 import ClusterMarker from './ClusterMarker';
 import { MapRef, Marker, ViewStateChangeEvent } from 'react-map-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
 import { getBbox, GoogleMapScreen, MapboxMapScreen } from './MapRender';
 import { MapEvent } from 'mapbox-gl';
 import { BBox } from 'geojson';
