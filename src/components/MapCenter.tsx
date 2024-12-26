@@ -20,7 +20,7 @@ import Supercluster from 'supercluster';
 import ClusterMarker from './ClusterMarker';
 import { MapRef, Marker, ViewStateChangeEvent } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { getBbox, GoogleMapScreen, MapboxMapScreen } from './Map.google';
+import { getBbox, GoogleMapScreen, MapboxMapScreen } from './MapRender';
 import { MapEvent } from 'mapbox-gl';
 import { BBox } from 'geojson';
 import { useMap as useGoogleMap } from '@vis.gl/react-google-maps';
