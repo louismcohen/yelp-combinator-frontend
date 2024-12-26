@@ -34,6 +34,8 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 
 const DEFAULT_ZOOM = 14;
 
+const OVERRIDE_USER_LOCATION = true;
+
 const LoadingOverlay = () => {
 	return (
 		<motion.div
@@ -72,13 +74,20 @@ const MapOverlay = React.memo(
 const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const googleMap = mapService === MapService.GOOGLE && useGoogleMap();
 	const mapboxMapRef = useRef<MapRef>(null);
-	// const userLocation = useLocation();
-	const userLocation: LocationState = {
-		latitude: DEFAULT_CENTER.lat,
-		longitude: DEFAULT_CENTER.lng,
-		error: null,
-		loading: false,
-	};
+	const userLocation = OVERRIDE_USER_LOCATION
+		? ({
+				latitude: DEFAULT_CENTER.lat,
+				longitude: DEFAULT_CENTER.lng,
+				error: null,
+				loading: false,
+		  } as LocationState)
+		: useLocation();
+	// const userLocation: LocationState = {
+	// 	latitude: DEFAULT_CENTER.lat,
+	// 	longitude: DEFAULT_CENTER.lng,
+	// 	error: null,
+	// 	loading: false,
+	// };
 	const userHasInteracted = useRef(false);
 	const [bounds, setBounds] = useState<BBox>();
 	const [zoom, setZoom] = useState<number>(
