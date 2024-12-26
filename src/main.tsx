@@ -16,7 +16,8 @@ const queryClient = new QueryClient({
 	},
 });
 
-const MAP_SERVICE = import.meta.env.VITE_MAP_SERVICE as MapService;
+const MAP_SERVICE =
+	(import.meta.env.VITE_MAP_SERVICE as MapService) || MapService.MAPBOX;
 
 const MapContextProvider = ({ children }: { children: React.ReactNode }) => {
 	if (MAP_SERVICE === MapService.GOOGLE) {
