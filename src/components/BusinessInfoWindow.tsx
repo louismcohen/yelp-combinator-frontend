@@ -115,14 +115,16 @@ const ResponsiveAddress = ({
 };
 
 const YelpLogo = ({ alias }: { alias: string }) => (
-	<a
-		href={`https://www.yelp.com/biz/${alias}`}
-		target="_blank"
-		rel="noopener noreferrer"
-		title="Go to Yelp page"
-	>
-		<img className="h-[24px]" src={yelpLogo} alt="Yelp Logo" />
-	</a>
+	<div className="shrink-0">
+		<a
+			href={`https://www.yelp.com/biz/${alias}`}
+			target="_blank"
+			rel="noopener noreferrer"
+			title="Go to Yelp page"
+		>
+			<img className="h-[24px]" src={yelpLogo} alt="Yelp Logo" />
+		</a>
+	</div>
 );
 
 const BusinessInfoWindow = ({ business }: { business?: Business }) => {
