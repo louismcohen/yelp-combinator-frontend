@@ -64,6 +64,6 @@ export interface OpeningHours {
 }
 
 export enum MapService {
-  Google = 'google',
-  Mapbox = 'mapbox'
+  GOOGLE = 'GOOGLE',
+  MAPBOX = 'MAPBOX'
 }

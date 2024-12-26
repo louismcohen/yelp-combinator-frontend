@@ -8,18 +8,23 @@ import {
 	IconGenerated,
 } from '../utils/IconGenerator';
 import { motion } from 'motion/react';
-import { memo, useCallback, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { Marker } from 'react-map-gl';
+import { marker } from 'motion/react-client';
 
 const iconFillVisited = `#ffffff`;
 
-interface MarkerProps {
+interface MapMarkerProps {
 	business: Business;
 	onMarkerPress: (marker: Business) => void;
 	children: React.ReactNode;
 }
 
-const GoogleMarker = ({ business, onMarkerPress, children }: MarkerProps) => {
+const GoogleMarker = ({
+	business,
+	onMarkerPress,
+	children,
+}: MapMarkerProps) => {
 	const [markerRef, marker] = useAdvancedMarkerRef();
 
 	useEffect(() => {
@@ -44,7 +49,11 @@ const GoogleMarker = ({ business, onMarkerPress, children }: MarkerProps) => {
 	);
 };
 
-const MapboxMarker = ({ business, onMarkerPress, children }: MarkerProps) => {
+export const MapboxMarker = ({
+	business,
+	onMarkerPress,
+	children,
+}: MapMarkerProps) => {
 	const markerRef = useRef<mapboxgl.Marker>(null);
 
 	useEffect(() => {
@@ -54,21 +63,22 @@ const MapboxMarker = ({ business, onMarkerPress, children }: MarkerProps) => {
 		}
 	}, [markerRef.current]);
 
-	console.log('mapbox marker');
-
 	return (
 		<Marker
 			latitude={business.coordinates.latitude}
 			longitude={business.coordinates.longitude}
-			onClick={() => onMarkerPress(business)}
+			onClick={(e) => {
+				e.originalEvent.stopPropagation();
+				onMarkerPress(business);
+			}}
 			ref={markerRef}
 		>
-			{children}
+			<div className="pop-in">{children}</div>
 		</Marker>
 	);
 };
 
-interface IconMarkerProps {
+interface IconMapMarkerProps {
 	mapService: MapService;
 	business: Business;
 	onMarkerPress: (marker: Business) => void;
@@ -80,7 +90,7 @@ const IconMarker = ({
 	business,
 	onMarkerPress,
 	selected = false,
-}: IconMarkerProps) => {
+}: IconMapMarkerProps) => {
 	const isVisited = business?.visited;
 	const primaryCategoryAlias = business.categories[0].alias;
 	const iconHexColor = generateHexColorFromCategoryAlias(primaryCategoryAlias);
@@ -116,13 +126,13 @@ const IconMarker = ({
 		);
 	};
 
-	if (mapService === MapService.Google) {
+	if (mapService === MapService.GOOGLE) {
 		return (
 			<GoogleMarker business={business} onMarkerPress={onMarkerPress}>
 				<InnerMarker />
 			</GoogleMarker>
 		);
-	} else if (mapService === MapService.Mapbox) {
+	} else if (mapService === MapService.MAPBOX) {
 		return (
 			<MapboxMarker business={business} onMarkerPress={onMarkerPress}>
 				<InnerMarker />

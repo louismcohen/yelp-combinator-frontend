@@ -16,16 +16,16 @@ const queryClient = new QueryClient({
 	},
 });
 
-const MAP_PROVIDER = MapService.Mapbox as MapService;
+const MAP_SERVICE = import.meta.env.VITE_MAP_SERVICE as MapService;
 
 const MapContextProvider = ({ children }: { children: React.ReactNode }) => {
-	if (MAP_PROVIDER === MapService.Google) {
+	if (MAP_SERVICE === MapService.GOOGLE) {
 		return (
 			<APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
 				{children}
 			</APIProvider>
 		);
-	} else if (MAP_PROVIDER === MapService.Mapbox) {
+	} else if (MAP_SERVICE === MapService.MAPBOX) {
 		return <MapProvider>{children}</MapProvider>;
 	}
 
@@ -37,7 +37,7 @@ createRoot(document.getElementById('root')!).render(
 		<QueryClientProvider client={queryClient}>
 			<MapContextProvider>
 				<SearchFilterProvider>
-					<MapCenter mapService={MAP_PROVIDER} />
+					<MapCenter mapService={MAP_SERVICE} />
 				</SearchFilterProvider>
 			</MapContextProvider>
 		</QueryClientProvider>

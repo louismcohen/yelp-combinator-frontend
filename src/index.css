@@ -139,3 +139,8 @@ button:focus-visible {
 	opacity: 0;
 	animation: popIn 0.3s ease-in-out forwards var(--delay-time);
 }
+
+.marker-animation {
+	opacity: 0;
+	animation: popIn 0.3s ease-in-out forwards var(--delay-time);
+}

@@ -3,41 +3,12 @@ import {
 	MapCameraChangedEvent,
 	useMap as useGoogleMap,
 } from '@vis.gl/react-google-maps';
-import React, { forwardRef, memo } from 'react';
-import {
-	Map as MapboxMap,
-	useMap as useMapboxMap,
-	MapRef,
-	ViewStateChangeEvent,
-} from 'react-map-gl';
-import { MapService } from '../types';
-import mapboxgl, { MapEvent } from 'mapbox-gl';
+import React, { forwardRef } from 'react';
+import { Map as MapboxMap, MapRef, ViewStateChangeEvent } from 'react-map-gl';
+import { MapEvent } from 'mapbox-gl';
 import { BBox } from 'geojson';
 
 const mapClassName = 'w-screen h-screen outline-none focus:outline-none';
-
-export const panTo = (
-	mapProvider: MapService,
-	latitude: number,
-	longitude: number,
-	zoom: number,
-) => {
-	if (mapProvider === MapService.Google) {
-		const map = useGoogleMap();
-		if (map) {
-			map?.panTo({ lat: latitude, lng: longitude });
-			map?.setZoom(zoom);
-		}
-	} else if (mapProvider === MapService.Mapbox) {
-		const { current: map } = useMapboxMap();
-		if (map) {
-			map.flyTo({
-				center: [longitude, latitude],
-				zoom,
-			});
-		}
-	}
-};
 
 export const getBbox = (map: MapRef): BBox => {
 	const bounds = map.getBounds()?.toArray();
@@ -46,23 +17,6 @@ export const getBbox = (map: MapRef): BBox => {
 		return bbox as BBox;
 	}
 	return [0, 0, 0, 0];
-};
-
-export const getMapboxBounds = (
-	latitude: number,
-	longitude: number,
-): google.maps.LatLngBoundsLiteral => {
-	const position = new mapboxgl.LngLat(longitude, latitude);
-	const positionBounds = position.toBounds();
-	console.log({ positionBounds });
-	const bounds: google.maps.LatLngBoundsLiteral = {
-		east: positionBounds.getEast() as number,
-		north: positionBounds.getNorth() as number,
-		south: positionBounds.getSouth() as number,
-		west: positionBounds.getWest() as number,
-	};
-
-	return bounds;
 };
 
 interface SharedMapScreenProps {
@@ -119,7 +73,7 @@ export const MapboxMapScreen = forwardRef<MapRef, MapboxMapScreenProps>(
 		return (
 			<div className={mapClassName}>
 				<MapboxMap
-					mapStyle="mapbox://styles/mapbox/standard"
+					mapStyle="mapbox://styles/louiscohen/cm54miu4700j201qparty6veb"
 					mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
 					initialViewState={{
 						latitude: defaultCenter.lat,

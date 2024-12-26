@@ -4,7 +4,7 @@ import { MapService } from '../types';
 
 const ClusterBubble = ({ children }: { children: React.ReactNode }) => {
 	return (
-		<div className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-gradient-to-t from-gray-900 via-gray-900 to-gray-700 border border-neutral-900/50 text-gray-50 text-sm/tight font-bold opacity-[0.97] shadow-[0_3px_5px_rgba(0,0,0,0.33)]">
+		<div className="pop-in w-[32px] h-[32px] cursor-pointer flex justify-center items-center rounded-full bg-gradient-to-t from-gray-900 via-gray-900 to-gray-700 border border-neutral-900/50 text-gray-50 text-sm/tight font-bold opacity-[0.97] shadow-[0_3px_5px_rgba(0,0,0,0.33)]">
 			{children}
 		</div>
 	);
@@ -13,30 +13,39 @@ const ClusterBubble = ({ children }: { children: React.ReactNode }) => {
 interface ClusterMarkerProps {
 	mapService: MapService;
 	points: number;
-	position: google.maps.LatLngLiteral;
+	latitude: number;
+	longitude: number;
 	onClick: () => void;
 }
 
 const ClusterMarker = ({
 	mapService,
 	points,
-	position,
+	latitude,
+	longitude,
 	onClick,
 }: ClusterMarkerProps) => {
-	console.log('cluster marker', points, position);
-	if (mapService === MapService.Google) {
+	if (mapService === MapService.GOOGLE) {
 		return (
-			<AdvancedMarker position={position} className="pop-in" onClick={onClick}>
+			<AdvancedMarker
+				key={`${latitude}-${longitude}`}
+				position={{ lat: latitude, lng: longitude }}
+				className="pop-in"
+				onClick={onClick}
+			>
 				<ClusterBubble>{points}</ClusterBubble>
 			</AdvancedMarker>
 		);
-	} else if (mapService === MapService.Mapbox) {
+	} else if (mapService === MapService.MAPBOX) {
 		return (
 			<Marker
-				className="pop-in"
-				latitude={position.lat}
-				longitude={position.lng}
-				onClick={onClick}
+				key={`${latitude}-${longitude}`}
+				latitude={latitude}
+				longitude={longitude}
+				onClick={(e) => {
+					e.originalEvent.stopPropagation();
+					onClick();
+				}}
 			>
 				<ClusterBubble>{points}</ClusterBubble>
 			</Marker>
