@@ -4,7 +4,7 @@ import { MapService } from '../types';
 
 const ClusterBubble = ({ children }: { children: React.ReactNode }) => {
 	return (
-		<div className="pop-in w-[32px] h-[32px] cursor-pointer flex justify-center items-center rounded-full bg-gradient-to-t from-gray-900 via-gray-900 to-gray-700 border border-neutral-900/50 text-gray-50 text-sm/tight font-bold opacity-[0.97] shadow-[0_3px_5px_rgba(0,0,0,0.33)]">
+		<div className="pop-in min-w-[32px] min-h-[32px] p-2 aspect-square grow-0 shrink-0 cursor-pointer flex justify-center items-center rounded-full bg-gradient-to-t from-gray-900 via-gray-900 to-gray-700 border border-neutral-900/50 text-gray-50 text-sm/tight font-bold opacity-[0.97] shadow-[0_3px_5px_rgba(0,0,0,0.33)]">
 			{children}
 		</div>
 	);
@@ -47,7 +47,7 @@ const ClusterMarker = ({
 					onClick();
 				}}
 			>
-				<ClusterBubble>{points}</ClusterBubble>
+				<ClusterBubble>{points.toLocaleString()}</ClusterBubble>
 			</Marker>
 		);
 	}
