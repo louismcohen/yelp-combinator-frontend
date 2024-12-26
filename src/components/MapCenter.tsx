@@ -45,20 +45,16 @@ const LoadingOverlay = () => {
 	);
 };
 
-interface MapContentsProps {
+interface MapOverlayProps {
 	isFetching: boolean;
-	renderMarkers: React.ReactNode;
 	selectedBusiness: Business | undefined;
 }
 
-const MapContents = React.memo(
-	({ isFetching, renderMarkers, selectedBusiness }: MapContentsProps) => {
+const MapOverlay = React.memo(
+	({ isFetching, selectedBusiness }: MapOverlayProps) => {
 		return (
 			<>
-				<AnimatePresence>
-					{isFetching && <LoadingOverlay />}
-					{renderMarkers}
-				</AnimatePresence>
+				<AnimatePresence>{isFetching && <LoadingOverlay />}</AnimatePresence>
 				<SearchBar />
 				<AnimatePresence>
 					{selectedBusiness && (
@@ -273,9 +269,9 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		});
 	}, [clusters, selectedBusiness?.alias]);
 
-	const mapContentsProps = {
+	const MapOverlayProps = {
 		isFetching,
-		renderMarkers,
+		renderMarkers: [],
 		selectedBusiness,
 	};
 
@@ -295,7 +291,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				}}
 				handleMapPress={handleMapPress}
 			>
-				<MapContents {...mapContentsProps} />
+				<MapOverlay {...MapOverlayProps} />
 			</GoogleMapScreen>
 		);
 	} else if (mapService === MapService.MAPBOX) {
@@ -314,16 +310,19 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		};
 
 		return (
-			<MapboxMapScreen
-				defaultCenter={DEFAULT_CENTER}
-				defaultZoom={DEFAULT_ZOOM}
-				handleMapPress={handleMapPress}
-				onLoad={handleMapLoad}
-				onMoveEnd={handleMapMoveEnd}
-				ref={mapboxMapRef}
-			>
-				<MapContents {...mapContentsProps} />
-			</MapboxMapScreen>
+			<>
+				<MapboxMapScreen
+					defaultCenter={DEFAULT_CENTER}
+					defaultZoom={DEFAULT_ZOOM}
+					handleMapPress={handleMapPress}
+					onLoad={handleMapLoad}
+					onMoveEnd={handleMapMoveEnd}
+					ref={mapboxMapRef}
+				>
+					{renderMarkers}
+				</MapboxMapScreen>
+				<MapOverlay {...MapOverlayProps} />
+			</>
 		);
 	}
 };

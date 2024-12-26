@@ -24,7 +24,7 @@ interface SharedMapScreenProps {
 	defaultCenter: google.maps.LatLngLiteral;
 	defaultZoom: number;
 	handleMapPress: () => void;
-	children: React.ReactNode;
+	children?: React.ReactNode;
 }
 
 interface GoogleMapScreenProps extends SharedMapScreenProps {

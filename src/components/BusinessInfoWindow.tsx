@@ -33,10 +33,10 @@ const InfoSection = ({
 	children?: any;
 }) => {
 	return (
-		<div className="flex flex-row justify-between items-start w-full gap-8 md:gap-12">
+		<div className="flex flex-row justify-between items-start w-full gap-8 md:gap-12 text-neutral-700">
 			<div className="flex flex-row justify-start items-center gap-2">
 				{icon}
-				<p className="text-sm font-bold text-neutral-700 uppercase">{title}</p>
+				<p className="text-sm font-bold uppercase">{title}</p>
 			</div>
 
 			{children}
@@ -164,7 +164,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 				transition: { duration: 0.3 },
 			}}
 			transition={{ duration: 0.15 }}
-			className="absolute flex justify-center bottom-0 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none pointer-events-none"
+			className="absolute flex justify-center bottom-0 z-50 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none pointer-events-none"
 		>
 			<motion.div
 				layout
