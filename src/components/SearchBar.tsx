@@ -80,7 +80,7 @@ const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 			whileHover={{ scale: 1.02 }}
 			className={`relative w-1/3 flex flex-row gap-2 justify-center items-center outline-none transition-all ${
 				hoverColorVariants[filter.color]
-			} focus:outline-none bg-neutral-50/95 border rounded-md py-2 px-3 shadow-lg z-10 text-xs md:text-sm  ${determineFilterStyles(
+			} focus:outline-none bg-gray-50/95 border rounded-md py-2 px-3 shadow-lg z-10 text-xs md:text-sm  ${determineFilterStyles(
 				filter.mode,
 				filter.color,
 			)}`}
@@ -170,9 +170,9 @@ const SearchBar = () => {
 		<div className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4 pointer-events-none">
 			<div
 				tabIndex={0}
-				className={`w-full max-w-[500px] pointer-events-auto hover:outline-2 hover:outline-offset-0 hover:outline-red-500 bg-neutral-50/95 transition-all duration-300 flex justify-center items-center px-3 gap-2 rounded-lg overflow-hidden border border-neutral-500/10 outline ${
+				className={`w-full max-w-[500px] pointer-events-auto hover:outline-2 hover:outline-offset-0 hover:outline-red-500 bg-gray-50/85 backdrop-blur-sm transition-all duration-300 flex justify-center items-center px-3 gap-2 rounded-lg overflow-hidden border border-neutral-500/10 outline ${
 					state.searchInputFocused
-						? 'outline-2 outline-offset-0 outline-red-500 backdrop-blur-md shadow-xl'
+						? 'outline-2 outline-offset-0 outline-red-500 bg-gray-50/90 backdrop-blur-md shadow-xl'
 						: 'outline-none shadow-lg'
 				}`}
 				onClick={() =>

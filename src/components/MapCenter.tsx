@@ -23,6 +23,9 @@ import { getBbox, GoogleMapScreen, MapboxMapScreen } from './MapRender';
 import { MapEvent } from 'mapbox-gl';
 import { BBox } from 'geojson';
 import { useMap as useGoogleMap } from '@vis.gl/react-google-maps';
+import useLocation, { LocationState } from '../hooks/useLocation';
+import UserLocationMarker from './UserLocationMarker';
+import DebugOverlay from './DebugOverlay';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
@@ -47,15 +50,15 @@ const LoadingOverlay = () => {
 
 interface MapOverlayProps {
 	isFetching: boolean;
+	message?: string;
 	selectedBusiness: Business | undefined;
 }
 
 const MapOverlay = React.memo(
-	({ isFetching, selectedBusiness }: MapOverlayProps) => {
+	({ isFetching, message, selectedBusiness }: MapOverlayProps) => {
 		return (
 			<>
 				<AnimatePresence>{isFetching && <LoadingOverlay />}</AnimatePresence>
-				<SearchBar />
 				<AnimatePresence>
 					{selectedBusiness && (
 						<BusinessInfoWindow business={selectedBusiness} />
@@ -69,6 +72,14 @@ const MapOverlay = React.memo(
 const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const googleMap = mapService === MapService.GOOGLE && useGoogleMap();
 	const mapboxMapRef = useRef<MapRef>(null);
+	// const userLocation = useLocation();
+	const userLocation: LocationState = {
+		latitude: DEFAULT_CENTER.lat,
+		longitude: DEFAULT_CENTER.lng,
+		error: null,
+		loading: false,
+	};
+	const userHasInteracted = useRef(false);
 	const [bounds, setBounds] = useState<BBox>();
 	const [zoom, setZoom] = useState<number>(
 		mapService === MapService.GOOGLE ? DEFAULT_ZOOM : DEFAULT_ZOOM + 1,
@@ -77,6 +88,34 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 
 	const { state, dispatch } = useSearchFilter();
+
+	useEffect(() => {
+		if (
+			!userLocation.loading &&
+			userLocation.latitude &&
+			userLocation.longitude &&
+			!userHasInteracted.current
+		) {
+			if (mapService === MapService.GOOGLE) {
+				if (googleMap) {
+					googleMap.panTo({
+						lat: userLocation.latitude,
+						lng: userLocation.longitude,
+					});
+					googleMap.setZoom(DEFAULT_ZOOM);
+				}
+			} else if (mapService === MapService.MAPBOX) {
+				if (mapboxMapRef.current) {
+					const map = mapboxMapRef.current;
+					map.flyTo({
+						center: [userLocation.longitude, userLocation.latitude],
+						zoom: DEFAULT_ZOOM,
+						maxDuration: 1000,
+					});
+				}
+			}
+		}
+	}, [userLocation]);
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -105,6 +144,10 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const handleMapPress = () => {
 		deselectBusiness();
 		dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: false });
+	};
+
+	const handleMapInitialInteraction = () => {
+		userHasInteracted.current = true;
 	};
 
 	const filteredMarkers = useMemo(() => {
@@ -165,7 +208,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		const instance = new Supercluster({
 			extent: mapService === MapService.GOOGLE ? 256 : 512,
 			radius: 50,
-			maxZoom: mapService === MapService.GOOGLE ? 15 : 14,
+			maxZoom: mapService === MapService.GOOGLE ? 15 : 15,
 			minPoints: 2, // Minimum points to form a cluster
 		});
 
@@ -199,7 +242,6 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	}, [debouncedBounds, debouncedZoom, supercluster]);
 
 	const handleClusterClick = (cluster: Supercluster.ClusterFeature<any>) => {
-		console.log('cluster clicked', cluster);
 		const [longitude, latitude] = cluster.geometry.coordinates;
 
 		// Get the cluster expansion zoom
@@ -271,8 +313,8 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 
 	const MapOverlayProps = {
 		isFetching,
-		renderMarkers: [],
 		selectedBusiness,
+		message: 'Test alert',
 	};
 
 	if (mapService === MapService.GOOGLE) {
@@ -289,7 +331,8 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 					]);
 					setZoom(e.detail.zoom);
 				}}
-				handleMapPress={handleMapPress}
+				onClick={handleMapPress}
+				onMove={handleMapInitialInteraction}
 			>
 				<MapOverlay {...MapOverlayProps} />
 			</GoogleMapScreen>
@@ -298,7 +341,6 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		const handleMapMoveEnd = (e: ViewStateChangeEvent) => {
 			if (mapboxMapRef.current) {
 				setBounds(getBbox(mapboxMapRef.current));
-				console.log('zoom', e.viewState.zoom);
 				setZoom(e.viewState.zoom);
 			}
 		};
@@ -314,14 +356,21 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				<MapboxMapScreen
 					defaultCenter={DEFAULT_CENTER}
 					defaultZoom={DEFAULT_ZOOM}
-					handleMapPress={handleMapPress}
+					onClick={handleMapPress}
 					onLoad={handleMapLoad}
 					onMoveEnd={handleMapMoveEnd}
+					onMove={handleMapInitialInteraction}
 					ref={mapboxMapRef}
 				>
+					<SearchBar />
+					<UserLocationMarker
+						mapService={mapService}
+						userLocation={userLocation}
+					/>
 					{renderMarkers}
 				</MapboxMapScreen>
 				<MapOverlay {...MapOverlayProps} />
+				<DebugOverlay title="User Location" message={userLocation.error} />
 			</>
 		);
 	}

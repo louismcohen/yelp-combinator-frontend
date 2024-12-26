@@ -23,7 +23,8 @@ export const getBbox = (map: MapRef): BBox => {
 interface SharedMapScreenProps {
 	defaultCenter: google.maps.LatLngLiteral;
 	defaultZoom: number;
-	handleMapPress: () => void;
+	onClick: () => void;
+	onMove: () => void;
 	children?: React.ReactNode;
 }
 
@@ -42,7 +43,8 @@ export const GoogleMapScreen = React.memo(
 		defaultCenter,
 		defaultZoom,
 		onBoundsChanged,
-		handleMapPress,
+		onClick,
+		onMove,
 		children,
 	}: GoogleMapScreenProps) => {
 		const map = useGoogleMap();
@@ -56,7 +58,8 @@ export const GoogleMapScreen = React.memo(
 				defaultCenter={defaultCenter}
 				defaultZoom={defaultZoom}
 				onBoundsChanged={onBoundsChanged}
-				onClick={handleMapPress}
+				onCameraChanged={onMove}
+				onClick={onClick}
 				gestureHandling="greedy"
 				disableDefaultUI
 			>
@@ -68,7 +71,15 @@ export const GoogleMapScreen = React.memo(
 
 export const MapboxMapScreen = forwardRef<MapRef, MapboxMapScreenProps>(
 	(
-		{ defaultCenter, defaultZoom, handleMapPress, onLoad, onMoveEnd, children },
+		{
+			defaultCenter,
+			defaultZoom,
+			onClick,
+			onLoad,
+			onMove,
+			onMoveEnd,
+			children,
+		},
 		ref,
 	) => {
 		return (
@@ -82,7 +93,8 @@ export const MapboxMapScreen = forwardRef<MapRef, MapboxMapScreenProps>(
 						zoom: defaultZoom,
 					}}
 					ref={ref}
-					onClick={handleMapPress}
+					onClick={onClick}
+					onMoveStart={onMove}
 					onMoveEnd={onMoveEnd}
 					onLoad={onLoad}
 					style={{
