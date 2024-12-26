@@ -220,7 +220,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		} else if (mapService === MapService.MAPBOX) {
 			if (mapboxMapRef.current) {
 				const map = mapboxMapRef.current;
-				map.easeTo({
+				map.flyTo({
 					center: [longitude, latitude],
 					zoom: expansionZoom,
 					// speed: 1.5,
