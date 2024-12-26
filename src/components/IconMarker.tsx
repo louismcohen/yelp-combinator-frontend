@@ -10,7 +10,6 @@ import {
 import { motion } from 'motion/react';
 import { memo, useEffect, useRef } from 'react';
 import { Marker } from 'react-map-gl';
-import { marker } from 'motion/react-client';
 
 const iconFillVisited = `#ffffff`;
 
@@ -95,13 +94,19 @@ const IconMarker = ({
 	const primaryCategoryAlias = business.categories[0].alias;
 	const iconHexColor = generateHexColorFromCategoryAlias(primaryCategoryAlias);
 	const iconColor = isVisited ? iconFillVisited : iconHexColor;
-	const backgroundColor = isVisited ? iconHexColor : '#fff';
+	const backgroundColor = isVisited ? `${iconHexColor}F2` : '';
+	const backgroundHighlight =
+		!isVisited &&
+		'bg-gradient-to-t from-gray-200/95 via-gray-200/95 to-gray-50/95';
 	const borderColor = isVisited ? 'rgba(255,255,255,0.1)' : iconHexColor;
+	const highlightGradient = isVisited
+		? 'from-transparent via-transparent to-gray-50/20'
+		: '';
 
 	const InnerMarker = () => {
 		return (
 			<motion.div
-				className={`w-[32px] h-[32px] flex justify-center items-center rounded-full opacity-[0.97] cursor-pointer`}
+				className={`w-[32px] h-[32px] flex justify-center items-center rounded-full backdrop-blur-md ${backgroundHighlight} cursor-pointer overflow-hidden`}
 				style={{
 					backgroundColor,
 					borderColor,
@@ -118,10 +123,12 @@ const IconMarker = ({
 					visualDuration: 0.15,
 				}}
 			>
-				<IconGenerated
-					categoryAlias={primaryCategoryAlias}
-					iconProps={{ fill: iconColor }}
-				/>
+				<div className={`w-full h-full bg-gradient-to-t ${highlightGradient}`}>
+					<IconGenerated
+						categoryAlias={primaryCategoryAlias}
+						iconProps={{ fill: iconColor }}
+					/>
+				</div>
 			</motion.div>
 		);
 	};

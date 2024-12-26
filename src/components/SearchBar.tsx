@@ -203,7 +203,7 @@ const SearchBar = () => {
 					// 		setSearchInputFocused(false);
 					// 	}
 					// }}
-					className="w-full h-[48px] bg-transparent outline-none text-md md:text-lg text-gray-900 text-ellipsis"
+					className="w-full h-[48px] bg-transparent outline-none md:text-lg text-md text-gray-900 text-ellipsis"
 				/>
 				<ActiveFilters state={state} />
 				<ClearButton state={state} dispatch={dispatch} />

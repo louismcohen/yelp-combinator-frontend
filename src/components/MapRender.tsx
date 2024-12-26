@@ -85,6 +85,9 @@ export const MapboxMapScreen = forwardRef<MapRef, MapboxMapScreenProps>(
 					onClick={handleMapPress}
 					onMoveEnd={onMoveEnd}
 					onLoad={onLoad}
+					style={{
+						font: 'inherit',
+					}}
 				>
 					{children}
 				</MapboxMap>

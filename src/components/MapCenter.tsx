@@ -169,7 +169,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		const instance = new Supercluster({
 			extent: mapService === MapService.GOOGLE ? 256 : 512,
 			radius: 50,
-			maxZoom: mapService === MapService.GOOGLE ? 15 : 16,
+			maxZoom: mapService === MapService.GOOGLE ? 15 : 14,
 			minPoints: 2, // Minimum points to form a cluster
 		});
 
@@ -223,7 +223,6 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				map.flyTo({
 					center: [longitude, latitude],
 					zoom: expansionZoom,
-					// speed: 1.5,
 				});
 			}
 		}
