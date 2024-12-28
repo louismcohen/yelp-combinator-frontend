@@ -13,4 +13,5 @@ export const convertToKebabCase = (input: string) => {
 	return input.replace(/([a-z0–9])([A-Z])/g, '$1-$2').toLowerCase();
 };
 
-export const randomMarkerDelay = (Math.random() * 0.3).toFixed(2) + 's';
+export const getRandomMarkerDelay = () =>
+	(Math.random() * 0.3).toFixed(2) + 's';

@@ -5,12 +5,12 @@ import {
 import { Marker } from 'react-map-gl';
 import { MapService } from '../types';
 import { useEffect, useRef } from 'react';
-import { randomMarkerDelay } from '../utils';
+import { getRandomMarkerDelay } from '../utils';
 
-const ClusterBubble = ({ children }: { children: React.ReactNode }) => {
+const ClusterBubble = ({ text }: { text: string | number }) => {
 	return (
 		<div className="pop-in min-w-[32px] min-h-[32px] p-2 aspect-square grow-0 shrink-0 cursor-pointer flex justify-center items-center rounded-full bg-gradient-to-t from-gray-900 via-gray-900 to-gray-700 border border-neutral-900/50 text-gray-50 text-sm/tight font-bold opacity-[0.97] shadow-[0_3px_5px_rgba(0,0,0,0.33)]">
-			{children}
+			<p className="shadow-[0_1px_1px_rgba(0,0,0,1)]">{text}</p>
 		</div>
 	);
 };
@@ -37,7 +37,7 @@ const ClusterMarker = ({
 			if (marker) {
 				(marker.content as HTMLElement).style.setProperty(
 					'--delay-time',
-					randomMarkerDelay,
+					getRandomMarkerDelay(),
 				);
 			}
 		}, [marker]);
@@ -50,7 +50,7 @@ const ClusterMarker = ({
 				ref={markerRef}
 				onClick={onClick}
 			>
-				<ClusterBubble>{points}</ClusterBubble>
+				<ClusterBubble text={points.toLocaleString()} />
 			</AdvancedMarker>
 		);
 	} else if (mapService === MapService.MAPBOX) {
@@ -60,7 +60,7 @@ const ClusterMarker = ({
 			if (markerRef?.current) {
 				markerRef.current
 					.getElement()
-					.style.setProperty('--delay-time', randomMarkerDelay);
+					.style.setProperty('--delay-time', getRandomMarkerDelay());
 			}
 		}, [markerRef.current]);
 
@@ -75,7 +75,7 @@ const ClusterMarker = ({
 				}}
 				ref={markerRef}
 			>
-				<ClusterBubble>{points.toLocaleString()}</ClusterBubble>
+				<ClusterBubble text={points.toLocaleString()} />
 			</Marker>
 		);
 	}
