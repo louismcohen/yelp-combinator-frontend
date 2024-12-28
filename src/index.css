@@ -94,7 +94,7 @@ button:focus-visible {
 }
 
 .bounce {
-	animation: bounce .75s ease-out;
+	animation: bounce 0.75s ease-out;
 }
 
 @keyframes drop {
@@ -152,4 +152,21 @@ button:focus-visible {
 .pop-in {
 	opacity: 0;
 	animation: popIn 0.3s ease-in-out forwards var(--delay-time);
+}
+
+.backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	transition: backdrop-filter 0.3s ease-in-out;
+}
+
+.backdrop-blur {
+	backdrop-filter: blur(4px);
+}
+
+.backdrop-no-blur {
+	backdrop-filter: blur(0px);
 }

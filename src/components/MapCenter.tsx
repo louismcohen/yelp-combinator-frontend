@@ -26,6 +26,7 @@ import { useMap as useGoogleMap } from '@vis.gl/react-google-maps';
 import useLocation, { LocationState } from '../hooks/useLocation';
 import UserLocationMarker from './UserLocationMarker';
 import DebugOverlay from './DebugOverlay';
+import LoadingOverlay from './LoadingOverlay';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
@@ -35,20 +36,6 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 const DEFAULT_ZOOM = 14;
 
 const OVERRIDE_USER_LOCATION = true;
-
-const LoadingOverlay = () => {
-	return (
-		<motion.div
-			exit={{ opacity: 0 }}
-			transition={{ duration: 0.3 }}
-			className="fixed inset-0 flex flex-col gap-2 justify-center items-center bg-black/65 z-50"
-		>
-			{/* <CircleLoader color="#fff" size={48} /> */}
-			<GridLoader color="#fff" size={12} />
-			<p className="text-gray-50 text-lg">Loading businesses</p>
-		</motion.div>
-	);
-};
 
 interface MapOverlayProps {
 	isFetching: boolean;
@@ -60,7 +47,7 @@ const MapOverlay = React.memo(
 	({ isFetching, message, selectedBusiness }: MapOverlayProps) => {
 		return (
 			<>
-				<AnimatePresence>{isFetching && <LoadingOverlay />}</AnimatePresence>
+				<AnimatePresence>{<LoadingOverlay />}</AnimatePresence>
 				<AnimatePresence>
 					{selectedBusiness && (
 						<BusinessInfoWindow business={selectedBusiness} />
