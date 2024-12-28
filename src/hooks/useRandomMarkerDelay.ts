@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { randomMarkerDelay } from '../utils';
+import { getRandomMarkerDelay } from '../utils';
 import { MapService } from '../types';
 import { Marker } from 'mapbox-gl';
 
@@ -16,7 +16,7 @@ const useRandomMarkerDelay = (
 			if (googleMapMarker) {
 				(googleMapMarker.content as HTMLElement).style.setProperty(
 					'--delay-time',
-					randomMarkerDelay,
+					getRandomMarkerDelay(),
 				);
 			}
 		} else if (mapService === MapService.MAPBOX) {
@@ -24,7 +24,7 @@ const useRandomMarkerDelay = (
 			if (mapboxMapMarker) {
 				mapboxMapMarker
 					.getElement()
-					.style.setProperty('--delay-time', randomMarkerDelay);
+					.style.setProperty('--delay-time', getRandomMarkerDelay());
 			}
 		}
 	}, [marker]);
