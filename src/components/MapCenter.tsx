@@ -47,7 +47,7 @@ const MapOverlay = React.memo(
 	({ isFetching, message, selectedBusiness }: MapOverlayProps) => {
 		return (
 			<>
-				<AnimatePresence>{<LoadingOverlay />}</AnimatePresence>
+				<AnimatePresence>{isFetching && <LoadingOverlay />}</AnimatePresence>
 				<AnimatePresence>
 					{selectedBusiness && (
 						<BusinessInfoWindow business={selectedBusiness} />

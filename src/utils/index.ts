@@ -15,3 +15,67 @@ export const convertToKebabCase = (input: string) => {
 
 export const getRandomMarkerDelay = () =>
 	(Math.random() * 0.3).toFixed(2) + 's';
+
+export interface HslColor {
+	h: number;
+	s: number;
+	l: number;
+}
+
+export const convertHexToHsl = (hex: string): HslColor | null => {
+	// Remove the hash if it's present
+	hex = hex.replace(/^#/, '');
+
+	// Parse r, g, b values from the hex string
+	if (hex.length === 3) {
+		// Short format: #RGB -> #RRGGBB
+		hex = hex
+			.split('')
+			.map((char) => char + char)
+			.join('');
+	}
+
+	if (hex.length !== 6) {
+		return null; // Invalid hex format
+	}
+
+	const r = parseInt(hex.slice(0, 2), 16) / 255;
+	const g = parseInt(hex.slice(2, 4), 16) / 255;
+	const b = parseInt(hex.slice(4, 6), 16) / 255;
+
+	// Calculate min, max, and delta
+	const max = Math.max(r, g, b);
+	const min = Math.min(r, g, b);
+	const delta = max - min;
+
+	// Calculate lightness
+	const l = (max + min) / 2;
+
+	// Calculate saturation
+	let s = 0;
+	if (delta !== 0) {
+		s = delta / (1 - Math.abs(2 * l - 1));
+	}
+
+	// Calculate hue
+	let h = 0;
+	if (delta !== 0) {
+		if (max === r) {
+			h = ((g - b) / delta) % 6;
+		} else if (max === g) {
+			h = (b - r) / delta + 2;
+		} else if (max === b) {
+			h = (r - g) / delta + 4;
+		}
+		h = Math.round(h * 60);
+		if (h < 0) {
+			h += 360;
+		}
+	}
+
+	// Convert saturation and lightness to percentages
+	const sPercent = Math.round(s * 100);
+	const lPercent = Math.round(l * 100);
+
+	return { h: Math.round(h), s: sPercent, l: lPercent };
+};
