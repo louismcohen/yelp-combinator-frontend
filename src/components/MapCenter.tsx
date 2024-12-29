@@ -9,13 +9,12 @@ import React, {
 import { Business, MapService } from '../types';
 import BusinessInfoWindow from './BusinessInfoWindow';
 import SearchBar from './SearchBar';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 import { useDebounce } from 'use-debounce';
 import IconMarker from './IconMarker';
-import { FilterMode, useSearchFilter } from '../contexts/searchFilterContext';
+import { FilterMode } from '../store/searchFilterStore';
 import { getBusinessHoursStatus } from '../utils/businessHours';
 import useBusinesses from '../hooks/useBusinesses';
-import { CircleLoader, GridLoader } from 'react-spinners';
 import Supercluster from 'supercluster';
 import ClusterMarker from './ClusterMarker';
 import { MapRef, Marker, ViewStateChangeEvent } from 'react-map-gl';
@@ -27,6 +26,7 @@ import useLocation, { LocationState } from '../hooks/useLocation';
 import UserLocationMarker from './UserLocationMarker';
 import DebugOverlay from './DebugOverlay';
 import LoadingOverlay from './LoadingOverlay';
+import { useSearchFilterStore } from '../store/searchFilterStore';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
@@ -83,7 +83,8 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const { data: businesses, isFetching } = useBusinesses();
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 
-	const { state, dispatch } = useSearchFilter();
+	const { searchTerm, updateSearchInputFocused, isReset, filters } =
+		useSearchFilterStore();
 
 	useEffect(() => {
 		if (
@@ -117,9 +118,9 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') {
 				deselectBusiness();
-				dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: false });
+				updateSearchInputFocused(false);
 			} else if (e.metaKey && e.key === 'k') {
-				dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: true });
+				updateSearchInputFocused(true);
 			}
 		};
 
@@ -127,7 +128,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		return () => window.removeEventListener('keydown', handleKeyDown);
 	}, []);
 
-	const [debouncedSearchTerm] = useDebounce(state?.searchTerm, 300);
+	const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 	const [debouncedBounds] = useDebounce(bounds, 300);
 	const [debouncedZoom] = useDebounce(zoom, 300);
 
@@ -139,7 +140,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 
 	const handleMapPress = () => {
 		deselectBusiness();
-		dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: false });
+		updateSearchInputFocused(false);
 	};
 
 	const handleMapInitialInteraction = () => {
@@ -149,7 +150,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const filteredMarkers = useMemo(() => {
 		if (!businesses || businesses.length === 0 || isFetching) return [];
 
-		if (state.isReset) return businesses;
+		if (isReset) return businesses;
 
 		const filtered = businesses.reduce(
 			(acc: Business[], business: Business) => {
@@ -175,15 +176,15 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				if (
 					(isName || isNote || isCategory) &&
 					!isClosed &&
-					(state.filters.open.mode === FilterMode.Disabled ||
-						(state.filters.open.mode === FilterMode.True && isOpen) ||
-						(state.filters.open.mode === FilterMode.False && !isOpen)) &&
-					(state.filters.visited.mode === FilterMode.Disabled ||
-						(state.filters.visited.mode === FilterMode.True && isVisited) ||
-						(state.filters.visited.mode === FilterMode.False && !isVisited)) &&
-					(state.filters.claimed.mode === FilterMode.Disabled ||
-						(state.filters.claimed.mode === FilterMode.True && isClaimed) ||
-						(state.filters.claimed.mode === FilterMode.False && !isClaimed))
+					(filters.open.mode === FilterMode.Disabled ||
+						(filters.open.mode === FilterMode.True && isOpen) ||
+						(filters.open.mode === FilterMode.False && !isOpen)) &&
+					(filters.visited.mode === FilterMode.Disabled ||
+						(filters.visited.mode === FilterMode.True && isVisited) ||
+						(filters.visited.mode === FilterMode.False && !isVisited)) &&
+					(filters.claimed.mode === FilterMode.Disabled ||
+						(filters.claimed.mode === FilterMode.True && isClaimed) ||
+						(filters.claimed.mode === FilterMode.False && !isClaimed))
 				) {
 					acc.push(business);
 				} else {
@@ -198,7 +199,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		);
 
 		return filtered;
-	}, [businesses, debouncedSearchTerm, state.filters]);
+	}, [businesses, debouncedSearchTerm, filters]);
 
 	const supercluster = useMemo(() => {
 		const instance = new Supercluster({

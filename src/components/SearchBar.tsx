@@ -5,28 +5,28 @@ import {
 	Filter,
 	FilterColor,
 	FilterMode,
+	SearchFilter,
 	SearchFilterState,
-	useSearchFilter,
-	SearchFilterContext,
-} from '../contexts/searchFilterContext';
+	useSearchFilterStore,
+} from '../store/searchFilterStore';
 
-const ClearButton = ({ state, dispatch }: SearchFilterContext) => {
+const ClearButton = ({
+	searchTerm,
+	updateSearchTerm,
+}: Pick<SearchFilter, 'searchTerm' | 'updateSearchTerm'>) => {
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
 			exit={{ opacity: 0 }}
 			transition={{ duration: 0.1 }}
-			onClick={() =>
-				state.searchTerm !== '' &&
-				dispatch({ type: 'SET_SEARCH_TERM', payload: '' })
-			}
+			onClick={() => searchTerm !== '' && updateSearchTerm('')}
 			className="w-fit h-[36px] flex flex-row items-center"
 		>
 			<motion.button
 				whileHover={{ scale: 1.02 }}
 				className={`w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-none hover:outline-none hover:border-none focus:outline-none p-0 ${
-					state.searchTerm === ''
+					searchTerm === ''
 						? 'disabled opacity-50 cursor-default'
 						: ' hover:bg-neutral-500'
 				}`}
@@ -96,12 +96,12 @@ const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	);
 };
 
-const ActiveFilters = ({ state }: { state: SearchFilterState }) => {
-	if (!state) return null;
+const ActiveFilters = ({ filters }: Pick<SearchFilter, 'filters'>) => {
+	if (!filters) return null;
 
-	const showOpenFilter = state.filters.open.mode !== FilterMode.Disabled;
-	const showVisitedFilter = state.filters.visited.mode !== FilterMode.Disabled;
-	const showClaimedFilter = state.filters.claimed.mode !== FilterMode.Disabled;
+	const showOpenFilter = filters.open.mode !== FilterMode.Disabled;
+	const showVisitedFilter = filters.visited.mode !== FilterMode.Disabled;
+	const showClaimedFilter = filters.claimed.mode !== FilterMode.Disabled;
 
 	const returnRelevantIcon = (filter: Filter): React.ReactNode => {
 		if (filter.mode === FilterMode.True) {
@@ -127,26 +127,26 @@ const ActiveFilters = ({ state }: { state: SearchFilterState }) => {
 					{showOpenFilter && (
 						<motion.div
 							{...animationSettings}
-							className={`${textColorVariants[state.filters.open.color]}`}
+							className={`${textColorVariants[filters.open.color]}`}
 						>
-							{returnRelevantIcon(state.filters.open)}
+							{returnRelevantIcon(filters.open)}
 						</motion.div>
 					)}
 				</AnimatePresence>
 				{showVisitedFilter && (
 					<motion.div
 						{...animationSettings}
-						className={`${textColorVariants[state.filters.visited.color]}`}
+						className={`${textColorVariants[filters.visited.color]}`}
 					>
-						{returnRelevantIcon(state.filters.visited)}
+						{returnRelevantIcon(filters.visited)}
 					</motion.div>
 				)}
 				{showClaimedFilter && (
 					<motion.div
 						{...animationSettings}
-						className={`${textColorVariants[state.filters.claimed.color]}`}
+						className={`${textColorVariants[filters.claimed.color]}`}
 					>
-						{returnRelevantIcon(state.filters.claimed)}
+						{returnRelevantIcon(filters.claimed)}
 					</motion.div>
 				)}
 			</div>
@@ -156,28 +156,37 @@ const ActiveFilters = ({ state }: { state: SearchFilterState }) => {
 
 const SearchBar = () => {
 	const searchBarRef = useRef<HTMLInputElement>(null);
-	const { state, dispatch } = useSearchFilter();
+	// const { state, dispatch } = useSearchFilter();
+	// const state = useSearchFilterStore();
+	const {
+		searchTerm,
+		updateSearchTerm,
+		searchInputFocused,
+		updateSearchInputFocused,
+		filters,
+		updateFilter,
+	} = useSearchFilterStore();
+	// const searchInputFocused = useSearchFilterStore((state) => state.searchInputFocused);
+	// const updateSearchInputFocused = useSearchFilterStore((state) => state.updateSearchInputFocused);
 
 	useEffect(() => {
 		if (searchBarRef.current) {
-			state.searchInputFocused
+			searchInputFocused
 				? searchBarRef.current.focus()
 				: searchBarRef.current.blur();
 		}
-	}, [state.searchInputFocused]);
+	}, [searchInputFocused]);
 
 	return (
 		<div className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4 pointer-events-none">
 			<div
 				tabIndex={0}
 				className={`w-full max-w-[500px] pointer-events-auto hover:outline-2 hover:outline-offset-0 hover:outline-red-500 bg-gray-50/85 backdrop-blur-sm transition-all duration-300 flex justify-center items-center px-3 gap-2 rounded-lg overflow-hidden border border-neutral-500/10 outline ${
-					state.searchInputFocused
+					searchInputFocused
 						? 'outline-2 outline-offset-0 outline-red-500 bg-gray-50/90 backdrop-blur-md shadow-xl'
 						: 'outline-none shadow-lg'
 				}`}
-				onClick={() =>
-					dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: true })
-				}
+				onClick={() => updateSearchInputFocused(true)}
 			>
 				<p className="text-lg text-neutral-400">
 					<FaMagnifyingGlass />
@@ -186,13 +195,8 @@ const SearchBar = () => {
 					ref={searchBarRef}
 					type="text"
 					placeholder="Search by name, note, or category"
-					value={state?.searchTerm}
-					onChange={(e) =>
-						dispatch({
-							type: 'SET_SEARCH_TERM',
-							payload: e.target.value,
-						})
-					}
+					value={searchTerm}
+					onChange={(e) => updateSearchTerm(e.target.value)}
 					// onFocus={() => setSearchInputFocused(true)}
 					// onBlur={(e) => {
 					// 	console.log(e.relatedTarget);
@@ -205,11 +209,14 @@ const SearchBar = () => {
 					// }}
 					className="w-full h-[48px] bg-transparent outline-none md:text-lg text-md text-gray-900 text-ellipsis"
 				/>
-				<ActiveFilters state={state} />
-				<ClearButton state={state} dispatch={dispatch} />
+				<ActiveFilters filters={filters} />
+				<ClearButton
+					searchTerm={searchTerm}
+					updateSearchTerm={updateSearchTerm}
+				/>
 			</div>
 			<AnimatePresence>
-				{state.searchInputFocused && (
+				{searchInputFocused && (
 					<motion.div
 						onClick={(e) => e.preventDefault()}
 						className="w-full max-w-[500px] flex flex-row gap-2 justify-center pointer-events-auto"
@@ -220,30 +227,30 @@ const SearchBar = () => {
 					>
 						<FilterButton
 							text={
-								state.filters.open.mode === FilterMode.False
+								filters.open.mode === FilterMode.False
 									? 'Closed now'
 									: 'Open now'
 							}
-							filter={state.filters.open}
-							onClick={() => dispatch({ type: 'SET_OPEN_FILTER' })}
+							filter={filters.open}
+							onClick={() => updateFilter('open')}
 						/>
 						<FilterButton
 							text={
-								state.filters.visited.mode === FilterMode.False
+								filters.visited.mode === FilterMode.False
 									? 'Not visited'
 									: 'Visited'
 							}
-							filter={state.filters.visited}
-							onClick={() => dispatch({ type: 'SET_VISITED_FILTER' })}
+							filter={filters.visited}
+							onClick={() => updateFilter('visited')}
 						/>
 						<FilterButton
 							text={
-								state.filters.claimed.mode === FilterMode.False
+								filters.claimed.mode === FilterMode.False
 									? 'Unclaimed'
 									: 'Claimed'
 							}
-							filter={state.filters.claimed}
-							onClick={() => dispatch({ type: 'SET_CLAIMED_FILTER' })}
+							filter={filters.claimed}
+							onClick={() => updateFilter('claimed')}
 						/>
 					</motion.div>
 				)}
