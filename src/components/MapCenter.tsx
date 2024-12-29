@@ -12,7 +12,7 @@ import SearchBar from './SearchBar';
 import { AnimatePresence } from 'motion/react';
 import { useDebounce } from 'use-debounce';
 import IconMarker from './IconMarker';
-import { FilterMode } from '../store/searchFilterStore';
+import { FilterMode } from '../types/searchFilter';
 import { getBusinessHoursStatus } from '../utils/businessHours';
 import useBusinesses from '../hooks/useBusinesses';
 import Supercluster from 'supercluster';

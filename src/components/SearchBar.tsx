@@ -1,14 +1,14 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { MouseEventHandler, useEffect, useRef } from 'react';
 import { FaMagnifyingGlass, FaXmark } from 'react-icons/fa6';
+import { useSearchFilterStore } from '../store/searchFilterStore';
+import { SearchFilter } from '../types/searchFilter';
 import {
 	Filter,
 	FilterColor,
 	FilterMode,
-	SearchFilter,
-	SearchFilterState,
-	useSearchFilterStore,
-} from '../store/searchFilterStore';
+	FilterType,
+} from '../types/searchFilter';
 
 const ClearButton = ({
 	searchTerm,
@@ -43,7 +43,7 @@ interface FilterButtonProps {
 	onClick: MouseEventHandler<HTMLButtonElement> | (() => void);
 }
 
-const textColorVariants = {
+const textColorVariants: Record<FilterColor, string> = {
 	green: 'text-green-600',
 	red: 'text-red-600',
 	purple: 'text-purple-600',
@@ -51,14 +51,14 @@ const textColorVariants = {
 };
 
 const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
-	const containerColorVariants = {
+	const containerColorVariants: Record<FilterColor, string> = {
 		green: `border-green-700 drop-shadow-lg`,
 		red: 'border-red-70 drop-shadow-lg',
 		purple: 'border-purple-700 drop-shadow-lg',
 		blue: 'border-blue-700 drop-shadow-lg',
 	};
 
-	const hoverColorVariants = {
+	const hoverColorVariants: Record<FilterColor, string> = {
 		green: 'hover:border-green-700/70',
 		red: 'hover:border-red-700/70',
 		purple: 'hover:border-purple-700/70',
@@ -232,7 +232,7 @@ const SearchBar = () => {
 									: 'Open now'
 							}
 							filter={filters.open}
-							onClick={() => updateFilter('open')}
+							onClick={() => updateFilter(FilterType.Open)}
 						/>
 						<FilterButton
 							text={
@@ -241,7 +241,7 @@ const SearchBar = () => {
 									: 'Visited'
 							}
 							filter={filters.visited}
-							onClick={() => updateFilter('visited')}
+							onClick={() => updateFilter(FilterType.Visited)}
 						/>
 						<FilterButton
 							text={
@@ -250,7 +250,7 @@ const SearchBar = () => {
 									: 'Claimed'
 							}
 							filter={filters.claimed}
-							onClick={() => updateFilter('claimed')}
+							onClick={() => updateFilter(FilterType.Claimed)}
 						/>
 					</motion.div>
 				)}
