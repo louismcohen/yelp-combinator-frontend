@@ -33,7 +33,7 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lng: -118.26326182991187,
 };
 
-const DEFAULT_ZOOM = 14;
+const DEFAULT_ZOOM = 13;
 
 const OVERRIDE_USER_LOCATION = true;
 
@@ -337,6 +337,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	} else if (mapService === MapService.MAPBOX) {
 		const handleMapMoveEnd = (e: ViewStateChangeEvent) => {
 			if (mapboxMapRef.current) {
+				console.log('viewport', mapboxMapRef.current.getBounds());
 				setBounds(getBbox(mapboxMapRef.current));
 				setZoom(e.viewState.zoom);
 			}
