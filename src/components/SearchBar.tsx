@@ -1,6 +1,13 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { MouseEventHandler, useEffect, useRef, useState } from 'react';
 import {
+	MouseEventHandler,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
+import {
+	FaArrowUp,
 	FaMagnifyingGlass,
 	FaWandMagicSparkles,
 	FaXmark,
@@ -13,6 +20,8 @@ import {
 	FilterMode,
 	FilterType,
 } from '../types/searchFilter';
+import { useMapStore } from '../store/mapStore';
+import { useAiSearch } from '../hooks/useAiSearch';
 
 const ClearButton = ({
 	searchTerm,
@@ -49,6 +58,37 @@ const AiSearchButton = () => {
 		>
 			<FaMagnifyingGlass size={16} color={'black'} />
 		</motion.button>
+	);
+};
+
+const SearchButton = ({
+	searchTerm,
+	onClick,
+}: {
+	searchTerm: string;
+	onClick: () => void;
+}) => {
+	return (
+		<motion.div
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
+			exit={{ opacity: 0 }}
+			transition={{ duration: 0.1 }}
+			className="w-fit h-[36px] flex flex-row items-center"
+		>
+			<motion.button
+				disabled={searchTerm === ''}
+				onClick={onClick}
+				whileHover={{ scale: 1.02 }}
+				className={`w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-none hover:outline-none hover:border-none focus:outline-none p-0 ${
+					searchTerm === ''
+						? 'disabled opacity-50 cursor-default'
+						: ' hover:bg-neutral-500'
+				}`}
+			>
+				<FaArrowUp size={16} color={'white'} />
+			</motion.button>
+		</motion.div>
 	);
 };
 
@@ -171,7 +211,7 @@ const ActiveFilters = ({ filters }: Pick<SearchFilter, 'filters'>) => {
 
 const SearchBar = () => {
 	const searchBarRef = useRef<HTMLInputElement>(null);
-	const [aiSearchEnabled, setAiSearchEnabled] = useState(false);
+	const mutation = useAiSearch();
 
 	const {
 		searchTerm,
@@ -180,7 +220,11 @@ const SearchBar = () => {
 		updateSearchInputFocused,
 		filters,
 		updateFilter,
+		aiSearchEnabled,
+		updateAiSearchEnabled,
 	} = useSearchFilterStore();
+
+	const { viewport } = useMapStore();
 
 	useEffect(() => {
 		if (searchBarRef.current) {
@@ -200,7 +244,13 @@ const SearchBar = () => {
 				normal: 'outline-red-500',
 		  };
 
-	console.log('searchInputFocused', searchInputFocused);
+	const handleSearchClick = useCallback(() => {
+		console.log('handleSearchClick');
+		if (aiSearchEnabled && searchTerm !== '') {
+			console.log('aiSearchEnabled, mutate');
+			mutation.mutate({ query: searchTerm, viewport });
+		}
+	}, [aiSearchEnabled, searchTerm, viewport]);
 
 	return (
 		<div className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4 pointer-events-none">
@@ -216,7 +266,7 @@ const SearchBar = () => {
 			>
 				<div className="flex flex-row w-full gap-0 justify-center items-center">
 					<div
-						onClick={() => setAiSearchEnabled(!aiSearchEnabled)}
+						onClick={() => updateAiSearchEnabled(!aiSearchEnabled)}
 						className={`cursor-pointer flex justify-center items-center h-[48px] w-[48px] transition-all duration-300 text-lg text-neutral-400 ${
 							aiSearchEnabled ? 'hover:text-teal-500' : 'hover:text-red-500'
 						} hover:text-shadow-lg hover:shadow-teal-500`}
@@ -251,13 +301,17 @@ const SearchBar = () => {
 					/>
 				</div>
 				<ActiveFilters filters={filters} />
-				<ClearButton
+				<SearchButton searchTerm={searchTerm} onClick={handleSearchClick} />
+				{/* <ClearButton
 					searchTerm={searchTerm}
 					updateSearchTerm={updateSearchTerm}
-				/>
+				/> */}
 			</div>
 			<AnimatePresence>
-				{searchInputFocused && !aiSearchEnabled && (
+				{(searchInputFocused ||
+					filters.open.mode !== FilterMode.Disabled ||
+					filters.visited.mode !== FilterMode.Disabled ||
+					filters.claimed.mode !== FilterMode.Disabled) && (
 					<motion.div
 						onClick={(e) => e.preventDefault()}
 						className="w-full max-w-[500px] flex flex-row gap-2 justify-center pointer-events-auto"

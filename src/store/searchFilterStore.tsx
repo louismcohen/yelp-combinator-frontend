@@ -47,6 +47,13 @@ const initialSearchFilterState: SearchFilterState = {
 	searchInputFocused: false,
 	filters: initialFilterState,
 	isReset: true,
+	aiSearch: {
+		results: [],
+		searchConfig: {
+			totalResults: 0,
+		},
+	},
+	aiSearchEnabled: false,
 };
 
 const determineIsReset = (state: SearchFilterState) => {
@@ -81,4 +88,28 @@ export const useSearchFilterStore = create<SearchFilter>()((set) => ({
 			};
 		}),
 	updateIsReset: (isReset) => set((state) => ({ ...state, isReset })),
+	updateAiSearch: (aiSearch) =>
+		set((state) => {
+			const updatedFilters = { ...state.filters };
+			if (state.aiSearchEnabled) {
+				if ('visited' in aiSearch.searchConfig) {
+					updatedFilters.visited.mode = aiSearch.searchConfig.visited
+						? FilterMode.True
+						: FilterMode.False;
+				}
+				if ('isClaimed' in aiSearch.searchConfig) {
+					updatedFilters.claimed.mode = aiSearch.searchConfig.isClaimed
+						? FilterMode.True
+						: FilterMode.False;
+				}
+				if ('shouldCheckHours' in aiSearch.searchConfig) {
+					updatedFilters.open.mode = aiSearch.searchConfig.shouldCheckHours
+						? FilterMode.True
+						: FilterMode.False;
+				}
+			}
+			return { ...state, filters: updatedFilters, aiSearch: aiSearch };
+		}),
+	updateAiSearchEnabled: (aiSearchEnabled) =>
+		set((state) => ({ ...state, aiSearchEnabled })),
 }));

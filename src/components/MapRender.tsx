@@ -86,6 +86,7 @@ export const MapboxMapScreen = forwardRef<MapRef, MapboxMapScreenProps>(
 			<div className={mapClassName}>
 				<MapboxMap
 					mapStyle="mapbox://styles/louiscohen/cm54miu4700j201qparty6veb"
+					reuseMaps
 					mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
 					initialViewState={{
 						latitude: defaultCenter.lat,
