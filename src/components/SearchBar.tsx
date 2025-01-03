@@ -241,7 +241,6 @@ const SearchBar = () => {
 
 	useEffect(() => {
 		if (searchBarRef.current) {
-			console.log('searchinputfocused', searchInputFocused);
 			searchInputFocused
 				? searchBarRef.current.focus()
 				: searchBarRef.current.blur();
@@ -259,9 +258,7 @@ const SearchBar = () => {
 		  };
 
 	const handleSearchClick = useCallback(() => {
-		console.log('handleSearchClick');
 		if (aiSearchEnabled && searchTerm !== '') {
-			console.log('aiSearchEnabled, mutate');
 			mutation.mutate({ query: searchTerm, viewport });
 		}
 	}, [aiSearchEnabled, searchTerm, viewport]);
