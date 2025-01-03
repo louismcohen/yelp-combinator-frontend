@@ -172,6 +172,9 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 
 		if (isReset) return businesses;
 
+		if (aiSearchEnabled && searchTerm !== '' && aiSearch.query !== searchTerm)
+			return businesses;
+
 		const filtered = businesses.reduce(
 			(acc: Business[], business: Business) => {
 				const isName = aiSearchEnabled
@@ -204,7 +207,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				const isClaimed = business.is_claimed;
 
 				const aiSearchResults =
-					aiSearchEnabled && searchTerm !== ''
+					aiSearchEnabled && searchTerm !== '' && aiSearch.query === searchTerm
 						? aiSearch.results.find((result) => result.alias === business.alias)
 						: true;
 

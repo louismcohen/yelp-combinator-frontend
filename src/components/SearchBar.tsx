@@ -7,6 +7,7 @@ import {
 	useState,
 } from 'react';
 import {
+	FaArrowRotateLeft,
 	FaArrowUp,
 	FaMagnifyingGlass,
 	FaWandMagicSparkles,
@@ -22,6 +23,7 @@ import {
 } from '../types/searchFilter';
 import { useMapStore } from '../store/mapStore';
 import { useAiSearch } from '../hooks/useAiSearch';
+import { HashLoader } from 'react-spinners';
 
 const ClearButton = ({
 	searchTerm,
@@ -61,13 +63,17 @@ const AiSearchButton = () => {
 	);
 };
 
+interface SearchButtonProps {
+	searchTerm: string;
+	isLoading: boolean;
+	onClick: () => void;
+}
+
 const SearchButton = ({
 	searchTerm,
+	isLoading,
 	onClick,
-}: {
-	searchTerm: string;
-	onClick: () => void;
-}) => {
+}: SearchButtonProps) => {
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
@@ -83,10 +89,14 @@ const SearchButton = ({
 				className={`w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-none hover:outline-none hover:border-none focus:outline-none p-0 ${
 					searchTerm === ''
 						? 'disabled opacity-50 cursor-default'
-						: ' hover:bg-neutral-500'
-				}`}
+						: ' hover:bg-teal-500 hover:shadow-md hover:shadow-teal-500/25 active:bg-teal-600'
+				} ${isLoading && 'bg-teal-500 shadow-md shadow-teal-500/25'}`}
 			>
-				<FaArrowUp size={16} color={'white'} />
+				{isLoading ? (
+					<HashLoader size={16} color={'white'} />
+				) : (
+					<FaArrowUp size={16} color={'white'} />
+				)}
 			</motion.button>
 		</motion.div>
 	);
@@ -114,10 +124,10 @@ const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	};
 
 	const hoverColorVariants: Record<FilterColor, string> = {
-		green: 'hover:border-green-700/70',
-		red: 'hover:border-red-700/70',
-		purple: 'hover:border-purple-700/70',
-		blue: 'hover:border-blue-700/70',
+		green: 'hover:border-green-700/70 hover:bg-green-50/95',
+		red: 'hover:border-red-700/70 hover:bg-red-50/95',
+		purple: 'hover:border-purple-700/70 hover:bg-purple-50/95',
+		blue: 'hover:border-blue-700/70 hover:bg-blue-50/95',
 	};
 
 	const determineFilterStyles = (status: FilterMode, color: FilterColor) => {
@@ -133,9 +143,9 @@ const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	return (
 		<motion.button
 			whileHover={{ scale: 1.02 }}
-			className={`relative w-1/3 flex flex-row gap-2 justify-center items-center outline-none transition-all ${
+			className={`relative w-1/3 flex flex-row gap-1 md:gap-2 justify-center items-center outline-none transition-all ${
 				hoverColorVariants[filter.color]
-			} focus:outline-none bg-gray-50/95 border rounded-md py-2 px-3 shadow-lg z-10 text-xs md:text-sm  ${determineFilterStyles(
+			} focus:outline-none bg-gray-50/95 border rounded-md py-2 px-0 md:px-3 shadow-lg z-10 text-xs md:text-sm  ${determineFilterStyles(
 				filter.mode,
 				filter.color,
 			)}`}
@@ -147,6 +157,27 @@ const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 			</div>
 			{/* <div className="relative w-full flex flex-row justify-end md:justify-center items-center"></div> */}
 			<p className={`font-semibold`}>{text}</p>
+		</motion.button>
+	);
+};
+
+const ResetButton = ({
+	isReset,
+	onClick,
+}: {
+	isReset: boolean;
+	onClick: () => void;
+}) => {
+	return (
+		<motion.button
+			disabled={isReset}
+			whileHover={{ scale: 1.02 }}
+			className={`w-[36px] h-auto py-0 px-0 flex justify-center items-center transition-all bg-gray-50/95 text-sm md:text-md text-neutral-500 border-neutral-400 border rounded-md shadow-lg outline-none hover:outline-none focus:outline-none hover:border-amber-500 hover:bg-amber-50/95 ${
+				isReset && 'pointer-events-none'
+			}`}
+			onClick={onClick}
+		>
+			<FaArrowRotateLeft />
 		</motion.button>
 	);
 };
@@ -220,24 +251,13 @@ const SearchBar = () => {
 		updateSearchInputFocused,
 		filters,
 		updateFilter,
+		resetFilters,
+		isReset,
 		aiSearchEnabled,
 		updateAiSearchEnabled,
 	} = useSearchFilterStore();
 
 	const { viewport } = useMapStore();
-
-	// useEffect(() => {
-	// 	const handleKeyDown = (e: KeyboardEvent) => {
-	// 		if (e.key === 'Enter') {
-	// 			if (searchTerm && aiSearchEnabled) {
-	// 				mutation.mutate({ query: searchTerm, viewport });
-	// 			}
-	// 		}
-	// 	};
-
-	// 	window.addEventListener('keydown', handleKeyDown);
-	// 	return () => window.removeEventListener('keydown', handleKeyDown);
-	// }, []);
 
 	useEffect(() => {
 		if (searchBarRef.current) {
@@ -312,17 +332,22 @@ const SearchBar = () => {
 					/>
 				</div>
 				<ActiveFilters filters={filters} />
-				<SearchButton searchTerm={searchTerm} onClick={handleSearchClick} />
+				<AnimatePresence>
+					{aiSearchEnabled && (
+						<SearchButton
+							searchTerm={searchTerm}
+							onClick={handleSearchClick}
+							isLoading={mutation.isPending}
+						/>
+					)}
+				</AnimatePresence>
 				{/* <ClearButton
 					searchTerm={searchTerm}
 					updateSearchTerm={updateSearchTerm}
 				/> */}
 			</div>
 			<AnimatePresence>
-				{(searchInputFocused ||
-					filters.open.mode !== FilterMode.Disabled ||
-					filters.visited.mode !== FilterMode.Disabled ||
-					filters.claimed.mode !== FilterMode.Disabled) && (
+				{searchInputFocused && (
 					<motion.div
 						onClick={(e) => e.preventDefault()}
 						className="w-full max-w-[500px] flex flex-row gap-2 justify-center pointer-events-auto"
@@ -331,33 +356,36 @@ const SearchBar = () => {
 						exit={{ opacity: 0, transform: 'translateY(-16px)' }}
 						transition={{ duration: 0.15 }}
 					>
-						<FilterButton
-							text={
-								filters.open.mode === FilterMode.False
-									? 'Closed now'
-									: 'Open now'
-							}
-							filter={filters.open}
-							onClick={() => updateFilter(FilterType.Open)}
-						/>
-						<FilterButton
-							text={
-								filters.visited.mode === FilterMode.False
-									? 'Not visited'
-									: 'Visited'
-							}
-							filter={filters.visited}
-							onClick={() => updateFilter(FilterType.Visited)}
-						/>
-						<FilterButton
-							text={
-								filters.claimed.mode === FilterMode.False
-									? 'Unclaimed'
-									: 'Claimed'
-							}
-							filter={filters.claimed}
-							onClick={() => updateFilter(FilterType.Claimed)}
-						/>
+						<ResetButton isReset={isReset} onClick={resetFilters} />
+						<div className="flex-grow flex flex-row gap-2 justify-center items-center">
+							<FilterButton
+								text={
+									filters.open.mode === FilterMode.False
+										? 'Closed now'
+										: 'Open now'
+								}
+								filter={filters.open}
+								onClick={() => updateFilter(FilterType.Open)}
+							/>
+							<FilterButton
+								text={
+									filters.visited.mode === FilterMode.False
+										? 'Not visited'
+										: 'Visited'
+								}
+								filter={filters.visited}
+								onClick={() => updateFilter(FilterType.Visited)}
+							/>
+							<FilterButton
+								text={
+									filters.claimed.mode === FilterMode.False
+										? 'Unclaimed'
+										: 'Claimed'
+								}
+								filter={filters.claimed}
+								onClick={() => updateFilter(FilterType.Claimed)}
+							/>
+						</div>
 					</motion.div>
 				)}
 			</AnimatePresence>

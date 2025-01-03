@@ -48,12 +48,13 @@ const initialSearchFilterState: SearchFilterState = {
 	filters: initialFilterState,
 	isReset: true,
 	aiSearch: {
+		query: '',
 		results: [],
 		searchConfig: {
 			totalResults: 0,
 		},
 	},
-	aiSearchEnabled: false,
+	aiSearchEnabled: true,
 };
 
 const determineIsReset = (state: SearchFilterState) => {
@@ -88,6 +89,20 @@ export const useSearchFilterStore = create<SearchFilter>()((set) => ({
 			};
 		}),
 	updateIsReset: (isReset) => set((state) => ({ ...state, isReset })),
+	resetFilters: () =>
+		set((state) => {
+			const updatedFilters = { ...state.filters };
+			updatedFilters.open.mode = FilterMode.Disabled;
+			updatedFilters.visited.mode = FilterMode.Disabled;
+			updatedFilters.claimed.mode = FilterMode.Disabled;
+			return {
+				...state,
+				searchTerm: '',
+				filters: updatedFilters,
+				aiSearch: { ...initialSearchFilterState.aiSearch },
+				isReset: true,
+			};
+		}),
 	updateAiSearch: (aiSearch) =>
 		set((state) => {
 			const updatedFilters = { ...state.filters };

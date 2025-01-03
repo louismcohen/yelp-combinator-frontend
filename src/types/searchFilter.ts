@@ -42,6 +42,7 @@ export interface AiSearchConfig {
 }
 
 export interface AiSearch {
+	query: string;
 	results: Business[];
 	searchConfig: AiSearchConfig;
 }
@@ -60,6 +61,7 @@ export interface SearchFilterActions {
 	updateSearchInputFocused: (focused: boolean) => void;
 	updateFilter: (filterType: FilterType) => void;
 	updateIsReset: (isReset: boolean) => void;
+	resetFilters: () => void;
 	updateAiSearch: (aiSearch: AiSearch) => void;
 	updateAiSearchEnabled: (enabled: boolean) => void;
 }

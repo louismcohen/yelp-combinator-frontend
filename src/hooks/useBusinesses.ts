@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 const fetchBusinesses = async (): Promise<Business[]> => {
 	console.log('fetching businesses');
 	const response = await axios.get(import.meta.env.VITE_BACKEND_API_URL);
+	console.log('loaded businesses. total count:', response.data.length);
 	return response.data;
 };
 

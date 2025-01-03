@@ -36,7 +36,7 @@ export const useAiSearch = () => {
 		},
 		onSuccess(data, variables, context) {
 			console.log('search success', data);
-			updateAiSearch(data.data);
+			updateAiSearch({ ...data.data, query: variables.query });
 		},
 	});
 
