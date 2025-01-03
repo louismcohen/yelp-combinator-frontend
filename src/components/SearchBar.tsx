@@ -1,37 +1,102 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { MouseEventHandler, useEffect, useRef } from 'react';
-import { FaMagnifyingGlass, FaXmark } from 'react-icons/fa6';
+import {
+	MouseEventHandler,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
+import {
+	FaArrowRotateLeft,
+	FaArrowUp,
+	FaMagnifyingGlass,
+	FaWandMagicSparkles,
+	FaXmark,
+} from 'react-icons/fa6';
+import { useSearchFilterStore } from '../store/searchFilterStore';
+import { SearchFilter } from '../types/searchFilter';
 import {
 	Filter,
 	FilterColor,
 	FilterMode,
-	SearchFilterState,
-	useSearchFilter,
-	SearchFilterContext,
-} from '../contexts/searchFilterContext';
+	FilterType,
+} from '../types/searchFilter';
+import { useMapStore } from '../store/mapStore';
+import { useAiSearch } from '../hooks/useAiSearch';
+import { HashLoader } from 'react-spinners';
 
-const ClearButton = ({ state, dispatch }: SearchFilterContext) => {
+const ClearButton = ({
+	searchTerm,
+	updateSearchTerm,
+}: Pick<SearchFilter, 'searchTerm' | 'updateSearchTerm'>) => {
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
 			exit={{ opacity: 0 }}
 			transition={{ duration: 0.1 }}
-			onClick={() =>
-				state.searchTerm !== '' &&
-				dispatch({ type: 'SET_SEARCH_TERM', payload: '' })
-			}
+			onClick={() => searchTerm !== '' && updateSearchTerm('')}
 			className="w-fit h-[36px] flex flex-row items-center"
 		>
 			<motion.button
 				whileHover={{ scale: 1.02 }}
 				className={`w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-none hover:outline-none hover:border-none focus:outline-none p-0 ${
-					state.searchTerm === ''
+					searchTerm === ''
 						? 'disabled opacity-50 cursor-default'
 						: ' hover:bg-neutral-500'
 				}`}
 			>
 				<FaXmark size={16} color={'white'} />
+			</motion.button>
+		</motion.div>
+	);
+};
+
+const AiSearchButton = () => {
+	return (
+		<motion.button
+			whileHover={{ scale: 1.02 }}
+			className="w-[36px] h-[36px] flex justify-center items-center transition-all bg-gray-50/95 rounded-full outline-none hover:outline-none focus:outline-none p-0"
+		>
+			<FaMagnifyingGlass size={16} color={'black'} />
+		</motion.button>
+	);
+};
+
+interface SearchButtonProps {
+	searchTerm: string;
+	isLoading: boolean;
+	onClick: () => void;
+}
+
+const SearchButton = ({
+	searchTerm,
+	isLoading,
+	onClick,
+}: SearchButtonProps) => {
+	return (
+		<motion.div
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
+			exit={{ opacity: 0 }}
+			transition={{ duration: 0.1 }}
+			className="w-fit h-[36px] flex flex-row items-center"
+		>
+			<motion.button
+				disabled={searchTerm === ''}
+				onClick={onClick}
+				whileHover={{ scale: 1.02 }}
+				className={`w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-none hover:outline-none hover:border-none focus:outline-none p-0 ${
+					searchTerm === ''
+						? 'disabled opacity-50 cursor-default'
+						: ' hover:bg-teal-500 hover:shadow-md hover:shadow-teal-500/25 active:bg-teal-600'
+				} ${isLoading && 'bg-teal-500 shadow-md shadow-teal-500/25'}`}
+			>
+				{isLoading ? (
+					<HashLoader size={16} color={'white'} />
+				) : (
+					<FaArrowUp size={16} color={'white'} />
+				)}
 			</motion.button>
 		</motion.div>
 	);
@@ -43,7 +108,7 @@ interface FilterButtonProps {
 	onClick: MouseEventHandler<HTMLButtonElement> | (() => void);
 }
 
-const textColorVariants = {
+const textColorVariants: Record<FilterColor, string> = {
 	green: 'text-green-600',
 	red: 'text-red-600',
 	purple: 'text-purple-600',
@@ -51,18 +116,18 @@ const textColorVariants = {
 };
 
 const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
-	const containerColorVariants = {
+	const containerColorVariants: Record<FilterColor, string> = {
 		green: `border-green-700 drop-shadow-lg`,
 		red: 'border-red-70 drop-shadow-lg',
 		purple: 'border-purple-700 drop-shadow-lg',
 		blue: 'border-blue-700 drop-shadow-lg',
 	};
 
-	const hoverColorVariants = {
-		green: 'hover:border-green-700/70',
-		red: 'hover:border-red-700/70',
-		purple: 'hover:border-purple-700/70',
-		blue: 'hover:border-blue-700/70',
+	const hoverColorVariants: Record<FilterColor, string> = {
+		green: 'hover:border-green-700/70 hover:bg-green-50/95',
+		red: 'hover:border-red-700/70 hover:bg-red-50/95',
+		purple: 'hover:border-purple-700/70 hover:bg-purple-50/95',
+		blue: 'hover:border-blue-700/70 hover:bg-blue-50/95',
 	};
 
 	const determineFilterStyles = (status: FilterMode, color: FilterColor) => {
@@ -78,9 +143,9 @@ const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	return (
 		<motion.button
 			whileHover={{ scale: 1.02 }}
-			className={`relative w-1/3 flex flex-row gap-2 justify-center items-center outline-none transition-all ${
+			className={`relative w-1/3 flex flex-row gap-1 md:gap-2 justify-center items-center outline-none transition-all ${
 				hoverColorVariants[filter.color]
-			} focus:outline-none bg-gray-50/95 border rounded-md py-2 px-3 shadow-lg z-10 text-xs md:text-sm  ${determineFilterStyles(
+			} focus:outline-none bg-gray-50/95 border rounded-md py-2 px-0 md:px-3 shadow-lg z-10 text-xs md:text-sm  ${determineFilterStyles(
 				filter.mode,
 				filter.color,
 			)}`}
@@ -96,12 +161,33 @@ const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	);
 };
 
-const ActiveFilters = ({ state }: { state: SearchFilterState }) => {
-	if (!state) return null;
+const ResetButton = ({
+	isReset,
+	onClick,
+}: {
+	isReset: boolean;
+	onClick: () => void;
+}) => {
+	return (
+		<motion.button
+			disabled={isReset}
+			whileHover={{ scale: 1.02 }}
+			className={`w-[36px] h-auto py-0 px-0 flex justify-center items-center transition-all bg-gray-50/95 text-sm md:text-md text-neutral-500 border-neutral-400 border rounded-md shadow-lg outline-none hover:outline-none focus:outline-none hover:border-amber-500 hover:bg-amber-50/95 ${
+				isReset && 'pointer-events-none'
+			}`}
+			onClick={onClick}
+		>
+			<FaArrowRotateLeft />
+		</motion.button>
+	);
+};
 
-	const showOpenFilter = state.filters.open.mode !== FilterMode.Disabled;
-	const showVisitedFilter = state.filters.visited.mode !== FilterMode.Disabled;
-	const showClaimedFilter = state.filters.claimed.mode !== FilterMode.Disabled;
+const ActiveFilters = ({ filters }: Pick<SearchFilter, 'filters'>) => {
+	if (!filters) return null;
+
+	const showOpenFilter = filters.open.mode !== FilterMode.Disabled;
+	const showVisitedFilter = filters.visited.mode !== FilterMode.Disabled;
+	const showClaimedFilter = filters.claimed.mode !== FilterMode.Disabled;
 
 	const returnRelevantIcon = (filter: Filter): React.ReactNode => {
 		if (filter.mode === FilterMode.True) {
@@ -127,26 +213,26 @@ const ActiveFilters = ({ state }: { state: SearchFilterState }) => {
 					{showOpenFilter && (
 						<motion.div
 							{...animationSettings}
-							className={`${textColorVariants[state.filters.open.color]}`}
+							className={`${textColorVariants[filters.open.color]}`}
 						>
-							{returnRelevantIcon(state.filters.open)}
+							{returnRelevantIcon(filters.open)}
 						</motion.div>
 					)}
 				</AnimatePresence>
 				{showVisitedFilter && (
 					<motion.div
 						{...animationSettings}
-						className={`${textColorVariants[state.filters.visited.color]}`}
+						className={`${textColorVariants[filters.visited.color]}`}
 					>
-						{returnRelevantIcon(state.filters.visited)}
+						{returnRelevantIcon(filters.visited)}
 					</motion.div>
 				)}
 				{showClaimedFilter && (
 					<motion.div
 						{...animationSettings}
-						className={`${textColorVariants[state.filters.claimed.color]}`}
+						className={`${textColorVariants[filters.claimed.color]}`}
 					>
-						{returnRelevantIcon(state.filters.claimed)}
+						{returnRelevantIcon(filters.claimed)}
 					</motion.div>
 				)}
 			</div>
@@ -156,60 +242,112 @@ const ActiveFilters = ({ state }: { state: SearchFilterState }) => {
 
 const SearchBar = () => {
 	const searchBarRef = useRef<HTMLInputElement>(null);
-	const { state, dispatch } = useSearchFilter();
+	const mutation = useAiSearch();
+
+	const {
+		searchTerm,
+		updateSearchTerm,
+		searchInputFocused,
+		updateSearchInputFocused,
+		filters,
+		updateFilter,
+		resetFilters,
+		isReset,
+		aiSearchEnabled,
+		updateAiSearchEnabled,
+	} = useSearchFilterStore();
+
+	const { viewport } = useMapStore();
 
 	useEffect(() => {
 		if (searchBarRef.current) {
-			state.searchInputFocused
+			searchInputFocused
 				? searchBarRef.current.focus()
 				: searchBarRef.current.blur();
 		}
-	}, [state.searchInputFocused]);
+	}, [searchInputFocused]);
+
+	const outline = aiSearchEnabled
+		? {
+				hover: 'hover:outline-teal-500',
+				normal: 'outline-teal-500',
+		  }
+		: {
+				hover: 'hover:outline-red-500',
+				normal: 'outline-red-500',
+		  };
+
+	const handleSearchClick = useCallback(() => {
+		if (aiSearchEnabled && searchTerm !== '') {
+			mutation.mutate({ query: searchTerm, viewport });
+		}
+	}, [aiSearchEnabled, searchTerm, viewport]);
 
 	return (
 		<div className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4 pointer-events-none">
 			<div
 				tabIndex={0}
-				className={`w-full max-w-[500px] pointer-events-auto hover:outline-2 hover:outline-offset-0 hover:outline-red-500 bg-gray-50/85 backdrop-blur-sm transition-all duration-300 flex justify-center items-center px-3 gap-2 rounded-lg overflow-hidden border border-neutral-500/10 outline ${
-					state.searchInputFocused
-						? 'outline-2 outline-offset-0 outline-red-500 bg-gray-50/90 backdrop-blur-md shadow-xl'
-						: 'outline-none shadow-lg'
+				className={`w-full max-w-[500px] pointer-events-auto outline-none hover:outline-2 hover:outline-offset-0 ${
+					outline.hover
+				} bg-gray-50/85 backdrop-blur-sm transition-all duration-300 flex justify-center items-center pr-3 gap-2 rounded-lg overflow-hidden border border-neutral-500/10 ${
+					searchInputFocused
+						? `outline-2 outline-offset-0 ${outline.normal} bg-gray-50/90 backdrop-blur-md shadow-xl`
+						: `shadow-lg outline-none`
 				}`}
-				onClick={() =>
-					dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: true })
-				}
 			>
-				<p className="text-lg text-neutral-400">
-					<FaMagnifyingGlass />
-				</p>
-				<input
-					ref={searchBarRef}
-					type="text"
-					placeholder="Search by name, note, or category"
-					value={state?.searchTerm}
-					onChange={(e) =>
-						dispatch({
-							type: 'SET_SEARCH_TERM',
-							payload: e.target.value,
-						})
-					}
-					// onFocus={() => setSearchInputFocused(true)}
-					// onBlur={(e) => {
-					// 	console.log(e.relatedTarget);
-					// 	if (e.relatedTarget === null) {
-					// 		e.target.focus();
-					// 		setSearchInputFocused(true);
-					// 	} else {
-					// 		setSearchInputFocused(false);
-					// 	}
-					// }}
-					className="w-full h-[48px] bg-transparent outline-none md:text-lg text-md text-gray-900 text-ellipsis"
-				/>
-				<ActiveFilters state={state} />
-				<ClearButton state={state} dispatch={dispatch} />
+				<div className="flex flex-row w-full gap-0 justify-center items-center">
+					<div
+						onClick={() => updateAiSearchEnabled(!aiSearchEnabled)}
+						className={`cursor-pointer flex justify-center items-center h-[48px] w-[48px] transition-all duration-300 text-lg text-neutral-400 ${
+							aiSearchEnabled ? 'hover:text-teal-500' : 'hover:text-red-500'
+						} hover:text-shadow-lg hover:shadow-teal-500`}
+					>
+						{aiSearchEnabled ? <FaWandMagicSparkles /> : <FaMagnifyingGlass />}
+					</div>
+					<input
+						ref={searchBarRef}
+						type="text"
+						placeholder={
+							aiSearchEnabled
+								? 'Search using natural language'
+								: 'Filter by name, note, or category'
+						}
+						value={searchTerm}
+						onChange={(e) => {
+							e.preventDefault();
+							updateSearchTerm(e.target.value);
+						}}
+						onClick={() => updateSearchInputFocused(true)}
+						// onFocus={() => setSearchInputFocused(true)}
+						// onBlur={(e) => {
+						// 	console.log(e.relatedTarget);
+						// 	if (e.relatedTarget === null) {
+						// 		e.target.focus();
+						// 		setSearchInputFocused(true);
+						// 	} else {
+						// 		setSearchInputFocused(false);
+						// 	}
+						// }}
+						className="w-full h-[48px] bg-transparent outline-none md:text-lg text-md text-gray-900 text-ellipsis focus:outline-none"
+					/>
+				</div>
+				<ActiveFilters filters={filters} />
+				<AnimatePresence>
+					{aiSearchEnabled && (
+						<SearchButton
+							searchTerm={searchTerm}
+							onClick={handleSearchClick}
+							isLoading={mutation.isPending}
+						/>
+					)}
+				</AnimatePresence>
+				{/* <ClearButton
+					searchTerm={searchTerm}
+					updateSearchTerm={updateSearchTerm}
+				/> */}
 			</div>
 			<AnimatePresence>
-				{state.searchInputFocused && (
+				{searchInputFocused && (
 					<motion.div
 						onClick={(e) => e.preventDefault()}
 						className="w-full max-w-[500px] flex flex-row gap-2 justify-center pointer-events-auto"
@@ -218,33 +356,36 @@ const SearchBar = () => {
 						exit={{ opacity: 0, transform: 'translateY(-16px)' }}
 						transition={{ duration: 0.15 }}
 					>
-						<FilterButton
-							text={
-								state.filters.open.mode === FilterMode.False
-									? 'Closed now'
-									: 'Open now'
-							}
-							filter={state.filters.open}
-							onClick={() => dispatch({ type: 'SET_OPEN_FILTER' })}
-						/>
-						<FilterButton
-							text={
-								state.filters.visited.mode === FilterMode.False
-									? 'Not visited'
-									: 'Visited'
-							}
-							filter={state.filters.visited}
-							onClick={() => dispatch({ type: 'SET_VISITED_FILTER' })}
-						/>
-						<FilterButton
-							text={
-								state.filters.claimed.mode === FilterMode.False
-									? 'Unclaimed'
-									: 'Claimed'
-							}
-							filter={state.filters.claimed}
-							onClick={() => dispatch({ type: 'SET_CLAIMED_FILTER' })}
-						/>
+						<ResetButton isReset={isReset} onClick={resetFilters} />
+						<div className="flex-grow flex flex-row gap-2 justify-center items-center">
+							<FilterButton
+								text={
+									filters.open.mode === FilterMode.False
+										? 'Closed now'
+										: 'Open now'
+								}
+								filter={filters.open}
+								onClick={() => updateFilter(FilterType.Open)}
+							/>
+							<FilterButton
+								text={
+									filters.visited.mode === FilterMode.False
+										? 'Not visited'
+										: 'Visited'
+								}
+								filter={filters.visited}
+								onClick={() => updateFilter(FilterType.Visited)}
+							/>
+							<FilterButton
+								text={
+									filters.claimed.mode === FilterMode.False
+										? 'Unclaimed'
+										: 'Claimed'
+								}
+								filter={filters.claimed}
+								onClick={() => updateFilter(FilterType.Claimed)}
+							/>
+						</div>
 					</motion.div>
 				)}
 			</AnimatePresence>

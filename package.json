@@ -28,7 +28,8 @@
     "react-spinners": "^0.15.0",
     "serve": "^14.2.4",
     "supercluster": "^8.0.1",
-    "use-debounce": "^10.0.4"
+    "use-debounce": "^10.0.4",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

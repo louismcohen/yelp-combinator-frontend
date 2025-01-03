@@ -3,7 +3,7 @@ A new representation of a Yelp bookmarks map to fill in a number of feature gaps
 
 ### Missing features and shortcomings in existing products
 Yelp | Google My Maps | Google Saved Places
----- | -------------- | --------------
+-------- | ---------- | --------------
 Cannot search collection bookmarks | Limitation to only 10 layers | No search functionality 
 No way to find a saved business by name, category, personal note | Search feature is clunky | 
 No filtering for businesses by opening hours (now or at a different time/day) | No ability to filter saved businesses by properties (e.g. opening hours), as with Yelp | No filtering of saved places at all

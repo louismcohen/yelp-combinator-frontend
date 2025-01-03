@@ -1,10 +1,4 @@
-import {
-	createContext,
-	Dispatch,
-	useCallback,
-	useContext,
-	useReducer,
-} from 'react';
+import { createContext, Dispatch, useContext, useReducer } from 'react';
 import {
 	FaDoorOpen,
 	FaDoorClosed,

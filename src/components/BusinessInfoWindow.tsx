@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fa6';
 import { generateHexColorFromCategoryAlias } from '../utils/IconGenerator';
 import { getBusinessHoursStatus } from '../utils/businessHours';
-import { initialFilterState } from '../contexts/searchFilterContext';
+import { initialFilterState } from '../store/searchFilterStore';
 import yelpLogo from '../assets/yelp_logo_dark_bg.png';
 import useUpdateBusiness from '../hooks/useUpdateBusiness';
 

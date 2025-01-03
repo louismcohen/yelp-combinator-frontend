@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { SearchFilterProvider } from './contexts/searchFilterContext.tsx';
 import MapCenter from './components/MapCenter.tsx';
 import { MapService } from './types/index.ts';
 import { MapProvider } from 'react-map-gl';
@@ -37,9 +36,7 @@ createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<QueryClientProvider client={queryClient}>
 			<MapContextProvider>
-				<SearchFilterProvider>
-					<MapCenter mapService={MAP_SERVICE} />
-				</SearchFilterProvider>
+				<MapCenter mapService={MAP_SERVICE} />
 			</MapContextProvider>
 		</QueryClientProvider>
 	</StrictMode>,

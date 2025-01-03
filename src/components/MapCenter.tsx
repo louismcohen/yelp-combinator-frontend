@@ -9,13 +9,12 @@ import React, {
 import { Business, MapService } from '../types';
 import BusinessInfoWindow from './BusinessInfoWindow';
 import SearchBar from './SearchBar';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 import { useDebounce } from 'use-debounce';
 import IconMarker from './IconMarker';
-import { FilterMode, useSearchFilter } from '../contexts/searchFilterContext';
+import { FilterMode } from '../types/searchFilter';
 import { getBusinessHoursStatus } from '../utils/businessHours';
 import useBusinesses from '../hooks/useBusinesses';
-import { CircleLoader, GridLoader } from 'react-spinners';
 import Supercluster from 'supercluster';
 import ClusterMarker from './ClusterMarker';
 import { MapRef, Marker, ViewStateChangeEvent } from 'react-map-gl';
@@ -27,13 +26,17 @@ import useLocation, { LocationState } from '../hooks/useLocation';
 import UserLocationMarker from './UserLocationMarker';
 import DebugOverlay from './DebugOverlay';
 import LoadingOverlay from './LoadingOverlay';
+import { useSearchFilterStore } from '../store/searchFilterStore';
+import { useMapStore } from '../store/mapStore';
+import { map } from 'motion/react-client';
+import { useAiSearch } from '../hooks/useAiSearch';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
 	lng: -118.26326182991187,
 };
 
-const DEFAULT_ZOOM = 14;
+const DEFAULT_ZOOM = 13;
 
 const OVERRIDE_USER_LOCATION = true;
 
@@ -59,6 +62,7 @@ const MapOverlay = React.memo(
 );
 
 const MapCenter = ({ mapService }: { mapService: MapService }) => {
+	const { viewport, updateViewport } = useMapStore();
 	const googleMap = mapService === MapService.GOOGLE && useGoogleMap();
 	const mapboxMapRef = useRef<MapRef>(null);
 	const userLocation = OVERRIDE_USER_LOCATION
@@ -83,7 +87,16 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const { data: businesses, isFetching } = useBusinesses();
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 
-	const { state, dispatch } = useSearchFilter();
+	const {
+		searchTerm,
+		updateSearchInputFocused,
+		isReset,
+		filters,
+		aiSearch,
+		aiSearchEnabled,
+	} = useSearchFilterStore();
+
+	const mutation = useAiSearch();
 
 	useEffect(() => {
 		if (
@@ -117,9 +130,13 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') {
 				deselectBusiness();
-				dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: false });
+				updateSearchInputFocused(false);
 			} else if (e.metaKey && e.key === 'k') {
-				dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: true });
+				updateSearchInputFocused(true);
+			} else if (e.key === 'Enter') {
+				if (searchTerm !== '' && aiSearchEnabled) {
+					mutation.mutate({ query: searchTerm, viewport });
+				}
 			}
 		};
 
@@ -127,7 +144,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		return () => window.removeEventListener('keydown', handleKeyDown);
 	}, []);
 
-	const [debouncedSearchTerm] = useDebounce(state?.searchTerm, 300);
+	const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 	const [debouncedBounds] = useDebounce(bounds, 300);
 	const [debouncedZoom] = useDebounce(zoom, 300);
 
@@ -139,51 +156,74 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 
 	const handleMapPress = () => {
 		deselectBusiness();
-		dispatch({ type: 'SET_SEARCH_INPUT_FOCUSED', payload: false });
+		updateSearchInputFocused(false);
 	};
 
 	const handleMapInitialInteraction = () => {
 		userHasInteracted.current = true;
 	};
 
+	useEffect(() => {
+		console.log('aiSearch', aiSearch);
+	}, [aiSearch]);
+
 	const filteredMarkers = useMemo(() => {
 		if (!businesses || businesses.length === 0 || isFetching) return [];
 
-		if (state.isReset) return businesses;
+		if (isReset) return businesses;
+
+		if (aiSearchEnabled && searchTerm !== '' && aiSearch.query !== searchTerm)
+			return businesses;
 
 		const filtered = businesses.reduce(
 			(acc: Business[], business: Business) => {
-				const isName = business.name
-					.toLocaleLowerCase()
-					.includes(debouncedSearchTerm.toLocaleLowerCase());
-				const isNote =
-					business?.note &&
-					business?.note
-						.toLocaleLowerCase()
-						.includes(debouncedSearchTerm.toLocaleLowerCase());
-				const isCategory = business.categories.some((category) =>
-					category.title
-						.toLocaleLowerCase()
-						.includes(debouncedSearchTerm.toLocaleLowerCase()),
-				);
+				const isName = aiSearchEnabled
+					? true
+					: business.name
+							.toLocaleLowerCase()
+							.includes(debouncedSearchTerm.toLocaleLowerCase());
+				const isNote = aiSearchEnabled
+					? true
+					: business?.note &&
+					  business?.note
+							.toLocaleLowerCase()
+							.includes(debouncedSearchTerm.toLocaleLowerCase());
+				const isCategory = aiSearchEnabled
+					? 'categories' in aiSearch.searchConfig &&
+					  business.categories.some((category) =>
+							aiSearch.searchConfig.categories
+								?.map((category: string) => category.toLocaleLowerCase())
+								.includes(category.title.toLocaleLowerCase()),
+					  )
+					: business.categories.some((category) =>
+							category.title
+								.toLocaleLowerCase()
+								.includes(debouncedSearchTerm.toLocaleLowerCase()),
+					  );
 				const isClosed = business.is_closed;
 
 				const { isOpen } = getBusinessHoursStatus(business);
 				const isVisited = business.visited;
 				const isClaimed = business.is_claimed;
 
+				const aiSearchResults =
+					aiSearchEnabled && searchTerm !== '' && aiSearch.query === searchTerm
+						? aiSearch.results.find((result) => result.alias === business.alias)
+						: true;
+
 				if (
 					(isName || isNote || isCategory) &&
 					!isClosed &&
-					(state.filters.open.mode === FilterMode.Disabled ||
-						(state.filters.open.mode === FilterMode.True && isOpen) ||
-						(state.filters.open.mode === FilterMode.False && !isOpen)) &&
-					(state.filters.visited.mode === FilterMode.Disabled ||
-						(state.filters.visited.mode === FilterMode.True && isVisited) ||
-						(state.filters.visited.mode === FilterMode.False && !isVisited)) &&
-					(state.filters.claimed.mode === FilterMode.Disabled ||
-						(state.filters.claimed.mode === FilterMode.True && isClaimed) ||
-						(state.filters.claimed.mode === FilterMode.False && !isClaimed))
+					aiSearchResults &&
+					(filters.open.mode === FilterMode.Disabled ||
+						(filters.open.mode === FilterMode.True && isOpen) ||
+						(filters.open.mode === FilterMode.False && !isOpen)) &&
+					(filters.visited.mode === FilterMode.Disabled ||
+						(filters.visited.mode === FilterMode.True && isVisited) ||
+						(filters.visited.mode === FilterMode.False && !isVisited)) &&
+					(filters.claimed.mode === FilterMode.Disabled ||
+						(filters.claimed.mode === FilterMode.True && isClaimed) ||
+						(filters.claimed.mode === FilterMode.False && !isClaimed))
 				) {
 					acc.push(business);
 				} else {
@@ -198,7 +238,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		);
 
 		return filtered;
-	}, [businesses, debouncedSearchTerm, state.filters]);
+	}, [businesses, debouncedSearchTerm, filters, aiSearch, aiSearchEnabled]);
 
 	const supercluster = useMemo(() => {
 		const instance = new Supercluster({
@@ -336,6 +376,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	} else if (mapService === MapService.MAPBOX) {
 		const handleMapMoveEnd = (e: ViewStateChangeEvent) => {
 			if (mapboxMapRef.current) {
+				checkAndUpdateViewport(mapboxMapRef.current);
 				setBounds(getBbox(mapboxMapRef.current));
 				setZoom(e.viewState.zoom);
 			}
@@ -343,9 +384,23 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 
 		const handleMapLoad = (m: MapEvent) => {
 			if (mapboxMapRef.current) {
+				checkAndUpdateViewport(mapboxMapRef.current);
 				setBounds(getBbox(mapboxMapRef.current));
 			}
 		};
+
+		const checkAndUpdateViewport = useCallback(
+			(mapRef: MapRef) => {
+				if (mapRef) {
+					const southwest = mapRef.getBounds()?.getSouthWest().toArray();
+					const northeast = mapRef.getBounds()?.getNorthEast().toArray();
+					if (southwest && northeast) {
+						updateViewport({ southwest, northeast });
+					}
+				}
+			},
+			[mapboxMapRef],
+		);
 
 		return (
 			<>
