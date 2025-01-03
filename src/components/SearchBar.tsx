@@ -226,8 +226,22 @@ const SearchBar = () => {
 
 	const { viewport } = useMapStore();
 
+	// useEffect(() => {
+	// 	const handleKeyDown = (e: KeyboardEvent) => {
+	// 		if (e.key === 'Enter') {
+	// 			if (searchTerm && aiSearchEnabled) {
+	// 				mutation.mutate({ query: searchTerm, viewport });
+	// 			}
+	// 		}
+	// 	};
+
+	// 	window.addEventListener('keydown', handleKeyDown);
+	// 	return () => window.removeEventListener('keydown', handleKeyDown);
+	// }, []);
+
 	useEffect(() => {
 		if (searchBarRef.current) {
+			console.log('searchinputfocused', searchInputFocused);
 			searchInputFocused
 				? searchBarRef.current.focus()
 				: searchBarRef.current.blur();
@@ -256,12 +270,12 @@ const SearchBar = () => {
 		<div className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4 pointer-events-none">
 			<div
 				tabIndex={0}
-				className={`w-full max-w-[500px] pointer-events-auto hover:outline-2 hover:outline-offset-0 ${
-					outline.normal
+				className={`w-full max-w-[500px] pointer-events-auto outline-none hover:outline-2 hover:outline-offset-0 ${
+					outline.hover
 				} bg-gray-50/85 backdrop-blur-sm transition-all duration-300 flex justify-center items-center pr-3 gap-2 rounded-lg overflow-hidden border border-neutral-500/10 ${
 					searchInputFocused
-						? `outline outline-2 outline-offset-0 ${outline.hover} bg-gray-50/90 backdrop-blur-md shadow-xl`
-						: `outline-none shadow-lg`
+						? `outline-2 outline-offset-0 ${outline.normal} bg-gray-50/90 backdrop-blur-md shadow-xl`
+						: `shadow-lg outline-none`
 				}`}
 			>
 				<div className="flex flex-row w-full gap-0 justify-center items-center">

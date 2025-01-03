@@ -133,10 +133,9 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				updateSearchInputFocused(false);
 			} else if (e.metaKey && e.key === 'k') {
 				updateSearchInputFocused(true);
-			} else if (e.metaKey && e.key === 'Enter') {
-				if (searchTerm && aiSearchEnabled) {
-					const result = mutation.mutate({ query: searchTerm, viewport });
-					console.log('result', result);
+			} else if (e.key === 'Enter') {
+				if (searchTerm !== '' && aiSearchEnabled) {
+					mutation.mutate({ query: searchTerm, viewport });
 				}
 			}
 		};
@@ -204,9 +203,10 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				const isVisited = business.visited;
 				const isClaimed = business.is_claimed;
 
-				const aiSearchResults = aiSearchEnabled
-					? aiSearch.results.find((result) => result.alias === business.alias)
-					: true;
+				const aiSearchResults =
+					aiSearchEnabled && searchTerm !== ''
+						? aiSearch.results.find((result) => result.alias === business.alias)
+						: true;
 
 				if (
 					(isName || isNote || isCategory) &&
