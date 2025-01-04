@@ -260,6 +260,29 @@ const SearchBar = () => {
 	const { viewport } = useMapStore();
 
 	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Enter') {
+				console.log('MapCenter: Enter key pressed', {
+					searchTerm,
+					aiSearchEnabled,
+					searchInputFocused,
+				});
+				if (searchTerm !== '' && aiSearchEnabled && searchInputFocused) {
+					console.log(
+						'MapCenter criteria met for mutation',
+						searchTerm,
+						viewport,
+					);
+					mutation.mutate({ query: searchTerm });
+				}
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [searchTerm, aiSearchEnabled, searchInputFocused]);
+
+	useEffect(() => {
 		if (searchBarRef.current) {
 			searchInputFocused
 				? searchBarRef.current.focus()
@@ -279,9 +302,9 @@ const SearchBar = () => {
 
 	const handleSearchClick = useCallback(() => {
 		if (aiSearchEnabled && searchTerm !== '') {
-			mutation.mutate({ query: searchTerm, viewport });
+			mutation.mutate({ query: searchTerm });
 		}
-	}, [aiSearchEnabled, searchTerm, viewport]);
+	}, [aiSearchEnabled, searchTerm]);
 
 	return (
 		<div className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4 pointer-events-none">
@@ -289,11 +312,11 @@ const SearchBar = () => {
 				tabIndex={0}
 				className={`w-full max-w-[500px] pointer-events-auto outline-none hover:outline-2 hover:outline-offset-0 ${
 					outline.hover
-				} bg-gray-50/85 backdrop-blur-sm transition-all duration-300 flex justify-center items-center pr-3 gap-2 rounded-lg overflow-hidden border border-neutral-500/10 ${
+				} backdrop-blur-sm transition-all duration-300 flex justify-center items-center pr-3 gap-2 rounded-lg overflow-hidden border border-neutral-500/10 ${
 					searchInputFocused
 						? `outline-2 outline-offset-0 ${outline.normal} bg-gray-50/90 backdrop-blur-md shadow-xl`
 						: `shadow-lg outline-none`
-				}`}
+				} ${mutation.isPending ? 'bg-teal-50/85' : 'bg-gray-50/85'}`}
 			>
 				<div className="flex flex-row w-full gap-0 justify-center items-center">
 					<div
@@ -317,7 +340,8 @@ const SearchBar = () => {
 							e.preventDefault();
 							updateSearchTerm(e.target.value);
 						}}
-						onClick={() => updateSearchInputFocused(true)}
+						onFocus={() => updateSearchInputFocused(true)}
+						onBlur={() => updateSearchInputFocused(false)}
 						// onFocus={() => setSearchInputFocused(true)}
 						// onBlur={(e) => {
 						// 	console.log(e.relatedTarget);

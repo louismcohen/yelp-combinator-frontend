@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Business } from '../types';
 import { useSearchFilterStore } from '../store/searchFilterStore';
 
-const getAiSearchResults = async (query: string, viewport: Viewport) => {
+const getAiSearchResults = async (query: string, viewport?: Viewport) => {
 	console.log('getAiSearchResults', query, viewport);
 	const data = {
 		query,
@@ -21,7 +21,7 @@ const getAiSearchResults = async (query: string, viewport: Viewport) => {
 
 interface MutationFnProps {
 	query: string;
-	viewport: Viewport;
+	viewport?: Viewport;
 }
 
 export const useAiSearch = () => {
