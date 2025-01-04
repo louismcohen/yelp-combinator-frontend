@@ -320,7 +320,10 @@ const SearchBar = () => {
 			>
 				<div className="flex flex-row w-full gap-0 justify-center items-center">
 					<div
-						onClick={() => updateAiSearchEnabled(!aiSearchEnabled)}
+						onClick={(e) => {
+							e.preventDefault();
+							updateAiSearchEnabled(!aiSearchEnabled);
+						}}
 						className={`cursor-pointer flex justify-center items-center h-[48px] w-[48px] transition-all duration-300 text-lg text-neutral-400 ${
 							aiSearchEnabled ? 'hover:text-teal-500' : 'hover:text-red-500'
 						} hover:text-shadow-lg hover:shadow-teal-500`}
@@ -341,7 +344,7 @@ const SearchBar = () => {
 							updateSearchTerm(e.target.value);
 						}}
 						onFocus={() => updateSearchInputFocused(true)}
-						onBlur={() => updateSearchInputFocused(false)}
+						// onBlur={() => updateSearchInputFocused(false)}
 						// onFocus={() => setSearchInputFocused(true)}
 						// onBlur={(e) => {
 						// 	console.log(e.relatedTarget);
