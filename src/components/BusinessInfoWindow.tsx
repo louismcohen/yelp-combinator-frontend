@@ -10,7 +10,9 @@ import { generateHexColorFromCategoryAlias } from '../utils/IconGenerator';
 import { getBusinessHoursStatus } from '../utils/businessHours';
 import { initialFilterState } from '../store/searchFilterStore';
 import yelpLogo from '../assets/yelp_logo_dark_bg.png';
-import useUpdateBusiness from '../hooks/useUpdateBusiness';
+import useMutateBusiness, {
+	useUpdateVisitedBusiness,
+} from '../hooks/useMutateBusiness';
 
 const CloseButton = ({ onClick }: { onClick: () => void }) => {
 	return (
@@ -131,9 +133,9 @@ const YelpLogo = ({ alias }: { alias: string }) => (
 const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 	if (!business || !business.yelpData) return;
 
-	console.log(business);
+	console.log({ business });
 
-	const mutation = useUpdateBusiness();
+	const updateVisitedMutation = useUpdateVisitedBusiness();
 
 	const handleVisitedButtonClick = (business: Business) => {
 		const updatedBusiness: Business = {
@@ -141,7 +143,10 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 			visited: !business?.visited,
 		};
 
-		mutation.mutate(updatedBusiness);
+		updateVisitedMutation.mutate({
+			alias: updatedBusiness.alias,
+			visited: updatedBusiness.visited,
+		});
 	};
 
 	const categoryColor = generateHexColorFromCategoryAlias(

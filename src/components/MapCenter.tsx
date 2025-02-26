@@ -30,7 +30,6 @@ import { useSearchFilterStore } from '../store/searchFilterStore';
 import { useMapStore } from '../store/mapStore';
 import { map } from 'motion/react-client';
 import { useAiSearch } from '../hooks/useAiSearch';
-import useUpdatedBusinesses from '../hooks/useUpdatedBusinesses';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
@@ -86,9 +85,6 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		mapService === MapService.GOOGLE ? DEFAULT_ZOOM : DEFAULT_ZOOM + 1,
 	);
 	const { data: businesses, isFetching } = useBusinesses();
-	const { isFetching: isFetchingUpdatedBusinesses } = useUpdatedBusinesses();
-	
-	const isLoading = isFetching || isFetchingUpdatedBusinesses;
 
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 

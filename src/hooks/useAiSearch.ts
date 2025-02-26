@@ -12,7 +12,7 @@ const getAiSearchResults = async (query: string, viewport: Viewport) => {
 	};
 
 	const response = await axios.post(
-		`${import.meta.env.VITE_BACKEND_API_URL}search`,
+		`${import.meta.env.VITE_BACKEND_API_URL}/search`,
 		data,
 	);
 	console.log('getAiSearchResults response', response);
