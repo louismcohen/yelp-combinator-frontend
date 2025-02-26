@@ -29,6 +29,7 @@ const useBusinesses = () => {
 		queryKey: ['businesses'],
 		queryFn: fetchBusinesses,
 		placeholderData: [],
+		staleTime: 5 * 60 * 1000, // 5 minutes - prevent unnecessary refetches
 	});
 
 	return query;

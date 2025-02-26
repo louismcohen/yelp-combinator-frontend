@@ -72,14 +72,23 @@ const useUpdatedBusinesses = () => {
 
 			console.log('updated businesses', updatedBusinesses);
 
-			queryClient.setQueryData(['businesses'], (businesses: Business[]) => [
-				businesses,
-				...updatedBusinesses,
-			]);
-			queryClient.invalidateQueries({
-				queryKey: ['businesses'],
-				refetchType: 'none',
-			});
+			if (updatedBusinesses.length > 0) {
+				// Get current businesses data
+				queryClient.setQueryData(['businesses'], (oldBusinesses: Business[] = []) => {
+					// Create a map of existing businesses by alias for quick lookup
+					const businessMap = new Map(
+						oldBusinesses.map(business => [business.alias, business])
+					);
+					
+					// Update existing businesses or add new ones
+					updatedBusinesses.forEach(updatedBusiness => {
+						businessMap.set(updatedBusiness.alias, updatedBusiness);
+					});
+					
+					// Convert map back to array
+					return Array.from(businessMap.values());
+				});
+			}
 		}
 	}, [query.data, query.isFetching, queryClient]);
 

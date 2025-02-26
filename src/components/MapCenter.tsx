@@ -86,10 +86,9 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		mapService === MapService.GOOGLE ? DEFAULT_ZOOM : DEFAULT_ZOOM + 1,
 	);
 	const { data: businesses, isFetching } = useBusinesses();
-	const { data: updatedBusinesses, isFetching: isFetchingUpdatedBusinesses } =
-		useUpdatedBusinesses();
-
-	console.log('updatedBusinesses', updatedBusinesses);
+	const { isFetching: isFetchingUpdatedBusinesses } = useUpdatedBusinesses();
+	
+	const isLoading = isFetching || isFetchingUpdatedBusinesses;
 
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 
