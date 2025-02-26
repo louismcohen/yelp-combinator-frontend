@@ -155,6 +155,8 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 
 	const { status, auxStatus } = getBusinessHoursStatus(business);
 
+	console.log(business.alias, status, auxStatus);
+
 	const statusColor = status.includes('Open')
 		? 'text-green-600'
 		: 'text-red-600';

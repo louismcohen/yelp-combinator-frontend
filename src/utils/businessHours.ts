@@ -18,18 +18,22 @@ const formatTime = (timeStr: string): string => {
 
 // const getTimeZone = async (latitude: number, longitude: number) => await GeoTZ.find(latitude, longitude);
 
-export const getBusinessHoursStatus = (
-	business: Business
-): BusinessStatus => {
-	if (!business.hours || business.hours.length === 0) {
+export const getBusinessHoursStatus = (business: Business): BusinessStatus => {
+	console.log('getBusinessHoursStatus', business);
+	if (!business.yelpData) return { isOpen: true, status: '', auxStatus: '' };
+
+	if (!business.yelpData.hours || business.yelpData.hours.length === 0) {
 		return {
 			isOpen: true,
 			status: '',
 			auxStatus: '',
 		};
 	}
-	const timeZone = tz_lookup(business.coordinates.latitude, business.coordinates.longitude);
-	const hoursData = business.hours;
+	const timeZone = tz_lookup(
+		business.yelpData.coordinates.latitude,
+		business.yelpData.coordinates.longitude,
+	);
+	const hoursData = business.yelpData.hours;
 
 	const now = DateTime.now().setZone(timeZone);
 	const currentDay = now.weekday - 1;
