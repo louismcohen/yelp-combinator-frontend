@@ -83,19 +83,20 @@ const generateDisplayAddress = (location: Location): DisplayAddress => {
 
 	let lines = ['', ''] as DisplayAddress;
 	lines[0] =
-		`${location.address1 !== null && location.address1}` +
+		`${location.address1 !== undefined && location.address1}` +
 		`${
-			(location.address2 !== null &&
+			(location.address2 !== undefined &&
 				location.address2 !== '' &&
 				' ' + location.address2) ||
 			''
 		}` +
 		`${
-			(location.address3 !== null &&
+			(location.address3 !== undefined &&
 				location.address3 !== '' &&
 				' ' + location.address3) ||
 			''
-		}`;
+		}` +
+		',';
 	lines[1] = `${location.city}, ${location.state} ${location.zip_code}`;
 
 	return lines;
@@ -128,7 +129,7 @@ const YelpLogo = ({ alias }: { alias: string }) => (
 );
 
 const BusinessInfoWindow = ({ business }: { business?: Business }) => {
-	if (!business) return;
+	if (!business || !business.yelpData) return;
 
 	console.log(business);
 
@@ -144,7 +145,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 	};
 
 	const categoryColor = generateHexColorFromCategoryAlias(
-		business.categories[0].alias,
+		business.yelpData.categories[0].alias,
 	);
 
 	const { status, auxStatus } = getBusinessHoursStatus(business);
@@ -153,7 +154,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 		? 'text-green-600'
 		: 'text-red-600';
 
-	const displayAddress = generateDisplayAddress(business.location);
+	const displayAddress = generateDisplayAddress(business.yelpData.location);
 
 	return (
 		<motion.div
@@ -176,7 +177,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 				<div
 					className="bg-cover bg-center w-full h-[200px] pointer-events-auto"
 					style={{
-						backgroundImage: `url(${business.image_url})`,
+						backgroundImage: `url(${business.yelpData.image_url})`,
 						backgroundColor: categoryColor,
 					}}
 				>
@@ -197,10 +198,10 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 									title="Go to business website"
 									className="text-3xl font-bold text-white/95 hover:text-white/95 leading-tight"
 								>
-									{business.name}
+									{business.yelpData.name}
 								</a>
 								<p className="text-sm md:text-md text-white/85 leading-none">
-									{business.categories
+									{business.yelpData.categories
 										.map((category) => category.title)
 										.join(', ')}
 								</p>
@@ -216,7 +217,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 					}}
 				>
 					<div className="relative flex-grow flex-col p-4 gap-4">
-						{business.hours.length > 0 && (
+						{business.yelpData.hours && business.yelpData.hours.length > 0 && (
 							<>
 								<InfoSection title="hours" icon={<FaRegClock />}>
 									<p className="text-sm text-neutral-700 text-right">
