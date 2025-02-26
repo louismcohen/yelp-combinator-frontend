@@ -25,6 +25,8 @@ const GoogleMarker = ({
 	onMarkerPress,
 	children,
 }: MapMarkerProps) => {
+	if (!business.yelpData) return null;
+
 	const [markerRef, marker] = useAdvancedMarkerRef();
 
 	useEffect(() => {
@@ -39,8 +41,8 @@ const GoogleMarker = ({
 	return (
 		<AdvancedMarker
 			position={{
-				lat: business.coordinates.latitude,
-				lng: business.coordinates.longitude,
+				lat: business.yelpData.coordinates.latitude,
+				lng: business.yelpData.coordinates.longitude,
 			}}
 			onClick={() => onMarkerPress(business)}
 			ref={markerRef}
@@ -56,6 +58,7 @@ export const MapboxMarker = ({
 	onMarkerPress,
 	children,
 }: MapMarkerProps) => {
+	if (!business.yelpData) return null;
 	const markerRef = useRef<mapboxgl.Marker>(null);
 
 	useEffect(() => {
@@ -68,8 +71,8 @@ export const MapboxMarker = ({
 
 	return (
 		<Marker
-			latitude={business.coordinates.latitude}
-			longitude={business.coordinates.longitude}
+			latitude={business.yelpData.coordinates.latitude}
+			longitude={business.yelpData.coordinates.longitude}
 			onClick={(e) => {
 				e.originalEvent.stopPropagation();
 				onMarkerPress(business);
@@ -94,8 +97,10 @@ const IconMarker = ({
 	onMarkerPress,
 	selected = false,
 }: IconMapMarkerProps) => {
+	if (!business.yelpData) return null;
+
 	const isVisited = business?.visited;
-	const primaryCategoryAlias = business.categories[0].alias;
+	const primaryCategoryAlias = business.yelpData.categories[0].alias;
 	const iconHexColor = generateHexColorFromCategoryAlias(primaryCategoryAlias);
 	const iconColor = isVisited ? iconFillVisited : iconHexColor;
 	const backgroundColor = isVisited ? `${iconHexColor}F2` : '';

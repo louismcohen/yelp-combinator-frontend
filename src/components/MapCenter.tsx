@@ -85,6 +85,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		mapService === MapService.GOOGLE ? DEFAULT_ZOOM : DEFAULT_ZOOM + 1,
 	);
 	const { data: businesses, isFetching } = useBusinesses();
+
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
 
 	const {
@@ -179,7 +180,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 			(acc: Business[], business: Business) => {
 				const isName = aiSearchEnabled
 					? true
-					: business.name
+					: business.yelpData?.name
 							.toLocaleLowerCase()
 							.includes(debouncedSearchTerm.toLocaleLowerCase());
 				const isNote = aiSearchEnabled
@@ -190,21 +191,21 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 							.includes(debouncedSearchTerm.toLocaleLowerCase());
 				const isCategory = aiSearchEnabled
 					? 'categories' in aiSearch.searchConfig &&
-					  business.categories.some((category) =>
+					  business.yelpData?.categories.some((category) =>
 							aiSearch.searchConfig.categories
 								?.map((category: string) => category.toLocaleLowerCase())
 								.includes(category.title.toLocaleLowerCase()),
 					  )
-					: business.categories.some((category) =>
+					: business.yelpData?.categories.some((category) =>
 							category.title
 								.toLocaleLowerCase()
 								.includes(debouncedSearchTerm.toLocaleLowerCase()),
 					  );
-				const isClosed = business.is_closed;
+				const isClosed = business.yelpData?.is_closed;
 
 				const { isOpen } = getBusinessHoursStatus(business);
 				const isVisited = business.visited;
-				const isClaimed = business.is_claimed;
+				const isClaimed = business.yelpData?.is_claimed;
 
 				const aiSearchResults =
 					aiSearchEnabled && searchTerm !== '' && aiSearch.query === searchTerm
@@ -253,8 +254,8 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 			geometry: {
 				type: 'Point',
 				coordinates: [
-					business.coordinates.longitude,
-					business.coordinates.latitude,
+					business.yelpData?.coordinates.longitude,
+					business.yelpData?.coordinates.latitude,
 				],
 			},
 			properties: business,
