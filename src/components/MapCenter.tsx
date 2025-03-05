@@ -82,18 +82,22 @@ const CurrentLocationButton = ({
 		return null;
 
 	return (
-		<div className="absolute right-0 bottom-0 flex justify-center p-4 md:py-8">
-			<motion.button
-				className="w-[48px] h-[48px] pop-in p-0 rounded-full shadow-lg bg-gray-50/90 backdrop-blur-sm border border-gray-950/10 active:border-blue-500/50 hover:border-gray-950/10 md:hover:border-blue-500/50 pointer-events-auto flex justify-center items-center text-gray-500 active:bg-blue-500/5 text-2xl outline:none focus:outline-none transition-all touch-manipulation overflow-hidden hover:text-blue-500 active:text-blue-500"
-				whileHover={{ scale: 1.02 }}
-				whileTap={{ scale: 0.95 }}
-				onClick={onClick}
+		<motion.div className="absolute right-0 bottom-0 flex justify-center p-4 md:py-8">
+			<motion.div
+				className="flex justify-center rounded-full"
+				whileHover={{ scale: 1.05 }}
+				whileTap={{ scale: 0.98 }}
 			>
-				<div className="w-full h-full md:hover:bg-blue-500/5 active:bg-blue-500/5 flex justify-center items-center rounded-full">
-					<FaLocationArrow />
-				</div>
-			</motion.button>
-		</div>
+				<motion.button
+					className="w-[48px] h-[48px] pop-in p-0 rounded-full shadow-lg md:hover:shadow-blue-500/25 bg-gray-50/90 backdrop-blur-sm hover:backdrop-blur-md border border-gray-950/10 active:border-blue-500/50 hover:border-gray-950/10 md:hover:border-blue-500/50 pointer-events-auto flex justify-center items-center text-gray-500 active:bg-blue-500/5 text-2xl outline:none focus:outline-none transition-all touch-manipulation overflow-hidden hover:text-blue-500 active:text-blue-500"
+					onClick={onClick}
+				>
+					<div className="w-full h-full md:hover:bg-blue-500/5 active:bg-blue-500/5 flex justify-center items-center rounded-full">
+						<FaLocationArrow />
+					</div>
+				</motion.button>
+			</motion.div>
+		</motion.div>
 	);
 };
 
