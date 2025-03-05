@@ -13,6 +13,7 @@ import yelpLogo from '../assets/yelp_logo_dark_bg.png';
 import useMutateBusiness, {
 	useUpdateVisitedBusiness,
 } from '../hooks/useMutateBusiness';
+import { convertHexToRgb } from '../utils';
 
 const CloseButton = ({ onClick }: { onClick: () => void }) => {
 	return (
@@ -179,7 +180,13 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 			<motion.div
 				layout
 				transition={{ duration: 0.15 }}
-				className="relative pointer-events-auto overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-xl bg-neutral-50/95  backdrop-blur-sm shadow-[0_16px_20px_-4px_rgba(0,0,0,0.25),0_6px_8px_-4px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.1)]"
+				className={`relative pointer-events-auto overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-xl bg-neutral-50/95  backdrop-blur-sm`}
+				style={{
+					boxShadow: `0 16px 20px -4px rgba(0,0,0,0.25), 0 6px 8px -4px rgba(0,0,0,0.25), 0 0 0 1px ${convertHexToRgb(
+						categoryColor,
+						0.2,
+					)}`,
+				}}
 			>
 				<div
 					className="bg-cover bg-center w-full h-[200px] pointer-events-auto"
