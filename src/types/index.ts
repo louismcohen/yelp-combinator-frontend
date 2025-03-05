@@ -1,34 +1,43 @@
 export interface Business {
-	location: Location;
-	coordinates: Coordinates;
-	_id: string;
+	_id?: string;
 	alias: string;
-	__v: number;
+	note?: string;
+	website?: string;
 	addedIndex: number;
-	createdAt: string;
-	note: string;
-	updatedAt: string;
-	yelpCollectionId: string;
-	categories: Category[];
-	display_phone: string;
-	hours: BusinessHours[];
-	image_url: string;
-	name: string;
-	phone: string;
-	photos: string[];
-	rating: number;
-	review_count: number;
-	special_hours: any[];
+	url: string;
+	lastUpdated: Date;
 	visited: boolean;
-	website: string;
-	is_claimed: boolean;
-	is_closed: boolean;
+	collectionId: string;
+	geoPoint: {
+		type: 'Point';
+		coordinates: [number, number];
+	};
+	embedding?: number[];
+	yelpData?: {
+		name: string;
+		image_url?: string;
+		is_claimed: boolean;
+		is_closed?: boolean;
+		rating?: number;
+		review_count?: number;
+		price?: string;
+		phone?: string;
+		display_phone?: string;
+		coordinates: {
+			latitude: number;
+			longitude: number;
+		};
+		location: Location;
+		categories: Category[];
+		photos: string[];
+		hours?: BusinessHours[];
+	};
 }
 
 export interface Location {
 	address1: string;
-	address2: string;
-	address3: string;
+	address2?: string;
+	address3?: string;
 	city: string;
 	zip_code: string;
 	country: string;
@@ -50,9 +59,6 @@ export interface Category {
 
 export interface BusinessHours {
 	open: OpeningHours[];
-	hours_type: string;
-	is_open_now: boolean;
-	_id: string;
 }
 
 export interface OpeningHours {
@@ -60,7 +66,6 @@ export interface OpeningHours {
 	start: string;
 	end: string;
 	day: number;
-	_id: string;
 }
 
 export enum MapService {

@@ -10,7 +10,9 @@ import { generateHexColorFromCategoryAlias } from '../utils/IconGenerator';
 import { getBusinessHoursStatus } from '../utils/businessHours';
 import { initialFilterState } from '../store/searchFilterStore';
 import yelpLogo from '../assets/yelp_logo_dark_bg.png';
-import useUpdateBusiness from '../hooks/useUpdateBusiness';
+import useMutateBusiness, {
+	useUpdateVisitedBusiness,
+} from '../hooks/useMutateBusiness';
 
 const CloseButton = ({ onClick }: { onClick: () => void }) => {
 	return (
@@ -83,19 +85,20 @@ const generateDisplayAddress = (location: Location): DisplayAddress => {
 
 	let lines = ['', ''] as DisplayAddress;
 	lines[0] =
-		`${location.address1 !== null && location.address1}` +
+		`${location.address1 !== undefined && location.address1}` +
 		`${
-			(location.address2 !== null &&
+			(location.address2 !== undefined &&
 				location.address2 !== '' &&
 				' ' + location.address2) ||
 			''
 		}` +
 		`${
-			(location.address3 !== null &&
+			(location.address3 !== undefined &&
 				location.address3 !== '' &&
 				' ' + location.address3) ||
 			''
-		}`;
+		}` +
+		',';
 	lines[1] = `${location.city}, ${location.state} ${location.zip_code}`;
 
 	return lines;
@@ -128,11 +131,11 @@ const YelpLogo = ({ alias }: { alias: string }) => (
 );
 
 const BusinessInfoWindow = ({ business }: { business?: Business }) => {
-	if (!business) return;
+	if (!business || !business.yelpData) return;
 
-	console.log(business);
+	console.log({ business });
 
-	const mutation = useUpdateBusiness();
+	const updateVisitedMutation = useUpdateVisitedBusiness();
 
 	const handleVisitedButtonClick = (business: Business) => {
 		const updatedBusiness: Business = {
@@ -140,20 +143,25 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 			visited: !business?.visited,
 		};
 
-		mutation.mutate(updatedBusiness);
+		updateVisitedMutation.mutate({
+			alias: updatedBusiness.alias,
+			visited: updatedBusiness.visited,
+		});
 	};
 
 	const categoryColor = generateHexColorFromCategoryAlias(
-		business.categories[0].alias,
+		business.yelpData.categories[0].alias,
 	);
 
 	const { status, auxStatus } = getBusinessHoursStatus(business);
+
+	console.log(business.alias, status, auxStatus);
 
 	const statusColor = status.includes('Open')
 		? 'text-green-600'
 		: 'text-red-600';
 
-	const displayAddress = generateDisplayAddress(business.location);
+	const displayAddress = generateDisplayAddress(business.yelpData.location);
 
 	return (
 		<motion.div
@@ -176,7 +184,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 				<div
 					className="bg-cover bg-center w-full h-[200px] pointer-events-auto"
 					style={{
-						backgroundImage: `url(${business.image_url})`,
+						backgroundImage: `url(${business.yelpData.image_url})`,
 						backgroundColor: categoryColor,
 					}}
 				>
@@ -197,10 +205,10 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 									title="Go to business website"
 									className="text-3xl font-bold text-white/95 hover:text-white/95 leading-tight"
 								>
-									{business.name}
+									{business.yelpData.name}
 								</a>
 								<p className="text-sm md:text-md text-white/85 leading-none">
-									{business.categories
+									{business.yelpData.categories
 										.map((category) => category.title)
 										.join(', ')}
 								</p>
@@ -216,7 +224,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 					}}
 				>
 					<div className="relative flex-grow flex-col p-4 gap-4">
-						{business.hours.length > 0 && (
+						{business.yelpData.hours && business.yelpData.hours.length > 0 && (
 							<>
 								<InfoSection title="hours" icon={<FaRegClock />}>
 									<p className="text-sm text-neutral-700 text-right">
