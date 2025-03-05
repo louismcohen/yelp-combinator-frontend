@@ -7,7 +7,12 @@ export interface LocationState {
 	loading: boolean;
 }
 
-const useLocation = () => {
+const useLocation = (overrideLocation?: LocationState | null) => {
+	if (overrideLocation) {
+		console.log('return overrideLocation', overrideLocation);
+		return overrideLocation;
+	}
+
 	const [location, setLocation] = useState<LocationState>({
 		latitude: null,
 		longitude: null,
@@ -24,13 +29,14 @@ const useLocation = () => {
 			}));
 		}
 
-		const handleSuccess = (position: GeolocationPosition) =>
+		const handleSuccess = (position: GeolocationPosition) => {
 			setLocation({
 				latitude: position.coords.latitude,
 				longitude: position.coords.longitude,
 				error: null,
 				loading: false,
 			});
+		};
 
 		const handleError = (error: GeolocationPositionError) =>
 			setLocation((prev) => ({
@@ -41,7 +47,7 @@ const useLocation = () => {
 
 		const options: PositionOptions = {
 			enableHighAccuracy: true,
-			timeout: 5000,
+			timeout: 30000,
 			maximumAge: 0,
 		};
 

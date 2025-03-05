@@ -79,3 +79,26 @@ export const convertHexToHsl = (hex: string): HslColor | null => {
 
 	return { h: Math.round(h), s: sPercent, l: lPercent };
 };
+
+export const convertHexToRgb = (hex: string, alpha: number = 1) => {
+	console.log('convert', hex);
+	if (hex.length !== 4 && hex.length !== 7 && hex[0] !== '#') {
+		console.log('invalid');
+		return null;
+	}
+
+	// Remove the hash if it exists
+	hex = hex.replace('#', '');
+
+	// Handle short form (e.g., "ABC")
+	if (hex.length === 3) {
+		hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+	}
+
+	// Parse the hex value to integers
+	const r = parseInt(hex.substring(0, 2), 16);
+	const g = parseInt(hex.substring(2, 4), 16);
+	const b = parseInt(hex.substring(4, 6), 16);
+
+	return `rgba(${r},${g},${b},${alpha.toFixed(2)})`;
+};

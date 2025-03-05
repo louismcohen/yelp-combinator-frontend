@@ -30,6 +30,8 @@ import { useSearchFilterStore } from '../store/searchFilterStore';
 import { useMapStore } from '../store/mapStore';
 import { map } from 'motion/react-client';
 import { useAiSearch } from '../hooks/useAiSearch';
+import { FaLocationArrow } from 'react-icons/fa6';
+import { motion } from 'motion/react';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
@@ -38,7 +40,8 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 
 const DEFAULT_ZOOM = 13;
 
-const OVERRIDE_USER_LOCATION = true;
+const OVERRIDE_USER_LOCATION =
+	JSON.parse(import.meta.env.VITE_OVERRIDE_USER_LOCATION) ?? false;
 
 interface MapOverlayProps {
 	isFetching: boolean;
@@ -61,24 +64,56 @@ const MapOverlay = React.memo(
 	},
 );
 
+interface CurrentLocationButtonProps {
+	userLocation: LocationState;
+	onClick: () => void;
+}
+
+const CurrentLocationButton = ({
+	userLocation,
+	onClick,
+}: CurrentLocationButtonProps) => {
+	if (
+		userLocation.loading ||
+		userLocation.error ||
+		!userLocation.latitude ||
+		!userLocation.longitude
+	)
+		return null;
+
+	return (
+		<motion.div className="absolute right-0 bottom-0 flex justify-center p-4 md:py-8">
+			<motion.div
+				className="flex justify-center rounded-full"
+				whileHover={{ scale: 1.05 }}
+				whileTap={{ scale: 0.98 }}
+			>
+				<motion.button
+					className="w-[48px] h-[48px] pop-in p-0 rounded-full shadow-lg hover:shadow-blue-500/25 bg-gray-50/90 backdrop-blur-sm hover:backdrop-blur-md border border-gray-950/10 active:border-blue-500/50 hover:border-blue-500/50 pointer-events-auto flex justify-center items-center text-gray-500 active:bg-blue-500/5 text-2xl outline:none focus:outline-none transition-all touch-manipulation overflow-hidden hover:text-blue-500 active:text-blue-500"
+					onClick={onClick}
+				>
+					<div className="w-full h-full md:hover:bg-blue-500/5 active:bg-blue-500/5 flex justify-center items-center rounded-full">
+						<FaLocationArrow />
+					</div>
+				</motion.button>
+			</motion.div>
+		</motion.div>
+	);
+};
+
 const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const { viewport, updateViewport } = useMapStore();
 	const googleMap = mapService === MapService.GOOGLE && useGoogleMap();
 	const mapboxMapRef = useRef<MapRef>(null);
-	const userLocation = OVERRIDE_USER_LOCATION
+	const overrideLocation = OVERRIDE_USER_LOCATION
 		? ({
 				latitude: DEFAULT_CENTER.lat,
 				longitude: DEFAULT_CENTER.lng,
 				error: null,
 				loading: false,
 		  } as LocationState)
-		: useLocation();
-	// const userLocation: LocationState = {
-	// 	latitude: DEFAULT_CENTER.lat,
-	// 	longitude: DEFAULT_CENTER.lng,
-	// 	error: null,
-	// 	loading: false,
-	// };
+		: null;
+	const userLocation = useLocation(overrideLocation);
 	const userHasInteracted = useRef(false);
 	const [bounds, setBounds] = useState<BBox>();
 	const [zoom, setZoom] = useState<number>(
@@ -241,7 +276,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const supercluster = useMemo(() => {
 		const instance = new Supercluster({
 			extent: mapService === MapService.GOOGLE ? 256 : 512,
-			radius: 50,
+			radius: import.meta.env.VITE_SUPERCLUSTER_RADIUS ?? 50,
 			maxZoom: mapService === MapService.GOOGLE ? 15 : 15,
 			minPoints: 2, // Minimum points to form a cluster
 		});
@@ -412,12 +447,23 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 					ref={mapboxMapRef}
 				>
 					<SearchBar />
+					{renderMarkers}
 					<UserLocationMarker
 						mapService={mapService}
 						userLocation={userLocation}
 					/>
-					{renderMarkers}
 				</MapboxMapScreen>
+				<CurrentLocationButton
+					userLocation={userLocation}
+					onClick={() =>
+						userLocation.latitude &&
+						userLocation.longitude &&
+						mapboxMapRef?.current?.flyTo({
+							center: [userLocation.longitude, userLocation.latitude],
+							maxDuration: 1000,
+						})
+					}
+				/>
 				<MapOverlay {...MapOverlayProps} />
 				<DebugOverlay title="User Location" message={userLocation.error} />
 			</>
