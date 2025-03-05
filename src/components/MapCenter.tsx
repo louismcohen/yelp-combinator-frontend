@@ -30,6 +30,8 @@ import { useSearchFilterStore } from '../store/searchFilterStore';
 import { useMapStore } from '../store/mapStore';
 import { map } from 'motion/react-client';
 import { useAiSearch } from '../hooks/useAiSearch';
+import { FaLocationArrow } from 'react-icons/fa6';
+import { motion } from 'motion/react';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
@@ -61,6 +63,39 @@ const MapOverlay = React.memo(
 		);
 	},
 );
+
+interface CurrentLocationButtonProps {
+	userLocation: LocationState;
+	onClick: () => void;
+}
+
+const CurrentLocationButton = ({
+	userLocation,
+	onClick,
+}: CurrentLocationButtonProps) => {
+	if (
+		userLocation.loading ||
+		userLocation.error ||
+		!userLocation.latitude ||
+		!userLocation.longitude
+	)
+		return null;
+
+	return (
+		<div className="absolute right-0 bottom-0 flex justify-center p-4 md:py-8">
+			<motion.button
+				className="w-[48px] h-[48px] pop-in p-0 rounded-full shadow-lg bg-gray-50/90 backdrop-blur-sm border border-gray-950/10 active:border-blue-500/50 hover:border-gray-950/10 md:hover:border-blue-500/50 pointer-events-auto flex justify-center items-center text-gray-500 active:bg-blue-500/5 text-2xl outline:none focus:outline-none transition-all touch-manipulation overflow-hidden hover:text-blue-500 active:text-blue-500"
+				whileHover={{ scale: 1.02 }}
+				whileTap={{ scale: 0.95 }}
+				onClick={onClick}
+			>
+				<div className="w-full h-full md:hover:bg-blue-500/5 active:bg-blue-500/5 flex justify-center items-center rounded-full">
+					<FaLocationArrow />
+				</div>
+			</motion.button>
+		</div>
+	);
+};
 
 const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const { viewport, updateViewport } = useMapStore();
@@ -414,6 +449,18 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 						userLocation={userLocation}
 					/>
 				</MapboxMapScreen>
+				<CurrentLocationButton
+					userLocation={userLocation}
+					onClick={() =>
+						userLocation.latitude &&
+						userLocation.longitude &&
+						mapboxMapRef?.current?.flyTo({
+							center: [userLocation.longitude, userLocation.latitude],
+							// zoom: DEFAULT_ZOOM,
+							maxDuration: 1000,
+						})
+					}
+				/>
 				<MapOverlay {...MapOverlayProps} />
 				<DebugOverlay title="User Location" message={userLocation.error} />
 			</>
