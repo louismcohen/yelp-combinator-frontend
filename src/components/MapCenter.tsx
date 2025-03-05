@@ -90,6 +90,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 
 	const {
 		searchTerm,
+		searchInputFocused,
 		updateSearchInputFocused,
 		isReset,
 		filters,
@@ -134,16 +135,12 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				updateSearchInputFocused(false);
 			} else if (e.metaKey && e.key === 'k') {
 				updateSearchInputFocused(true);
-			} else if (e.key === 'Enter') {
-				if (searchTerm !== '' && aiSearchEnabled) {
-					mutation.mutate({ query: searchTerm, viewport });
-				}
 			}
 		};
 
 		window.addEventListener('keydown', handleKeyDown);
 		return () => window.removeEventListener('keydown', handleKeyDown);
-	}, []);
+	}, [searchTerm, aiSearchEnabled, searchInputFocused]);
 
 	const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 	const [debouncedBounds] = useDebounce(bounds, 300);
