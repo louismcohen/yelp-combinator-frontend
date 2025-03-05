@@ -40,7 +40,7 @@ const ClearButton = ({
 		>
 			<motion.button
 				whileHover={{ scale: 1.02 }}
-				className={`w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-none hover:outline-none hover:border-none focus:outline-none p-0 ${
+				className={`w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-hidden hover:outline-hidden hover:border-none focus:outline-hidden p-0 ${
 					searchTerm === ''
 						? 'disabled opacity-50 cursor-default'
 						: ' hover:bg-neutral-500'
@@ -56,7 +56,7 @@ const AiSearchButton = () => {
 	return (
 		<motion.button
 			whileHover={{ scale: 1.02 }}
-			className="w-[36px] h-[36px] flex justify-center items-center transition-all bg-gray-50/95 rounded-full outline-none hover:outline-none focus:outline-none p-0"
+			className="w-[36px] h-[36px] flex justify-center items-center transition-all bg-gray-50/95 rounded-full outline-hidden hover:outline-hidden focus:outline-hidden p-0"
 		>
 			<FaMagnifyingGlass size={16} color={'black'} />
 		</motion.button>
@@ -86,7 +86,7 @@ const SearchButton = ({
 				disabled={searchTerm === ''}
 				onClick={onClick}
 				whileHover={{ scale: 1.02 }}
-				className={`w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-none hover:outline-none hover:border-none focus:outline-none p-0 ${
+				className={`w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-hidden hover:outline-hidden hover:border-none focus:outline-hidden p-0 ${
 					searchTerm === ''
 						? 'disabled opacity-50 cursor-default'
 						: ' hover:bg-teal-500 hover:shadow-md hover:shadow-teal-500/25 active:bg-teal-600'
@@ -143,9 +143,9 @@ const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	return (
 		<motion.button
 			whileHover={{ scale: 1.02 }}
-			className={`relative w-1/3 flex flex-row gap-1 md:gap-2 justify-center items-center outline-none transition-all ${
+			className={`relative w-1/3 flex flex-row gap-1 md:gap-2 justify-center items-center outline-hidden transition-all cursor-pointer ${
 				hoverColorVariants[filter.color]
-			} focus:outline-none bg-gray-50/95 border rounded-md py-2 px-0 md:px-3 shadow-lg z-10 text-xs md:text-sm  ${determineFilterStyles(
+			} focus:outline-hidden bg-gray-50/95 border rounded-md py-2 px-0 md:px-3 shadow-lg z-10 text-xs md:text-sm  ${determineFilterStyles(
 				filter.mode,
 				filter.color,
 			)}`}
@@ -172,7 +172,7 @@ const ResetButton = ({
 		<motion.button
 			disabled={isReset}
 			whileHover={{ scale: 1.02 }}
-			className={`w-[36px] h-auto py-0 px-0 flex justify-center items-center transition-all bg-gray-50/95 text-sm md:text-md text-neutral-500 border-neutral-400 border rounded-md shadow-lg outline-none hover:outline-none focus:outline-none hover:border-amber-500 hover:bg-amber-50/95 ${
+			className={`w-[36px] h-auto py-0 px-0 flex justify-center items-center transition-all bg-gray-50/95 text-sm md:text-md text-neutral-500 border-neutral-400 border rounded-md shadow-lg outline-hidden hover:outline-hidden focus:outline-hidden hover:border-amber-500 hover:bg-amber-50/95 ${
 				isReset && 'pointer-events-none'
 			}`}
 			onClick={onClick}
@@ -208,7 +208,7 @@ const ActiveFilters = ({ filters }: Pick<SearchFilter, 'filters'>) => {
 
 	return (
 		<AnimatePresence>
-			<div className="flex flex-grow flex-row gap-2 justify-end items-center transition-all text-md">
+			<div className="flex grow flex-row gap-2 justify-end items-center transition-all text-md">
 				<AnimatePresence>
 					{showOpenFilter && (
 						<motion.div
@@ -310,12 +310,12 @@ const SearchBar = () => {
 		<div className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4 pointer-events-none">
 			<div
 				tabIndex={0}
-				className={`w-full max-w-[500px] pointer-events-auto outline-none hover:outline-2 hover:outline-offset-0 ${
+				className={`w-full max-w-[500px] pointer-events-auto outline-hidden hover:outline-2 hover:outline-offset-0 ${
 					outline.hover
-				} backdrop-blur-sm transition-all duration-300 flex justify-center items-center pr-3 gap-2 rounded-lg overflow-hidden border border-neutral-500/10 ${
+				} backdrop-blur-xs transition-all duration-300 flex justify-center items-center pr-3 gap-2 rounded-lg overflow-hidden border border-neutral-500/10 ${
 					searchInputFocused
 						? `outline-2 outline-offset-0 ${outline.normal} bg-gray-50/90 backdrop-blur-md shadow-xl`
-						: `shadow-lg outline-none`
+						: `shadow-lg outline-hidden`
 				} ${mutation.isPending ? 'bg-teal-50/85' : 'bg-gray-50/85'}`}
 			>
 				<div className="flex flex-row w-full gap-0 justify-center items-center">
@@ -355,7 +355,7 @@ const SearchBar = () => {
 						// 		setSearchInputFocused(false);
 						// 	}
 						// }}
-						className="w-full h-[48px] bg-transparent outline-none md:text-lg text-md text-gray-900 text-ellipsis focus:outline-none"
+						className="w-full h-[48px] bg-transparent outline-hidden md:text-lg text-md text-gray-900 text-ellipsis focus:outline-hidden"
 					/>
 				</div>
 				<ActiveFilters filters={filters} />
@@ -384,7 +384,7 @@ const SearchBar = () => {
 						transition={{ duration: 0.15 }}
 					>
 						<ResetButton isReset={isReset} onClick={resetFilters} />
-						<div className="flex-grow flex flex-row gap-2 justify-center items-center">
+						<div className="grow flex flex-row gap-2 justify-center items-center">
 							<FilterButton
 								text={
 									filters.open.mode === FilterMode.False

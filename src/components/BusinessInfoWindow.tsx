@@ -59,7 +59,7 @@ const VisitedButton = ({
 		<motion.button
 			whileHover={{ scale: 1.02 }}
 			whileTap={{ scale: 0.95 }}
-			className={`h-[24px] flex px-3 py-4 gap-2 pointer-events-auto cursor-pointer justify-center items-center transition-all duration-150 ease-in-out bg-gray-900/50 rounded-lg outline-none hover:outline-none focus:outline-none hover:border-green-400/50 shadow-md hover:drop-shadow-lg backdrop-blur-sm text-sm text-gray-50 ${
+			className={`h-[24px] flex px-3 py-4 gap-2 pointer-events-auto cursor-pointer justify-center items-center transition-all duration-150 ease-in-out bg-gray-900/50 rounded-lg outline-hidden hover:outline-hidden focus:outline-hidden hover:border-green-400/50 shadow-md hover:drop-shadow-lg backdrop-blur-xs text-sm text-gray-50 ${
 				visited ? 'bg-green-600/75 text-gray-50' : ''
 			}`}
 			onClick={onClick}
@@ -174,12 +174,12 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 				transition: { duration: 0.3 },
 			}}
 			transition={{ duration: 0.15 }}
-			className="absolute flex justify-center bottom-0 z-50 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none pointer-events-none"
+			className="absolute flex justify-center bottom-0 z-50 outline-hidden sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-hidden pointer-events-none"
 		>
 			<motion.div
 				layout
 				transition={{ duration: 0.15 }}
-				className="relative pointer-events-auto overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-xl bg-neutral-50/95  backdrop-blur-sm shadow-[0_16px_20px_-4px_rgba(0,0,0,0.25),0_6px_8px_-4px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.1)]"
+				className="relative pointer-events-auto overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-xl bg-neutral-50/95  backdrop-blur-xs shadow-[0_16px_20px_-4px_rgba(0,0,0,0.25),0_6px_8px_-4px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.1)]"
 			>
 				<div
 					className="bg-cover bg-center w-full h-[200px] pointer-events-auto"
@@ -191,13 +191,13 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 					{/* <div className="absolute top-0 right-0 p-4">
 						<CloseButton onClick={handleClose} />
 					</div> */}
-					<div className="flex flex-col w-full justify-between items-start p-4 bg-gradient-to-b from-transparent via-25% via-transparent to-black/75 pointer-events-auto">
+					<div className="flex flex-col w-full justify-between items-start p-4 bg-linear-to-b from-transparent via-25% via-transparent to-black/75 pointer-events-auto">
 						<VisitedButton
 							visited={business.visited}
 							onClick={() => handleVisitedButtonClick(business)}
 						/>
-						<div className="flex flex-grow w-full flex-row justify-between items-end gap-3">
-							<div className="flex flex-shrink flex-col gap-0">
+						<div className="flex grow w-full flex-row justify-between items-end gap-3">
+							<div className="flex shrink flex-col gap-0">
 								<a
 									href={business?.website}
 									target="_blank"
@@ -223,7 +223,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 						backgroundImage: `linear-gradient(to top, ${categoryColor}34 0%, transparent 40px)`,
 					}}
 				>
-					<div className="relative flex-grow flex-col p-4 gap-4">
+					<div className="relative grow flex-col p-4 gap-4">
 						{business.yelpData.hours && business.yelpData.hours.length > 0 && (
 							<>
 								<InfoSection title="hours" icon={<FaRegClock />}>

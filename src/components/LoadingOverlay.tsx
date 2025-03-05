@@ -7,7 +7,7 @@ const LoadingOverlay = () => {
 		<motion.div
 			exit={{ opacity: 0 }}
 			transition={{ duration: 0.3 }}
-			className="fixed inset-0 flex flex-col gap-2 justify-center items-center bg-gray-900/70 z-50 backdrop-blur"
+			className="fixed inset-0 flex flex-col gap-2 justify-center items-center bg-gray-900/70 z-50 backdrop-blur-sm"
 			style={{
 				background:
 					'radial-gradient(circle, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.5) 100%)',
