@@ -30,6 +30,7 @@ import { useSearchFilterStore } from '../store/searchFilterStore';
 import { useMapStore } from '../store/mapStore';
 import { map } from 'motion/react-client';
 import { useAiSearch } from '../hooks/useAiSearch';
+import { usePostHog } from 'posthog-js/react';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
@@ -62,6 +63,7 @@ const MapOverlay = React.memo(
 );
 
 const MapCenter = ({ mapService }: { mapService: MapService }) => {
+	const posthog = usePostHog();
 	const { viewport, updateViewport } = useMapStore();
 	const googleMap = mapService === MapService.GOOGLE && useGoogleMap();
 	const mapboxMapRef = useRef<MapRef>(null);
@@ -153,6 +155,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 
 	const handleMarkerPress = useCallback((marker: Business) => {
 		setSelectedBusiness(marker);
+		posthog?.capture('Marker for business selected', marker);
 	}, []);
 
 	const handleMapPress = () => {
@@ -164,9 +167,9 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		userHasInteracted.current = true;
 	};
 
-	useEffect(() => {
-		console.log('aiSearch', aiSearch);
-	}, [aiSearch]);
+	// useEffect(() => {
+	// 	console.log('aiSearch', aiSearch);
+	// }, [aiSearch]);
 
 	const filteredMarkers = useMemo(() => {
 		if (!businesses || businesses.length === 0 || isFetching) return [];

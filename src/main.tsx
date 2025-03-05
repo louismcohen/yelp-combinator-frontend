@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import MapCenter from './components/MapCenter.tsx';
 import { MapService } from './types/index.ts';
 import { MapProvider } from 'react-map-gl';
+import { PostHogProvider } from 'posthog-js/react';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -14,6 +15,10 @@ const queryClient = new QueryClient({
 		},
 	},
 });
+
+const options = {
+	api_host: import.meta.env.VITE_POSTHOG_HOST,
+};
 
 const MAP_SERVICE =
 	(import.meta.env.VITE_MAP_SERVICE as MapService) || MapService.MAPBOX;
@@ -34,10 +39,15 @@ const MapContextProvider = ({ children }: { children: React.ReactNode }) => {
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<QueryClientProvider client={queryClient}>
-			<MapContextProvider>
-				<MapCenter mapService={MAP_SERVICE} />
-			</MapContextProvider>
-		</QueryClientProvider>
+		<PostHogProvider
+			apiKey={import.meta.env.VITE_POSTHOG_KEY}
+			options={options}
+		>
+			<QueryClientProvider client={queryClient}>
+				<MapContextProvider>
+					<MapCenter mapService={MAP_SERVICE} />
+				</MapContextProvider>
+			</QueryClientProvider>
+		</PostHogProvider>
 	</StrictMode>,
 );
