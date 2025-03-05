@@ -38,7 +38,8 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 
 const DEFAULT_ZOOM = 13;
 
-const OVERRIDE_USER_LOCATION = true;
+const OVERRIDE_USER_LOCATION =
+	JSON.parse(import.meta.env.VITE_OVERRIDE_USER_LOCATION) ?? false;
 
 interface MapOverlayProps {
 	isFetching: boolean;
@@ -65,20 +66,15 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const { viewport, updateViewport } = useMapStore();
 	const googleMap = mapService === MapService.GOOGLE && useGoogleMap();
 	const mapboxMapRef = useRef<MapRef>(null);
-	const userLocation = OVERRIDE_USER_LOCATION
+	const overrideLocation = OVERRIDE_USER_LOCATION
 		? ({
 				latitude: DEFAULT_CENTER.lat,
 				longitude: DEFAULT_CENTER.lng,
 				error: null,
 				loading: false,
 		  } as LocationState)
-		: useLocation();
-	// const userLocation: LocationState = {
-	// 	latitude: DEFAULT_CENTER.lat,
-	// 	longitude: DEFAULT_CENTER.lng,
-	// 	error: null,
-	// 	loading: false,
-	// };
+		: null;
+	const userLocation = useLocation(overrideLocation);
 	const userHasInteracted = useRef(false);
 	const [bounds, setBounds] = useState<BBox>();
 	const [zoom, setZoom] = useState<number>(
@@ -241,7 +237,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const supercluster = useMemo(() => {
 		const instance = new Supercluster({
 			extent: mapService === MapService.GOOGLE ? 256 : 512,
-			radius: 50,
+			radius: import.meta.env.VITE_SUPERCLUSTER_RADIUS ?? 50,
 			maxZoom: mapService === MapService.GOOGLE ? 15 : 15,
 			minPoints: 2, // Minimum points to form a cluster
 		});
@@ -412,11 +408,11 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 					ref={mapboxMapRef}
 				>
 					<SearchBar />
+					{renderMarkers}
 					<UserLocationMarker
 						mapService={mapService}
 						userLocation={userLocation}
 					/>
-					{renderMarkers}
 				</MapboxMapScreen>
 				<MapOverlay {...MapOverlayProps} />
 				<DebugOverlay title="User Location" message={userLocation.error} />
