@@ -89,7 +89,7 @@ const CurrentLocationButton = ({
 				whileTap={{ scale: 0.98 }}
 			>
 				<motion.button
-					className="w-[48px] h-[48px] pop-in p-0 rounded-full shadow-lg md:hover:shadow-blue-500/25 bg-gray-50/90 backdrop-blur-sm hover:backdrop-blur-md border border-gray-950/10 active:border-blue-500/50 hover:border-gray-950/10 md:hover:border-blue-500/50 pointer-events-auto flex justify-center items-center text-gray-500 active:bg-blue-500/5 text-2xl outline:none focus:outline-none transition-all touch-manipulation overflow-hidden hover:text-blue-500 active:text-blue-500"
+					className="w-[48px] h-[48px] pop-in p-0 rounded-full shadow-lg hover:shadow-blue-500/25 bg-gray-50/90 backdrop-blur-sm hover:backdrop-blur-md border border-gray-950/10 active:border-blue-500/50 hover:border-blue-500/50 pointer-events-auto flex justify-center items-center text-gray-500 active:bg-blue-500/5 text-2xl outline:none focus:outline-none transition-all touch-manipulation overflow-hidden hover:text-blue-500 active:text-blue-500"
 					onClick={onClick}
 				>
 					<div className="w-full h-full md:hover:bg-blue-500/5 active:bg-blue-500/5 flex justify-center items-center rounded-full">
@@ -460,7 +460,6 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 						userLocation.longitude &&
 						mapboxMapRef?.current?.flyTo({
 							center: [userLocation.longitude, userLocation.latitude],
-							// zoom: DEFAULT_ZOOM,
 							maxDuration: 1000,
 						})
 					}
