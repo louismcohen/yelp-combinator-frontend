@@ -67,7 +67,7 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-e7681877'], (function (workbox) { 'use strict';
+define(['./workbox-f001acab'], (function (workbox) { 'use strict';
 
   self.skipWaiting();
   workbox.clientsClaim();
@@ -82,13 +82,27 @@ define(['./workbox-e7681877'], (function (workbox) { 'use strict';
     "revision": "d41d8cd98f00b204e9800998ecf8427e"
   }, {
     "url": "index.html",
-    "revision": "0.n6dpnr4kdag"
+    "revision": "0.5l2jo9o70jo"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
-  workbox.registerRoute(/^https:\/\/api\.yelp-combinator.louiscohen\.me\/.*/, new workbox.NetworkFirst({
+  workbox.registerRoute(/^https:\/\/api\.yelp-combinator\.louiscohen\.me\/businesses\/all/, new workbox.CacheFirst({
+    "cacheName": "businesses-cache",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 10,
+      maxAgeSeconds: 10800
+    })]
+  }), 'GET');
+  workbox.registerRoute(/^https:\/\/api\.yelp-combinator\.louiscohen\.me\/collections\/check-and-sync-updates/, new workbox.NetworkFirst({
+    "cacheName": "updates-cache",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 10,
+      maxAgeSeconds: 3600
+    })]
+  }), 'GET');
+  workbox.registerRoute(/^https:\/\/api\.yelp-combinator\.louiscohen\.me\/.*/, new workbox.NetworkFirst({
     "cacheName": "api-cache",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 50,

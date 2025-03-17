@@ -62,6 +62,7 @@ export default defineConfig(({ mode }) => {
 							purpose: 'maskable',
 						},
 					],
+					display: 'standalone',
 				},
 				pwaAssets: {
 					disabled: false,
@@ -73,7 +74,31 @@ export default defineConfig(({ mode }) => {
 					globPatterns: ['**/*.{js,css,html,svg,png,svg,ico}'],
 					runtimeCaching: [
 						{
-							urlPattern: /^https:\/\/api\.yelp-combinator.louiscohen\.me\/.*/, // API caching
+							urlPattern:
+								/^https:\/\/api\.yelp-combinator\.louiscohen\.me\/businesses\/all/,
+							handler: 'CacheFirst',
+							options: {
+								cacheName: 'businesses-cache',
+								expiration: {
+									maxEntries: 10,
+									maxAgeSeconds: 60 * 60 * 3, // 3 hours
+								},
+							},
+						},
+						{
+							urlPattern:
+								/^https:\/\/api\.yelp-combinator\.louiscohen\.me\/collections\/check-and-sync-updates/,
+							handler: 'NetworkFirst',
+							options: {
+								cacheName: 'updates-cache',
+								expiration: {
+									maxEntries: 10,
+									maxAgeSeconds: 60 * 60, // 1 hour
+								},
+							},
+						},
+						{
+							urlPattern: /^https:\/\/api\.yelp-combinator\.louiscohen\.me\/.*/, // Other API endpoints
 							handler: 'NetworkFirst',
 							options: {
 								cacheName: 'api-cache',
@@ -91,7 +116,7 @@ export default defineConfig(({ mode }) => {
 					globPatterns: ['**/*.{js,css,html,svg,png,svg,ico}'],
 				},
 				devOptions: {
-					enabled: false,
+					enabled: isDev,
 					navigateFallback: 'index.html',
 					suppressWarnings: true,
 					/* when using generateSW the PWA plugin will switch to classic */
