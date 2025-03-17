@@ -17,5 +17,6 @@ export default {
 				{ values: theme('textShadow') },
 			);
 		}),
+		require('tailwindcss-safe-area'),
 	],
 };

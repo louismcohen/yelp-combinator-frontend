@@ -175,12 +175,12 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 				transition: { duration: 0.3 },
 			}}
 			transition={{ duration: 0.15 }}
-			className="absolute flex justify-center bottom-0 z-50 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none pointer-events-none"
+			className="absolute flex justify-center bottom-safe z-50 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none pointer-events-none"
 		>
 			<motion.div
 				layout
 				transition={{ duration: 0.15 }}
-				className={`relative pointer-events-auto overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-xl bg-neutral-50/95  backdrop-blur-sm`}
+				className={`relative pointer-events-auto overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-3xl md:rounded-xl bg-neutral-50/95  backdrop-blur-sm`}
 				style={{
 					boxShadow: `0 16px 20px -4px rgba(0,0,0,0.25), 0 6px 8px -4px rgba(0,0,0,0.25), 0 0 0 1px ${convertHexToRgb(
 						categoryColor,

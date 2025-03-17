@@ -63,7 +63,7 @@ const useBusinesses = () => {
 		queryKey: ['businesses'],
 		queryFn: fetchBusinesses,
 		placeholderData: [],
-		staleTime: 5 * 60 * 1000, // 5 minutes - prevent unnecessary refetches
+		staleTime: 3 * 60 * 60 * 1000, // 3 hours - align with service worker cache
 	});
 
 	const updatesQuery = useQuery<UpdateResponse, Error>({

@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Ensure search engines can access your PWA manifest and service worker
+Allow: /manifest.webmanifest
+Allow: /sw.js
+
+# Optional: Disallow specific internal paths if needed
+Disallow: /private/
+Disallow: /admin/
+
+# Point to your sitemap (helps search engines index your content faster)
+Sitemap: https://yelp-combinator.louiscohen.me/sitemap.xml
