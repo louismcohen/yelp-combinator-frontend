@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => {
 				manifest: {
 					name: 'Yelp Combinator',
 					short_name: 'Yelp Combinator',
-					theme_color: '#da2007',
+					theme_color: '#111827',
 					icons: [
 						{
 							src: 'yelp-combinator-64.png',
