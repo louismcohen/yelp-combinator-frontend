@@ -2,6 +2,14 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+@layer base {
+	html,
+	body,
+	#root {
+		height: -webkit-fill-available;
+	}
+}
+
 :root {
 	font-family: system-ui, -apple-system, BlinkMacSystemFont, Avenir, Helvetica,
 		Arial, sans-serif;

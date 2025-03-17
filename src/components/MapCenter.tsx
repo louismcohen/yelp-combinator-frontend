@@ -82,7 +82,7 @@ const CurrentLocationButton = ({
 		return null;
 
 	return (
-		<motion.div className="absolute right-0 bottom-0 flex justify-center p-4 md:py-8">
+		<motion.div className="absolute right-0 bottom-safe flex justify-center p-4 md:py-8">
 			<motion.div
 				className="flex justify-center rounded-full"
 				whileHover={{ scale: 1.05 }}

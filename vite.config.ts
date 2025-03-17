@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => {
 					disabled: false,
 					config: true,
 					htmlPreset: '2023',
-					overrideManifestIcons: true,
+					overrideManifestIcons: false,
 				},
 				workbox: {
 					globPatterns: ['**/*.{js,css,html,svg,png,svg,ico}'],
