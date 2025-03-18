@@ -473,7 +473,8 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 						height: 'env(safe-area-inset-bottom)',
 						width: '100vh',
 						pointerEvents: 'auto',
-						// border: '1px red solid',
+						border: '1px red solid',
+						backgroundColor: 'rgba(255,0,0,0.1)',
 					}}
 				/>
 			</>

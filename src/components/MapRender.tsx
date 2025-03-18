@@ -9,8 +9,7 @@ import { MapEvent } from 'mapbox-gl';
 import { BBox } from 'geojson';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-const mapClassName =
-	'w-screen h-screen outline-none focus:outline-none pt-safe';
+const mapClassName = 'w-screen h-screen outline-none focus:outline-none';
 
 export const getBbox = (map: MapRef): BBox => {
 	const bounds = map.getBounds()?.toArray();
