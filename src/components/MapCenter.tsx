@@ -196,9 +196,9 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		userHasInteracted.current = true;
 	};
 
-	useEffect(() => {
-		console.log('aiSearch', aiSearch);
-	}, [aiSearch]);
+	// useEffect(() => {
+	// 	console.log('aiSearch', aiSearch);
+	// }, [aiSearch]);
 
 	const filteredMarkers = useMemo(() => {
 		if (!businesses || businesses.length === 0 || isFetching) return [];
@@ -466,6 +466,16 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				/>
 				<MapOverlay {...MapOverlayProps} />
 				<DebugOverlay title="User Location" message={userLocation.error} />
+				<div
+					style={{
+						position: 'absolute',
+						bottom: 0,
+						height: 'env(safe-area-inset-bottom)',
+						width: '100vh',
+						pointerEvents: 'auto',
+						// border: '1px red solid',
+					}}
+				/>
 			</>
 		);
 	}

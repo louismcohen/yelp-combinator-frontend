@@ -132,7 +132,9 @@ const IconMarker = ({
 					visualDuration: 0.15,
 				}}
 			>
-				<div className={`w-full h-full bg-gradient-to-t ${highlightGradient}`}>
+				<div
+					className={`w-full h-full rounded-full bg-gradient-to-t ${highlightGradient}`}
+				>
 					<IconGenerated
 						categoryAlias={primaryCategoryAlias}
 						iconProps={{ fill: iconColor }}
