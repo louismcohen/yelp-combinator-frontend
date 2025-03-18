@@ -152,7 +152,6 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				}
 			} else if (mapService === MapService.MAPBOX) {
 				if (mapboxMapRef.current) {
-					console.log('user location has changed');
 					const map = mapboxMapRef.current;
 					map.flyTo({
 						center: [userLocation.longitude, userLocation.latitude],
@@ -194,13 +193,12 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	};
 
 	const handleMapInitialInteraction = () => {
-		console.log('handleMapInitialInteraction');
 		userHasInteracted.current = true;
 	};
 
-	useEffect(() => {
-		console.log('aiSearch', aiSearch);
-	}, [aiSearch]);
+	// useEffect(() => {
+	// 	console.log('aiSearch', aiSearch);
+	// }, [aiSearch]);
 
 	const filteredMarkers = useMemo(() => {
 		if (!businesses || businesses.length === 0 || isFetching) return [];
@@ -328,7 +326,6 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 			}
 		} else if (mapService === MapService.MAPBOX) {
 			if (mapboxMapRef.current) {
-				console.log('cluster click', latitude, longitude, expansionZoom);
 				const map = mapboxMapRef.current;
 				map.flyTo({
 					center: [longitude, latitude],
@@ -411,7 +408,6 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		);
 	} else if (mapService === MapService.MAPBOX) {
 		const handleMapMoveEnd = (e: ViewStateChangeEvent) => {
-			console.log('handleMapMoveEnd', e);
 			if (mapboxMapRef.current) {
 				checkAndUpdateViewport(mapboxMapRef.current);
 				setBounds(getBbox(mapboxMapRef.current));
@@ -420,7 +416,6 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		};
 
 		const handleMapLoad = (m: MapEvent) => {
-			console.log('handleMapLoad', m);
 			if (mapboxMapRef.current) {
 				checkAndUpdateViewport(mapboxMapRef.current);
 				setBounds(getBbox(mapboxMapRef.current));
