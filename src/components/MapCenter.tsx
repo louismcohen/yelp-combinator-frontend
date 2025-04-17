@@ -1,4 +1,4 @@
-import { MapCameraChangedEvent } from '@vis.gl/react-google-maps';
+import type { MapCameraChangedEvent } from '@vis.gl/react-google-maps';
 import React, {
 	useCallback,
 	useEffect,
@@ -6,7 +6,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import { Business, MapService } from '../types';
+import { type Business, MapService } from '../types';
 import BusinessInfoWindow from './BusinessInfoWindow';
 import SearchBar from './SearchBar';
 import { AnimatePresence } from 'motion/react';
@@ -17,12 +17,12 @@ import { getBusinessHoursStatus } from '../utils/businessHours';
 import useBusinesses from '../hooks/useBusinesses';
 import Supercluster from 'supercluster';
 import ClusterMarker from './ClusterMarker';
-import { MapRef, Marker, ViewStateChangeEvent } from 'react-map-gl';
+import { type MapRef, Marker, type ViewStateChangeEvent } from 'react-map-gl';
 import { getBbox, GoogleMapScreen, MapboxMapScreen } from './MapRender';
-import { MapEvent } from 'mapbox-gl';
-import { BBox } from 'geojson';
+import type { MapEvent } from 'mapbox-gl';
+import type { BBox } from 'geojson';
 import { useMap as useGoogleMap } from '@vis.gl/react-google-maps';
-import useLocation, { LocationState } from '../hooks/useLocation';
+import useLocation, { type LocationState } from '../hooks/useLocation';
 import UserLocationMarker from './UserLocationMarker';
 import DebugOverlay from './DebugOverlay';
 import LoadingOverlay from './LoadingOverlay';
@@ -161,7 +161,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				}
 			}
 		}
-	}, [userLocation]);
+	}, [userLocation, googleMap, mapService]);
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -175,13 +175,16 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 
 		window.addEventListener('keydown', handleKeyDown);
 		return () => window.removeEventListener('keydown', handleKeyDown);
-	}, [searchTerm, aiSearchEnabled, searchInputFocused]);
+	}, [updateSearchInputFocused]);
 
 	const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 	const [debouncedBounds] = useDebounce(bounds, 300);
 	const [debouncedZoom] = useDebounce(zoom, 300);
 
-	const deselectBusiness = () => setSelectedBusiness(undefined);
+	const deselectBusiness = useCallback(
+		() => setSelectedBusiness(undefined),
+		[],
+	);
 
 	const handleMarkerPress = useCallback((marker: Business) => {
 		setSelectedBusiness(marker);
@@ -217,9 +220,8 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 							.includes(debouncedSearchTerm.toLocaleLowerCase());
 				const isNote = aiSearchEnabled
 					? true
-					: business?.note &&
-					  business?.note
-							.toLocaleLowerCase()
+					: business?.note
+							?.toLocaleLowerCase()
 							.includes(debouncedSearchTerm.toLocaleLowerCase());
 				const isCategory = aiSearchEnabled
 					? 'categories' in aiSearch.searchConfig &&
@@ -271,7 +273,18 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		);
 
 		return filtered;
-	}, [businesses, debouncedSearchTerm, filters, aiSearch, aiSearchEnabled]);
+	}, [
+		businesses,
+		debouncedSearchTerm,
+		filters,
+		aiSearch,
+		aiSearchEnabled,
+		deselectBusiness,
+		isReset,
+		selectedBusiness?.alias,
+		isFetching,
+		searchTerm,
+	]);
 
 	const supercluster = useMemo(() => {
 		const instance = new Supercluster({
@@ -297,7 +310,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		instance.load(points);
 
 		return instance;
-	}, [filteredMarkers]);
+	}, [filteredMarkers, mapService]);
 
 	const clusters = useMemo(() => {
 		if (!debouncedBounds || !supercluster || !debouncedZoom) return [];
@@ -310,30 +323,33 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		return clusters;
 	}, [debouncedBounds, debouncedZoom, supercluster]);
 
-	const handleClusterClick = (cluster: Supercluster.ClusterFeature<any>) => {
-		const [longitude, latitude] = cluster.geometry.coordinates;
+	const handleClusterClick = useCallback(
+		(cluster: Supercluster.ClusterFeature<Supercluster.AnyProps>) => {
+			const [longitude, latitude] = cluster.geometry.coordinates;
 
-		// Get the cluster expansion zoom
-		const expansionZoom = Math.min(
-			supercluster.getClusterExpansionZoom(cluster.properties.cluster_id),
-			20,
-		);
+			// Get the cluster expansion zoom
+			const expansionZoom = Math.min(
+				supercluster.getClusterExpansionZoom(cluster.properties.cluster_id),
+				20,
+			);
 
-		if (mapService === MapService.GOOGLE) {
-			if (googleMap) {
-				googleMap.panTo({ lat: latitude, lng: longitude });
-				googleMap.setZoom(expansionZoom);
+			if (mapService === MapService.GOOGLE) {
+				if (googleMap) {
+					googleMap.panTo({ lat: latitude, lng: longitude });
+					googleMap.setZoom(expansionZoom);
+				}
+			} else if (mapService === MapService.MAPBOX) {
+				if (mapboxMapRef.current) {
+					const map = mapboxMapRef.current;
+					map.flyTo({
+						center: [longitude, latitude],
+						zoom: expansionZoom,
+					});
+				}
 			}
-		} else if (mapService === MapService.MAPBOX) {
-			if (mapboxMapRef.current) {
-				const map = mapboxMapRef.current;
-				map.flyTo({
-					center: [longitude, latitude],
-					zoom: expansionZoom,
-				});
-			}
-		}
-	};
+		},
+		[googleMap, mapService, supercluster],
+	);
 
 	useEffect(() => {
 		if (businesses && businesses.length > 0 && selectedBusiness) {
@@ -346,7 +362,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				setSelectedBusiness(selected);
 			}
 		}
-	}, [businesses]);
+	}, [businesses, selectedBusiness, deselectBusiness]);
 
 	const renderMarkers = useMemo(() => {
 		return clusters.map((cluster) => {
@@ -362,23 +378,33 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 						latitude={latitude}
 						longitude={longitude}
 						points={pointCount}
-						onClick={() => handleClusterClick(cluster)}
-					/>
-				);
-			} else {
-				const marker = cluster.properties as Business;
-				return (
-					<IconMarker
-						mapService={mapService}
-						key={marker.alias}
-						business={marker}
-						selected={selectedBusiness?.alias === marker.alias}
-						onMarkerPress={handleMarkerPress}
+						onClick={() =>
+							'cluster' in cluster.properties &&
+							handleClusterClick(
+								cluster as Supercluster.ClusterFeature<Supercluster.AnyProps>,
+							)
+						}
 					/>
 				);
 			}
+			const marker = cluster.properties as Business;
+			return (
+				<IconMarker
+					mapService={mapService}
+					key={marker.alias}
+					business={marker}
+					selected={selectedBusiness?.alias === marker.alias}
+					onMarkerPress={handleMarkerPress}
+				/>
+			);
 		});
-	}, [clusters, selectedBusiness?.alias]);
+	}, [
+		clusters,
+		selectedBusiness,
+		handleClusterClick,
+		handleMarkerPress,
+		mapService,
+	]);
 
 	const MapOverlayProps = {
 		isFetching,
@@ -406,7 +432,8 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				<MapOverlay {...MapOverlayProps} />
 			</GoogleMapScreen>
 		);
-	} else if (mapService === MapService.MAPBOX) {
+	}
+	if (mapService === MapService.MAPBOX) {
 		const handleMapMoveEnd = (e: ViewStateChangeEvent) => {
 			if (mapboxMapRef.current) {
 				checkAndUpdateViewport(mapboxMapRef.current);
@@ -432,7 +459,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 					}
 				}
 			},
-			[mapboxMapRef],
+			[updateViewport],
 		);
 
 		return (

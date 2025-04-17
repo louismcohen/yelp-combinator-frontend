@@ -1,12 +1,16 @@
 import {
 	Map as GoogleMap,
-	MapCameraChangedEvent,
+	type MapCameraChangedEvent,
 	useMap as useGoogleMap,
 } from '@vis.gl/react-google-maps';
 import React, { forwardRef } from 'react';
-import { Map as MapboxMap, MapRef, ViewStateChangeEvent } from 'react-map-gl';
-import { MapEvent } from 'mapbox-gl';
-import { BBox } from 'geojson';
+import {
+	Map as MapboxMap,
+	type MapRef,
+	type ViewStateChangeEvent,
+} from 'react-map-gl';
+import type { MapEvent } from 'mapbox-gl';
+import type { BBox } from 'geojson';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 const mapClassName = 'w-screen h-screen outline-none focus:outline-none';

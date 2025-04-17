@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Business, Category } from '../types';
+import type { Business, Category } from '../types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
@@ -112,9 +112,9 @@ const useBusinesses = () => {
 						);
 
 						// Update existing businesses or add new ones
-						updatedBusinesses.forEach((updatedBusiness) => {
+						for (const updatedBusiness of updatedBusinesses) {
 							businessMap.set(updatedBusiness.alias, updatedBusiness);
-						});
+						}
 
 						// Convert map back to array
 						return Array.from(businessMap.values());
@@ -124,7 +124,12 @@ const useBusinesses = () => {
 				console.log('No updated businesses');
 			}
 		}
-	}, [updatesQuery.data, updatesQuery.isFetching, queryClient]);
+	}, [
+		updatesQuery.data,
+		queryClient,
+		businessesQuery.isFetching,
+		businessesQuery.status,
+	]);
 
 	return businessesQuery;
 };
