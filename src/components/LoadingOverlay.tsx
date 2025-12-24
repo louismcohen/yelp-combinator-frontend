@@ -1,8 +1,8 @@
 import { motion } from 'motion/react';
-import { GridLoader } from 'react-spinners';
 import { memo } from 'react';
+import { GridLoader } from 'react-spinners';
 
-const LoadingOverlay = () => {
+const LoadingOverlayComponent = () => {
 	return (
 		<motion.div
 			exit={{ opacity: 0 }}
@@ -32,4 +32,4 @@ const LoadingOverlay = () => {
 	);
 };
 
-export default memo(LoadingOverlay);
+export const LoadingOverlay = memo(LoadingOverlayComponent);

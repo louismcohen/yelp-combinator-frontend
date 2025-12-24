@@ -24,13 +24,13 @@ import { useSearchFilterStore } from '../store/searchFilterStore';
 import { type Business, MapService } from '../types';
 import { FilterMode } from '../types/searchFilter';
 import { getBusinessHoursStatus } from '../utils/businessHours';
-import {BusinessInfoWindow} from './BusinessInfoWindow/';
-import ClusterMarker from './ClusterMarker';
-import DebugOverlay from './DebugOverlay';
-import IconMarker from './IconMarker';
-import LoadingOverlay from './LoadingOverlay';
+import { BusinessInfoWindow } from './BusinessInfoWindow/';
+import { ClusterMarker } from './ClusterMarker';
+import { DebugOverlay } from './DebugOverlay';
+import { IconMarker } from './IconMarker/';
+import { LoadingOverlay } from './LoadingOverlay';
 import { GoogleMapScreen, MapboxMapScreen, getBbox } from './MapRender';
-import SearchBar from './SearchBar';
+import { SearchBar } from './SearchBar';
 import UserLocationMarker from './UserLocationMarker';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
@@ -492,7 +492,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 					}
 				/>
 				<MapOverlay {...MapOverlayProps} />
-				<DebugOverlay title="User Location" message={userLocation.error} />
+				{/* <DebugOverlay title="User Location" message={userLocation.error} /> */}
 				<div
 					style={{
 						position: 'absolute',

@@ -1,4 +1,4 @@
-const DebugOverlay = ({
+export const DebugOverlay = ({
 	title,
 	message,
 }: {
@@ -20,5 +20,3 @@ const DebugOverlay = ({
 		</div>
 	);
 };
-
-export default DebugOverlay;

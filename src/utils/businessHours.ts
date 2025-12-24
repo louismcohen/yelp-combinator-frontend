@@ -1,6 +1,6 @@
-import { Business } from '../types';
 import tz_lookup from '@photostructure/tz-lookup';
 import { DateTime } from 'luxon';
+import type { Business } from '../types';
 
 interface BusinessStatus {
 	isOpen: boolean;
@@ -9,8 +9,8 @@ interface BusinessStatus {
 }
 
 const formatTime = (timeStr: string): string => {
-	const hour = parseInt(timeStr.slice(0, 2));
-	const minute = parseInt(timeStr.slice(2));
+	const hour = Number.parseInt(timeStr.slice(0, 2));
+	const minute = Number.parseInt(timeStr.slice(2));
 	const period = hour >= 12 ? 'PM' : 'AM';
 	const hour12 = hour % 12 || 12;
 	return `${hour12}:${minute.toString().padStart(2, '0')} ${period}`;
@@ -19,7 +19,6 @@ const formatTime = (timeStr: string): string => {
 // const getTimeZone = async (latitude: number, longitude: number) => await GeoTZ.find(latitude, longitude);
 
 export const getBusinessHoursStatus = (business: Business): BusinessStatus => {
-	console.log('getBusinessHoursStatus', business);
 	if (!business.yelpData) return { isOpen: true, status: '', auxStatus: '' };
 
 	if (!business.yelpData.hours || business.yelpData.hours.length === 0) {
@@ -44,7 +43,7 @@ export const getBusinessHoursStatus = (business: Business): BusinessStatus => {
 	const previousDayHours = hoursData[0].open.find((h) => h.day === previousDay);
 
 	if (previousDayHours?.is_overnight) {
-		const endTime = parseInt(previousDayHours.end);
+		const endTime = Number.parseInt(previousDayHours.end);
 		if (currentTime < endTime) {
 			return {
 				isOpen: true,
@@ -58,8 +57,8 @@ export const getBusinessHoursStatus = (business: Business): BusinessStatus => {
 	const todayHours = hoursData[0].open.find((h) => h.day === currentDay);
 
 	if (todayHours) {
-		const startTime = parseInt(todayHours.start);
-		const endTime = parseInt(todayHours.end);
+		const startTime = Number.parseInt(todayHours.start);
+		const endTime = Number.parseInt(todayHours.end);
 
 		// Check if currently open
 		if (todayHours.is_overnight) {
@@ -114,22 +113,21 @@ export const getBusinessHoursStatus = (business: Business): BusinessStatus => {
 					status: 'Closed',
 					auxStatus: ` | Opens tomorrow at ${timeString}`,
 				};
-			} else {
-				const days = [
-					'Sunday',
-					'Monday',
-					'Tuesday',
-					'Wednesday',
-					'Thursday',
-					'Friday',
-					'Saturday',
-				];
-				return {
-					isOpen: false,
-					status: 'Closed',
-					auxStatus: ` | Opens ${days[nextDay]} at ${timeString}`,
-				};
 			}
+			const days = [
+				'Sunday',
+				'Monday',
+				'Tuesday',
+				'Wednesday',
+				'Thursday',
+				'Friday',
+				'Saturday',
+			];
+			return {
+				isOpen: false,
+				status: 'Closed',
+				auxStatus: ` | Opens ${days[nextDay]} at ${timeString}`,
+			};
 		}
 
 		daysToCheck--;

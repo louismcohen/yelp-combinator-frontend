@@ -2,9 +2,9 @@ import {
 	AdvancedMarker,
 	useAdvancedMarkerRef,
 } from '@vis.gl/react-google-maps';
+import { useEffect } from 'react';
 import { Marker } from 'react-map-gl';
 import { MapService } from '../types';
-import { useEffect, useRef } from 'react';
 import { getRandomMarkerDelay } from '../utils';
 
 const ClusterBubble = ({ text }: { text: string | number }) => {
@@ -23,7 +23,7 @@ interface ClusterMarkerProps {
 	onClick: () => void;
 }
 
-const ClusterMarker = ({
+export const ClusterMarker = ({
 	mapService,
 	points,
 	latitude,
@@ -53,34 +53,28 @@ const ClusterMarker = ({
 				<ClusterBubble text={points.toLocaleString()} />
 			</AdvancedMarker>
 		);
-	} else if (mapService === MapService.MAPBOX) {
-		const markerRef = useRef<mapboxgl.Marker>(null);
-
-		useEffect(() => {
-			if (markerRef?.current) {
-				markerRef.current
-					.getElement()
-					.style.setProperty('--delay-time', getRandomMarkerDelay());
-			}
-		}, [markerRef.current]);
-
-		return (
-			<Marker
-				key={`${latitude}-${longitude}`}
-				latitude={latitude}
-				longitude={longitude}
-				onClick={(e) => {
-					e.originalEvent.stopPropagation();
-					onClick();
-				}}
-				ref={markerRef}
-			>
-				<ClusterBubble text={points.toLocaleString()} />
-			</Marker>
-		);
 	}
 
-	return null;
-};
+	const handleMarkerRef = (marker: mapboxgl.Marker | null) => {
+		if (marker) {
+			marker
+				.getElement()
+				.style.setProperty('--delay-time', getRandomMarkerDelay());
+		}
+	};
 
-export default ClusterMarker;
+	return (
+		<Marker
+			key={`${latitude}-${longitude}`}
+			latitude={latitude}
+			longitude={longitude}
+			onClick={(e) => {
+				e.originalEvent.stopPropagation();
+				onClick();
+			}}
+			ref={handleMarkerRef}
+		>
+			<ClusterBubble text={points.toLocaleString()} />
+		</Marker>
+	);
+};

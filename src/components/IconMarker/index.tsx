@@ -2,17 +2,18 @@ import {
 	AdvancedMarker,
 	useAdvancedMarkerRef,
 } from '@vis.gl/react-google-maps';
-import { Business, MapService } from '../types';
-import {
-	generateHexColorFromCategoryAlias,
-	IconGenerated,
-} from '../utils/IconGenerator';
 import { motion } from 'motion/react';
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect } from 'react';
 import { Marker } from 'react-map-gl';
-import { getRandomMarkerDelay } from '../utils';
+import type { Business } from '../../types';
+import { MapService } from '../../types';
+import { getRandomMarkerDelay } from '../../utils';
+import {
+	IconGenerated,
+	generateHexColorFromCategoryAlias,
+} from '../../utils/IconGenerator';
 
-const iconFillVisited = `#ffffff`;
+const iconFillVisited = '#ffffff';
 
 interface MapMarkerProps {
 	business: Business;
@@ -59,15 +60,14 @@ export const MapboxMarker = ({
 	children,
 }: MapMarkerProps) => {
 	if (!business.yelpData) return null;
-	const markerRef = useRef<mapboxgl.Marker>(null);
 
-	useEffect(() => {
-		if (markerRef?.current) {
-			markerRef.current
+	const handleMarkerRef = (marker: mapboxgl.Marker | null) => {
+		if (marker) {
+			marker
 				.getElement()
 				.style.setProperty('--delay-time', getRandomMarkerDelay());
 		}
-	}, [markerRef.current]);
+	};
 
 	return (
 		<Marker
@@ -77,7 +77,7 @@ export const MapboxMarker = ({
 				e.originalEvent.stopPropagation();
 				onMarkerPress(business);
 			}}
-			ref={markerRef}
+			ref={handleMarkerRef}
 		>
 			<div className="pop-in">{children}</div>
 		</Marker>
@@ -91,7 +91,7 @@ interface IconMapMarkerProps {
 	selected: boolean;
 }
 
-const IconMarker = ({
+const IconMarkerComponent = ({
 	mapService,
 	business,
 	onMarkerPress,
@@ -150,20 +150,18 @@ const IconMarker = ({
 				<InnerMarker />
 			</GoogleMarker>
 		);
-	} else if (mapService === MapService.MAPBOX) {
-		return (
-			<MapboxMarker business={business} onMarkerPress={onMarkerPress}>
-				<InnerMarker />
-			</MapboxMarker>
-		);
 	}
+
+	return (
+		<MapboxMarker business={business} onMarkerPress={onMarkerPress}>
+			<InnerMarker />
+		</MapboxMarker>
+	);
 };
 
-const MemoizedIconMarker = memo(IconMarker, (prevProps, nextProps) => {
+export const IconMarker = memo(IconMarkerComponent, (prevProps, nextProps) => {
 	return (
 		prevProps.selected === nextProps.selected &&
 		prevProps.business.visited === nextProps.business.visited
 	);
 });
-
-export default MemoizedIconMarker;
