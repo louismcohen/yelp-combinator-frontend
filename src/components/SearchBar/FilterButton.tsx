@@ -40,6 +40,7 @@ export const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	return (
 		<motion.button
 			whileHover={{ scale: 1.02 }}
+			whileTap={{ scale: 0.95 }}
 			className={cn(
 				'h-[38px] relative w-1/3 flex flex-row gap-1 md:gap-2 justify-center items-center outline-none transition-all',
 				hoverColorVariants[filter.color],

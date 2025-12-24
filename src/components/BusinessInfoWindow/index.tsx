@@ -1,9 +1,5 @@
 import { motion } from 'motion/react';
-import {
-	FaRegClock,
-	FaRegMap,
-	FaRegNoteSticky,
-} from 'react-icons/fa6';
+import { FaRegClock, FaRegMap, FaRegNoteSticky } from 'react-icons/fa6';
 import useMutateBusiness, {
 	useUpdateVisitedBusiness,
 } from '../../hooks/useMutateBusiness';
@@ -11,6 +7,7 @@ import type { Business } from '../../types';
 import { convertHexToRgb } from '../../utils';
 import { generateHexColorFromCategoryAlias } from '../../utils/IconGenerator';
 import { getBusinessHoursStatus } from '../../utils/businessHours';
+import { ClaimedChip } from './ClaimedChip';
 import { InfoSection } from './InfoSection';
 import { ResponsiveAddress } from './ResponsiveAddress';
 import { VisitedButton } from './VisitedButton';
@@ -62,7 +59,7 @@ export const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 			<motion.div
 				layout
 				transition={{ duration: 0.15 }}
-				className='relative pointer-events-auto overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-3xl md:rounded-xl bg-neutral-50/95  backdrop-blur-sm'
+				className="relative pointer-events-auto overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-3xl md:rounded-xl bg-neutral-50/95  backdrop-blur-sm"
 				style={{
 					boxShadow: `0 16px 20px -4px rgba(0,0,0,0.25), 0 6px 8px -4px rgba(0,0,0,0.25), 0 0 0 1px ${convertHexToRgb(
 						categoryColor,
@@ -81,10 +78,13 @@ export const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 						<CloseButton onClick={handleClose} />
 					</div> */}
 					<div className="flex flex-col w-full justify-between items-start p-4 bg-gradient-to-b from-transparent via-25% via-transparent to-black/75 pointer-events-auto">
-						<VisitedButton
-							visited={business.visited}
-							onClick={() => handleVisitedButtonClick(business)}
-						/>
+						<div className="w-full flex flex-row justify-between items-center">
+							<VisitedButton
+								visited={business.visited}
+								onClick={() => handleVisitedButtonClick(business)}
+							/>
+							<ClaimedChip claimed={business.yelpData.is_claimed} />
+						</div>
 						<div className="flex flex-grow w-full flex-row justify-between items-end gap-3">
 							<div className="flex flex-shrink flex-col gap-0">
 								<a
