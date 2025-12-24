@@ -206,9 +206,16 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 	const filteredMarkers = useMemo(() => {
 		if (!businesses || businesses.length === 0 || isFetching) return [];
 
-		if (isReset) return businesses;
+		// Calculate isReset based on debouncedSearchTerm to prevent re-renders on every keystroke
+		const noSearchTerm = debouncedSearchTerm === '';
+		const noFilters = Object.values(filters).every(
+			(filter) => filter.mode === FilterMode.Disabled,
+		);
+		const isResetDebounced = noSearchTerm && noFilters;
 
-		if (aiSearchEnabled && searchTerm !== '' && aiSearch.query !== searchTerm)
+		if (isResetDebounced) return businesses;
+
+		if (aiSearchEnabled && debouncedSearchTerm !== '' && aiSearch.query !== debouncedSearchTerm)
 			return businesses;
 
 		const filtered = businesses.reduce(
@@ -242,7 +249,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				const isClaimed = business.yelpData?.is_claimed;
 
 				const aiSearchResults =
-					aiSearchEnabled && searchTerm !== '' && aiSearch.query === searchTerm
+					aiSearchEnabled && debouncedSearchTerm !== '' && aiSearch.query === debouncedSearchTerm
 						? aiSearch.results.find((result) => result.alias === business.alias)
 						: true;
 
@@ -280,10 +287,8 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		aiSearch,
 		aiSearchEnabled,
 		deselectBusiness,
-		isReset,
 		selectedBusiness?.alias,
 		isFetching,
-		searchTerm,
 	]);
 
 	const supercluster = useMemo(() => {
