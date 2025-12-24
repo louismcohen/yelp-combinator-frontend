@@ -129,7 +129,8 @@ const IconMarkerComponent = ({
 				}}
 				transition={{
 					type: 'spring',
-					visualDuration: 0.15,
+					visualDuration: 0.3,
+					bounce: 0.5,
 				}}
 			>
 				<div
