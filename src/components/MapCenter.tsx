@@ -327,10 +327,30 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		(cluster: Supercluster.ClusterFeature<Supercluster.AnyProps>) => {
 			const [longitude, latitude] = cluster.geometry.coordinates;
 
-			// Get the cluster expansion zoom
+			// Get the base cluster expansion zoom
+			const baseExpansionZoom = supercluster.getClusterExpansionZoom(
+				cluster.properties.cluster_id,
+			);
+
+			// Get cluster point count to determine zoom aggressiveness
+			const pointCount = cluster.properties.point_count || 0;
+
+			// Add zoom offset based on cluster size:
+			// - Small clusters (< 10 points): +1 zoom level
+			// - Medium clusters (10-50 points): +2 zoom levels
+			// - Large clusters (> 50 points): +3 zoom levels
+			const zoomOffset = 
+				pointCount > 10 
+					? 3 
+					: pointCount > 5 
+						? 2 
+						: 1;
+
+			// Calculate final zoom level, ensuring it doesn't exceed maxZoom
+			const maxZoom = mapService === MapService.GOOGLE ? 15 : 20;
 			const expansionZoom = Math.min(
-				supercluster.getClusterExpansionZoom(cluster.properties.cluster_id),
-				20,
+				baseExpansionZoom + zoomOffset,
+				maxZoom,
 			);
 
 			if (mapService === MapService.GOOGLE) {
@@ -387,6 +407,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 					/>
 				);
 			}
+			
 			const marker = cluster.properties as Business;
 			return (
 				<IconMarker
