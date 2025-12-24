@@ -1,9 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef } from 'react';
-import {
-	FaMagnifyingGlass,
-	FaWandMagicSparkles,
-} from 'react-icons/fa6';
+import { FaMagnifyingGlass, FaWandMagicSparkles } from 'react-icons/fa6';
 import { useAiSearch } from '../../hooks/useAiSearch';
 import { useMapStore } from '../../store/mapStore';
 import { useSearchFilterStore } from '../../store/searchFilterStore';
@@ -11,11 +8,13 @@ import { FilterType } from '../../types/searchFilter';
 import { FilterMode } from '../../types/searchFilter';
 import { cn } from '../../utils/cn';
 import { ActiveFilters } from './ActiveFilters';
+import { ClearButton } from './ClearButton';
 import { FilterButton } from './FilterButton';
 import { ResetButton } from './ResetButton';
 import { SearchButton } from './SearchButton';
 
-const ENABLE_AI_SEARCH_FEATURE = import.meta.env.VITE_ENABLE_AI_SEARCH_FEATURE === 'true';
+const ENABLE_AI_SEARCH_FEATURE =
+	import.meta.env.VITE_ENABLE_AI_SEARCH_FEATURE === 'true';
 
 export const SearchBar = () => {
 	const searchBarRef = useRef<HTMLInputElement>(null);
@@ -87,13 +86,14 @@ export const SearchBar = () => {
 				className={cn(
 					'w-full max-w-[500px] transition-all duration-150 rounded-full overflow-hidden pointer-events-auto outline-none outline-offset-1 hover:outline-2 hover:outline-offset-0',
 					'flex flex-row items-center',
-					'px-1.5',
-					aiSearchEnabled && 'pr-4',
+					'pl-1 pr-3',
 					outline.hover,
 					searchInputFocused
 						? `${outline.focused} bg-gray-50/90 backdrop-blur-md shadow-xl`
 						: `shadow-lg ${outline.normal}`,
-					mutation.isPending ? 'bg-teal-50/85' : 'bg-gray-50/85 backdrop-blur-sm',
+					mutation.isPending
+						? 'bg-teal-50/85'
+						: 'bg-gray-50/85 backdrop-blur-sm',
 				)}
 			>
 				<div className="flex flex-row w-full gap-0 justify-center items-center">
@@ -107,16 +107,26 @@ export const SearchBar = () => {
 								updateAiSearchEnabled(!aiSearchEnabled);
 							}
 						}}
-						className={cn('cursor-pointer flex justify-center items-center h-[48px] w-[48px] transition-all duration-300 text-lg text-neutral-400 bg-transparent border-none outline-none p-0',
+						className={cn(
+							'cursor-pointer flex justify-center items-center h-[48px] w-[48px] transition-all duration-300 text-lg text-neutral-400 bg-transparent border-none outline-none p-0',
 							'focus:outline-none',
-							aiSearchEnabled ? 'hover:text-teal-500' : ENABLE_AI_SEARCH_FEATURE && 'hover:text-red-500',
-							aiSearchEnabled ? 'hover:text-shadow-lg hover:shadow-teal-500' : ENABLE_AI_SEARCH_FEATURE && 'hover:text-shadow-lg hover:shadow-red-500',
+							aiSearchEnabled
+								? 'hover:text-teal-500'
+								: ENABLE_AI_SEARCH_FEATURE && 'hover:text-red-500',
+							aiSearchEnabled
+								? 'hover:text-shadow-lg hover:shadow-teal-500'
+								: ENABLE_AI_SEARCH_FEATURE &&
+										'hover:text-shadow-lg hover:shadow-red-500',
 						)}
 					>
-						{aiSearchEnabled ? <FaWandMagicSparkles size={16} /> : <FaMagnifyingGlass size={16} />}
+						{aiSearchEnabled ? (
+							<FaWandMagicSparkles size={16} />
+						) : (
+							<FaMagnifyingGlass size={16} />
+						)}
 					</button>
 					<input
-						id='search-term'
+						id="search-term"
 						ref={searchBarRef}
 						tabIndex={0}
 						type="text"
@@ -144,10 +154,14 @@ export const SearchBar = () => {
 						/>
 					)}
 				</AnimatePresence>
-				{/* <ClearButton
-					searchTerm={searchTerm}
-					updateSearchTerm={updateSearchTerm}
-				/> */}
+				<AnimatePresence>
+					{!aiSearchEnabled && searchTerm !== '' && (
+						<ClearButton
+							searchTerm={searchTerm}
+							updateSearchTerm={updateSearchTerm}
+						/>
+					)}
+				</AnimatePresence>
 			</div>
 			<AnimatePresence>
 				{searchInputFocused && (
