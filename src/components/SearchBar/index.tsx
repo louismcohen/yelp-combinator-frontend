@@ -39,17 +39,7 @@ export const SearchBar = () => {
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === 'Enter') {
-				console.log('MapCenter: Enter key pressed', {
-					searchTerm,
-					aiSearchEnabled,
-					searchInputFocused,
-				});
 				if (searchTerm !== '' && aiSearchEnabled && searchInputFocused) {
-					console.log(
-						'MapCenter criteria met for mutation',
-						searchTerm,
-						viewport,
-					);
 					mutation.mutate({ query: searchTerm });
 				}
 			}

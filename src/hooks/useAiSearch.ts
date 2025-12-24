@@ -1,11 +1,10 @@
-import { useMutation, UseMutationResult } from '@tanstack/react-query';
-import { Viewport } from '../store/mapStore';
+import { UseMutationResult, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { Business } from '../types';
+import type { Viewport } from '../store/mapStore';
 import { useSearchFilterStore } from '../store/searchFilterStore';
+import { Business } from '../types';
 
 const getAiSearchResults = async (query: string, viewport?: Viewport) => {
-	console.log('getAiSearchResults', query, viewport);
 	const data = {
 		query,
 		viewport,
@@ -15,7 +14,6 @@ const getAiSearchResults = async (query: string, viewport?: Viewport) => {
 		`${import.meta.env.VITE_BACKEND_API_URL}/search`,
 		data,
 	);
-	console.log('getAiSearchResults response', response);
 	return response;
 };
 
@@ -35,7 +33,6 @@ export const useAiSearch = () => {
 			);
 		},
 		onSuccess(data, variables, context) {
-			console.log('search success', data);
 			updateAiSearch({ ...data.data, query: variables.query });
 		},
 	});
