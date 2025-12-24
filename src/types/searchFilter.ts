@@ -1,4 +1,4 @@
-import { Business } from '.';
+import type { Business } from '.';
 
 export enum FilterMode {
 	Disabled = 0,
