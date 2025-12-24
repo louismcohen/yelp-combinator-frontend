@@ -76,11 +76,13 @@ export const SearchBar = () => {
 	const outline = aiSearchEnabled
 		? {
 				hover: 'hover:outline-teal-500',
-				normal: 'outline-teal-500',
+				focused: 'outline-2 outline-teal-500',
+				normal: 'outline-offset-0 outline-neutral-700/15 outline-1',
 		  }
 		: {
 				hover: 'hover:outline-red-500',
-				normal: 'outline-red-500',
+				focused: 'outline-2 outline-red-500',
+				normal: 'outline-offset-0 outline-neutral-700/15 outline-1',
 		  };
 
 	const handleSearchClick = useCallback(() => {
@@ -93,14 +95,14 @@ export const SearchBar = () => {
 		<div className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4 pointer-events-none">
 			<div
 				className={cn(
-					'w-full max-w-[500px] transition-all duration-150 rounded-full overflow-hidden pointer-events-auto outline-none hover:outline-2 hover:outline-offset-0',
+					'w-full max-w-[500px] transition-all duration-150 rounded-full overflow-hidden pointer-events-auto outline-none outline-offset-1 hover:outline-2 hover:outline-offset-0',
 					'flex flex-row items-center',
 					'px-1.5',
 					aiSearchEnabled && 'pr-4',
 					outline.hover,
 					searchInputFocused
-						? `outline-2 outline-offset-0 ${outline.normal} bg-gray-50/90 backdrop-blur-md shadow-xl`
-						: 'shadow-lg outline-none',
+						? `${outline.focused} bg-gray-50/90 backdrop-blur-md shadow-xl`
+						: `shadow-lg ${outline.normal}`,
 					mutation.isPending ? 'bg-teal-50/85' : 'bg-gray-50/85 backdrop-blur-sm',
 				)}
 			>
