@@ -1,4 +1,10 @@
 import type { MapCameraChangedEvent } from '@vis.gl/react-google-maps';
+import { useMap as useGoogleMap } from '@vis.gl/react-google-maps';
+import type { BBox } from 'geojson';
+import type { MapEvent } from 'mapbox-gl';
+import { AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
+import { map } from 'motion/react-client';
 import React, {
 	useCallback,
 	useEffect,
@@ -6,32 +12,26 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import { type Business, MapService } from '../types';
-import BusinessInfoWindow from './BusinessInfoWindow';
-import SearchBar from './SearchBar';
-import { AnimatePresence } from 'motion/react';
+import { FaLocationArrow } from 'react-icons/fa6';
+import { type MapRef, Marker, type ViewStateChangeEvent } from 'react-map-gl';
+import Supercluster from 'supercluster';
 import { useDebounce } from 'use-debounce';
-import IconMarker from './IconMarker';
+import { useAiSearch } from '../hooks/useAiSearch';
+import useBusinesses from '../hooks/useBusinesses';
+import useLocation, { type LocationState } from '../hooks/useLocation';
+import { useMapStore } from '../store/mapStore';
+import { useSearchFilterStore } from '../store/searchFilterStore';
+import { type Business, MapService } from '../types';
 import { FilterMode } from '../types/searchFilter';
 import { getBusinessHoursStatus } from '../utils/businessHours';
-import useBusinesses from '../hooks/useBusinesses';
-import Supercluster from 'supercluster';
+import {BusinessInfoWindow} from './BusinessInfoWindow/';
 import ClusterMarker from './ClusterMarker';
-import { type MapRef, Marker, type ViewStateChangeEvent } from 'react-map-gl';
-import { getBbox, GoogleMapScreen, MapboxMapScreen } from './MapRender';
-import type { MapEvent } from 'mapbox-gl';
-import type { BBox } from 'geojson';
-import { useMap as useGoogleMap } from '@vis.gl/react-google-maps';
-import useLocation, { type LocationState } from '../hooks/useLocation';
-import UserLocationMarker from './UserLocationMarker';
 import DebugOverlay from './DebugOverlay';
+import IconMarker from './IconMarker';
 import LoadingOverlay from './LoadingOverlay';
-import { useSearchFilterStore } from '../store/searchFilterStore';
-import { useMapStore } from '../store/mapStore';
-import { map } from 'motion/react-client';
-import { useAiSearch } from '../hooks/useAiSearch';
-import { FaLocationArrow } from 'react-icons/fa6';
-import { motion } from 'motion/react';
+import { GoogleMapScreen, MapboxMapScreen, getBbox } from './MapRender';
+import SearchBar from './SearchBar';
+import UserLocationMarker from './UserLocationMarker';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lat: 34.04162072763611,
