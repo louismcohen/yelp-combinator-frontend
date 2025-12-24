@@ -2,8 +2,8 @@ import type { Business } from '.';
 
 export enum FilterMode {
 	Disabled = 0,
-	True,
-	False,
+	True = 1,
+	False = 2,
 }
 
 export enum FilterColor {
