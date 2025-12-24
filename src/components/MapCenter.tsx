@@ -56,7 +56,7 @@ const MapOverlay = React.memo(
 				<AnimatePresence>{isFetching && <LoadingOverlay />}</AnimatePresence>
 				<AnimatePresence>
 					{selectedBusiness && (
-						<BusinessInfoWindow business={selectedBusiness} />
+						<BusinessInfoWindow key={selectedBusiness.alias} business={selectedBusiness} />
 					)}
 				</AnimatePresence>
 			</>
@@ -407,7 +407,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 					/>
 				);
 			}
-			
+
 			const marker = cluster.properties as Business;
 			return (
 				<IconMarker
@@ -514,7 +514,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 				/>
 				<MapOverlay {...MapOverlayProps} />
 				{/* <DebugOverlay title="User Location" message={userLocation.error} /> */}
-				<div
+				{/* <div
 					style={{
 						position: 'absolute',
 						bottom: 0,
@@ -524,7 +524,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 						border: '1px red solid',
 						backgroundColor: 'rgba(255,0,0,0.1)',
 					}}
-				/>
+				/> */}
 			</>
 		);
 	}

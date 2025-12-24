@@ -49,15 +49,14 @@ export const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, scale: 0.95, transform: 'translateY(32px)' }}
-			animate={{ opacity: 1, scale: 1.0, transform: 'translateY(0px)' }}
+			initial={{ opacity: 0, scale: 0.95, y: 16 }}
+			animate={{ opacity: 1, scale: 1.0, y: 0 }}
 			exit={{
 				opacity: 0,
-				scale: 1.0,
-				transform: 'translateY(32px)',
-				transition: { duration: 0.3 },
+				scale: 1.02,
+				transition: { duration: 0.15 },
 			}}
-			transition={{ duration: 0.15 }}
+			transition={{ duration: 0.2 }}
 			className="absolute flex justify-center bottom-safe z-50 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none pointer-events-none"
 		>
 			<motion.div
