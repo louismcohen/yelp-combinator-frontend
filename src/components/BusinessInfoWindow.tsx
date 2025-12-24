@@ -1,140 +1,27 @@
-import { Business, Location } from '../types';
 import { motion } from 'motion/react';
 import {
 	FaRegClock,
-	FaXmark,
-	FaRegNoteSticky,
 	FaRegMap,
+	FaRegNoteSticky,
 } from 'react-icons/fa6';
-import { generateHexColorFromCategoryAlias } from '../utils/IconGenerator';
-import { getBusinessHoursStatus } from '../utils/businessHours';
-import { initialFilterState } from '../store/searchFilterStore';
-import yelpLogo from '../assets/yelp_logo_dark_bg.png';
 import useMutateBusiness, {
 	useUpdateVisitedBusiness,
 } from '../hooks/useMutateBusiness';
+import type { Business } from '../types';
 import { convertHexToRgb } from '../utils';
-
-const CloseButton = ({ onClick }: { onClick: () => void }) => {
-	return (
-		<p
-			onClick={onClick}
-			className="bg-neutral-300/50 hover:bg-neutral-300/60 transition-all cursor-pointer rounded-full h-[30px] w-[30px] flex items-center justify-center text-neutral-50 border border-neutral-100/25 shadow-lg"
-		>
-			<FaXmark size={16} />
-		</p>
-	);
-};
-
-const InfoSection = ({
-	title,
-	icon,
-	children,
-}: {
-	title: string;
-	icon: React.ReactNode;
-	children?: any;
-}) => {
-	return (
-		<div className="flex flex-row justify-between items-start w-full gap-8 md:gap-12 text-neutral-700">
-			<div className="flex flex-row justify-start items-center gap-2">
-				{icon}
-				<p className="text-sm font-bold uppercase">{title}</p>
-			</div>
-
-			{children}
-		</div>
-	);
-};
-
-const VisitedButton = ({
-	visited,
-	onClick,
-}: {
-	visited: boolean;
-	onClick: () => void;
-}) => {
-	const visitedColor = visited ? 'text-gray-50' : 'text-green-400';
-
-	return (
-		<motion.button
-			whileHover={{ scale: 1.02 }}
-			whileTap={{ scale: 0.95 }}
-			className={`h-[24px] flex px-3 py-4 gap-2 pointer-events-auto cursor-pointer justify-center items-center transition-all duration-150 ease-in-out bg-gray-900/50 rounded-lg outline-none hover:outline-none focus:outline-none hover:border-green-400/50 shadow-md hover:drop-shadow-lg backdrop-blur-sm text-sm text-gray-50 ${
-				visited ? 'bg-green-600/75 text-gray-50' : ''
-			}`}
-			onClick={onClick}
-		>
-			<span className={`${visitedColor}`}>
-				{visited
-					? initialFilterState.visited.trueIcon
-					: initialFilterState.visited.falseIcon}
-			</span>
-			{visited ? `Visited` : `Not Visited`}
-		</motion.button>
-	);
-};
+import { generateHexColorFromCategoryAlias } from '../utils/IconGenerator';
+import { getBusinessHoursStatus } from '../utils/businessHours';
+import { InfoSection } from './BusinessInfoWindow/InfoSection';
+import { ResponsiveAddress } from './BusinessInfoWindow/ResponsiveAddress';
+import { VisitedButton } from './BusinessInfoWindow/VisitedButton';
+import { YelpLogo } from './BusinessInfoWindow/YelpLogo';
 
 const Divider = () => {
 	return <div className="h-[1px] my-2 w-full bg-neutral-700/10" />;
 };
 
-type DisplayAddress = [string, string];
-
-const generateDisplayAddress = (location: Location): DisplayAddress => {
-	if (!location) return ['', ''];
-
-	let lines = ['', ''] as DisplayAddress;
-	lines[0] =
-		`${location.address1 !== undefined && location.address1}` +
-		`${
-			(location.address2 !== undefined &&
-				location.address2 !== '' &&
-				' ' + location.address2) ||
-			''
-		}` +
-		`${
-			(location.address3 !== undefined &&
-				location.address3 !== '' &&
-				' ' + location.address3) ||
-			''
-		}` +
-		',';
-	lines[1] = `${location.city}, ${location.state} ${location.zip_code}`;
-
-	return lines;
-};
-
-const ResponsiveAddress = ({
-	displayAddress,
-}: {
-	displayAddress: DisplayAddress;
-}) => {
-	return (
-		<div className="flex flex-wrap justify-end text-sm text-neutral-700 text-right">
-			<span>{displayAddress[0]}</span>
-			<span className="ml-1">{displayAddress[1]}</span>
-		</div>
-	);
-};
-
-const YelpLogo = ({ alias }: { alias: string }) => (
-	<div className="shrink-0">
-		<a
-			href={`https://www.yelp.com/biz/${alias}`}
-			target="_blank"
-			rel="noopener noreferrer"
-			title="Go to Yelp page"
-		>
-			<img className="h-[24px]" src={yelpLogo} alt="Yelp Logo" />
-		</a>
-	</div>
-);
-
 const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 	if (!business || !business.yelpData) return;
-
-	console.log({ business });
 
 	const updateVisitedMutation = useUpdateVisitedBusiness();
 
@@ -156,13 +43,9 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 
 	const { status, auxStatus } = getBusinessHoursStatus(business);
 
-	console.log(business.alias, status, auxStatus);
-
 	const statusColor = status.includes('Open')
 		? 'text-green-600'
 		: 'text-red-600';
-
-	const displayAddress = generateDisplayAddress(business.yelpData.location);
 
 	return (
 		<motion.div
@@ -180,7 +63,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 			<motion.div
 				layout
 				transition={{ duration: 0.15 }}
-				className={`relative pointer-events-auto overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-3xl md:rounded-xl bg-neutral-50/95  backdrop-blur-sm`}
+				className='relative pointer-events-auto overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-3xl md:rounded-xl bg-neutral-50/95  backdrop-blur-sm'
 				style={{
 					boxShadow: `0 16px 20px -4px rgba(0,0,0,0.25), 0 6px 8px -4px rgba(0,0,0,0.25), 0 0 0 1px ${convertHexToRgb(
 						categoryColor,
@@ -253,7 +136,7 @@ const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 							</>
 						)}
 						<InfoSection title="address" icon={<FaRegMap />}>
-							<ResponsiveAddress displayAddress={displayAddress} />
+							<ResponsiveAddress location={business.yelpData.location} />
 						</InfoSection>
 					</div>
 				</div>
