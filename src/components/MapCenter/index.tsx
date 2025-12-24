@@ -123,8 +123,6 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		}
 	}, [businesses, selectedBusiness, deselectBusiness]);
 
-	console.log('zoom', debouncedZoom);
-
 	if (mapService === MapService.GOOGLE) {
 		return (
 			<GoogleMapScreen
