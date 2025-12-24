@@ -29,12 +29,12 @@ export const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 	const determineFilterStyles = (status: FilterMode, color: FilterColor) => {
 		if (status === FilterMode.True) {
 			return `${containerColorVariants[color]} ${textColorVariants[color]}`;
+			// biome-ignore lint/style/noUselessElse: <explanation>
 		} else if (status === FilterMode.False) {
 			return `${containerColorVariants[color]} ${textColorVariants[color]}`;
 		}
 
 		return 'text-neutral-500 border-neutral-700/30';
-		
 	};
 
 	return (
