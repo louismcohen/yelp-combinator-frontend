@@ -112,50 +112,48 @@ const IconMarkerComponent = ({
 		? 'from-transparent via-transparent to-gray-50/20'
 		: '';
 
-	const InnerMarker = () => {
-		return (
-			<motion.div
-				className={`w-[32px] h-[32px] flex justify-center items-center rounded-full backdrop-blur-md ${backgroundHighlight} cursor-pointer overflow-hidden`}
-				style={{
-					backgroundColor,
-					borderColor,
-					borderWidth: '1px',
-					boxShadow: selected
-						? `0px 0px 5px 2px ${iconHexColor}80, 0px 3px 5px rgba(0,0,0,0.33)`
-						: '0px 3px 5px rgba(0,0,0,0.33)',
-				}}
-				animate={{
-					scale: selected ? 1.25 : 1,
-				}}
-				transition={{
-					type: 'spring',
-					visualDuration: 0.3,
-					bounce: 0.5,
-				}}
+	const markerContent = (
+		<motion.div
+			className={`w-[32px] h-[32px] flex justify-center items-center rounded-full backdrop-blur-md ${backgroundHighlight} cursor-pointer overflow-hidden`}
+			style={{
+				backgroundColor,
+				borderColor,
+				borderWidth: '1px',
+				boxShadow: selected
+					? `0px 0px 5px 2px ${iconHexColor}60, 0px 3px 5px rgba(0,0,0,0.33)`
+					: '0px 3px 5px rgba(0,0,0,0.33)',
+			}}
+			animate={{
+				scale: selected ? 1.25 : 1,
+			}}
+			transition={{
+				type: 'spring',
+				visualDuration: selected ? 0.2 : 0.15,
+				bounce: selected ? 0.5 : 0.55,
+			}}
+		>
+			<div
+				className={`w-full h-full rounded-full bg-gradient-to-t ${highlightGradient}`}
 			>
-				<div
-					className={`w-full h-full rounded-full bg-gradient-to-t ${highlightGradient}`}
-				>
-					<IconGenerated
-						categoryAlias={primaryCategoryAlias}
-						iconProps={{ fill: iconColor }}
-					/>
-				</div>
-			</motion.div>
-		);
-	};
+				<IconGenerated
+					categoryAlias={primaryCategoryAlias}
+					iconProps={{ fill: iconColor }}
+				/>
+			</div>
+		</motion.div>
+	);
 
 	if (mapService === MapService.GOOGLE) {
 		return (
 			<GoogleMarker business={business} onMarkerPress={onMarkerPress}>
-				<InnerMarker />
+				{markerContent}
 			</GoogleMarker>
 		);
 	}
 
 	return (
 		<MapboxMarker business={business} onMarkerPress={onMarkerPress}>
-			<InnerMarker />
+			{markerContent}
 		</MapboxMarker>
 	);
 };
