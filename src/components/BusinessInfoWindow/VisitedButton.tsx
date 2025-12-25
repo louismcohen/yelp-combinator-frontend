@@ -1,6 +1,5 @@
-import { motion } from 'motion/react';
 import { initialFilterState } from '../../store/searchFilterStore';
-import { cn } from '../../utils/cn';
+import { Badge } from '../Badge';
 
 interface VisitedButtonProps {
 	visited: boolean;
@@ -8,24 +7,18 @@ interface VisitedButtonProps {
 }
 
 export const VisitedButton = ({ visited, onClick }: VisitedButtonProps) => {
-	const visitedColor = visited ? 'text-neutral-50' : 'text-green-400';
-
 	return (
-		<motion.button
-			whileHover={{ scale: 1.02 }}
-			whileTap={{ scale: 0.95 }}
-			className={cn(
-				'h-[24px] flex px-3 py-4 gap-2 pointer-events-auto cursor-pointer justify-center items-center transition-all duration-150 ease-in-out bg-neutral-900/50 rounded-lg outline-none hover:outline-none focus:outline-none hover:border-green-400/50 shadow-md hover:drop-shadow-lg backdrop-blur-sm text-sm text-neutral-50',
-				visited ? 'bg-green-600/75 text-neutral-50 font-medium' : '',
-			)}
+		<Badge
+			isActive={visited}
+			trueIcon={initialFilterState.visited.trueIcon}
+			falseIcon={initialFilterState.visited.falseIcon}
+			trueLabel="Visited"
+			falseLabel="Not Visited"
+			activeIconColor="text-neutral-50"
+			inactiveIconColor="text-green-400"
+			activeBgColor="bg-green-600/75"
+			hoverBorderColor="hover:border-green-400/50"
 			onClick={onClick}
-		>
-			<span className={`${visitedColor}`}>
-				{visited
-					? initialFilterState.visited.trueIcon
-					: initialFilterState.visited.falseIcon}
-			</span>
-			{visited ? 'Visited' : 'Not Visited'}
-		</motion.button>
+		/>
 	);
 };
