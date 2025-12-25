@@ -8,7 +8,7 @@ import {
 } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-const mapClassName = 'w-screen h-screen outline-none focus:outline-none';
+const mapClassName = 'w-screen h-svh outline-none focus:outline-none';
 
 export const getBbox = (map: MapRef): BBox => {
 	const bounds = map.getBounds()?.toArray();

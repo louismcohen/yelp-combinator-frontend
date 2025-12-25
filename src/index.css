@@ -173,3 +173,7 @@ button:focus-visible {
 .backdrop-no-blur {
 	backdrop-filter: blur(0px);
 }
+
+.mapboxgl-ctrl.mapboxgl-ctrl-attrib.mapboxgl-compact {
+	display: none;
+}
