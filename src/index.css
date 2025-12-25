@@ -2,23 +2,17 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-@layer base {
-	html,
-	body,
-	#root {
-		height: -webkit-fill-available;
-	}
-}
-
 :root {
 	font-family: system-ui, -apple-system, BlinkMacSystemFont, Avenir, Helvetica,
 		Arial, sans-serif;
 	line-height: 1.5;
 	font-weight: 400;
 
+	height: 100dvh;
+
 	color-scheme: light dark;
 	color: rgba(255, 255, 255, 0.87);
-	background-color: #242424;
+	background-color: transparent;
 
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
@@ -42,8 +36,9 @@ body {
 	display: flex;
 	place-items: center;
 	min-width: 320px;
-	min-height: 100vh;
+	min-height: 100dvh;
 	overflow: hidden;
+	background-color: #262626;
 }
 
 h1 {
@@ -177,4 +172,8 @@ button:focus-visible {
 
 .backdrop-no-blur {
 	backdrop-filter: blur(0px);
+}
+
+.mapboxgl-ctrl.mapboxgl-ctrl-attrib.mapboxgl-compact {
+	display: none;
 }

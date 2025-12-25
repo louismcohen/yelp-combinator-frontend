@@ -1,9 +1,9 @@
 import {
 	useMutation,
-	UseMutationResult,
+	type UseMutationResult,
 	useQueryClient,
 } from '@tanstack/react-query';
-import { Business } from '../types';
+import type { Business } from '../types';
 import axios from 'axios';
 
 interface UpdateVisitedParams {

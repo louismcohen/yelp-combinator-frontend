@@ -1,20 +1,20 @@
 import {
-	FaDoorOpen,
-	FaDoorClosed,
 	FaCircleCheck,
-	FaRegCircleCheck,
+	FaDoorClosed,
+	FaDoorOpen,
 	FaHandshakeSimple,
 	FaHandshakeSimpleSlash,
+	FaRegCircleCheck,
 } from 'react-icons/fa6';
 import { create } from 'zustand';
-import {
-	FilterMode,
+import { FilterColor, FilterMode, FilterType } from '../types/searchFilter';
+import type {
 	FilterState,
-	FilterType,
-	FilterColor,
-	SearchFilterState,
 	SearchFilter,
+	SearchFilterState,
 } from '../types/searchFilter';
+
+const USE_AI_SEARCH_DEFAULT = import.meta.env.VITE_USE_AI_SEARCH_DEFAULT === 'true';
 
 const incrementFilterMode = (mode: FilterMode): FilterMode => (mode + 1) % 3;
 
@@ -54,7 +54,7 @@ const initialSearchFilterState: SearchFilterState = {
 			totalResults: 0,
 		},
 	},
-	aiSearchEnabled: true,
+	aiSearchEnabled: USE_AI_SEARCH_DEFAULT,
 };
 
 const determineIsReset = (state: SearchFilterState) => {

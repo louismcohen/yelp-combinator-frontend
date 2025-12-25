@@ -1,13 +1,13 @@
 import { motion } from 'motion/react';
-import { GridLoader } from 'react-spinners';
 import { memo } from 'react';
+import { GridLoader } from 'react-spinners';
 
-const LoadingOverlay = () => {
+const LoadingOverlayComponent = () => {
 	return (
 		<motion.div
 			exit={{ opacity: 0 }}
 			transition={{ duration: 0.3 }}
-			className="fixed inset-0 flex flex-col gap-2 justify-center items-center bg-gray-900/70 z-50 backdrop-blur"
+			className="fixed inset-0 flex flex-col gap-2 justify-center items-center bg-neutral-900/70 z-50 backdrop-blur"
 			style={{
 				background:
 					'radial-gradient(circle, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.5) 100%)',
@@ -24,12 +24,12 @@ const LoadingOverlay = () => {
 				}}
 			/>
 			{/* <CircleLoader color="#fff" size={48} /> */}
-			<div className="py-6 px-8 flex flex-col gap-2 items-center justify-center rounded-lg bg-gray-900/70 shadow-xl border border-gray-900/20">
+			<div className="py-6 px-8 flex flex-col gap-2 items-center justify-center rounded-lg bg-neutral-900/70 shadow-xl border border-neutral-900/20">
 				<GridLoader color="#f9fafb" size={12} />
-				<p className="text-gray-50 text-lg">Loading businesses...</p>
+				<p className="text-neutral-50 text-lg">Loading businesses...</p>
 			</div>
 		</motion.div>
 	);
 };
 
-export default memo(LoadingOverlay);
+export const LoadingOverlay = memo(LoadingOverlayComponent);

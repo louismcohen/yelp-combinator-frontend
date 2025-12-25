@@ -1,4 +1,5 @@
-import { ColorName, colorPalette } from '../constants/ColorPalette';
+import convert from "color-convert";
+import { type ColorName, colorPalette } from '../constants/ColorPalette';
 
 export const getHexColorByName = (nameInput: ColorName) => {
 	const defaultColor = colorPalette.find((color) => color.name === 'jet');
@@ -14,7 +15,11 @@ export const convertToKebabCase = (input: string) => {
 };
 
 export const getRandomMarkerDelay = () =>
-	(Math.random() * 0.3).toFixed(2) + 's';
+	`${(Math.random() * 0.3).toFixed(2)}s`;
+
+const removeHashFromHex = (hex: string) => {
+	return hex.replace(/^#/, '');
+};
 
 export interface HslColor {
 	h: number;
@@ -24,81 +29,27 @@ export interface HslColor {
 
 export const convertHexToHsl = (hex: string): HslColor | null => {
 	// Remove the hash if it's present
-	hex = hex.replace(/^#/, '');
+	const hexWithoutHash = removeHashFromHex(hex);
 
-	// Parse r, g, b values from the hex string
-	if (hex.length === 3) {
-		// Short format: #RGB -> #RRGGBB
-		hex = hex
-			.split('')
-			.map((char) => char + char)
-			.join('');
-	}
+	const hsl = convert.hex.hsl(hexWithoutHash);
 
-	if (hex.length !== 6) {
-		return null; // Invalid hex format
-	}
-
-	const r = parseInt(hex.slice(0, 2), 16) / 255;
-	const g = parseInt(hex.slice(2, 4), 16) / 255;
-	const b = parseInt(hex.slice(4, 6), 16) / 255;
-
-	// Calculate min, max, and delta
-	const max = Math.max(r, g, b);
-	const min = Math.min(r, g, b);
-	const delta = max - min;
-
-	// Calculate lightness
-	const l = (max + min) / 2;
-
-	// Calculate saturation
-	let s = 0;
-	if (delta !== 0) {
-		s = delta / (1 - Math.abs(2 * l - 1));
-	}
-
-	// Calculate hue
-	let h = 0;
-	if (delta !== 0) {
-		if (max === r) {
-			h = ((g - b) / delta) % 6;
-		} else if (max === g) {
-			h = (b - r) / delta + 2;
-		} else if (max === b) {
-			h = (r - g) / delta + 4;
-		}
-		h = Math.round(h * 60);
-		if (h < 0) {
-			h += 360;
-		}
-	}
-
-	// Convert saturation and lightness to percentages
-	const sPercent = Math.round(s * 100);
-	const lPercent = Math.round(l * 100);
-
-	return { h: Math.round(h), s: sPercent, l: lPercent };
+	return {
+		h: hsl[0],
+		s: hsl[1],
+		l: hsl[2],
+	};
 };
 
-export const convertHexToRgb = (hex: string, alpha: number = 1) => {
-	console.log('convert', hex);
+export const convertHexToRgb = (hex: string, alpha = 1) => {
 	if (hex.length !== 4 && hex.length !== 7 && hex[0] !== '#') {
-		console.log('invalid');
+		console.log('invalid hex color', hex);
 		return null;
 	}
 
 	// Remove the hash if it exists
-	hex = hex.replace('#', '');
+	const hexWithoutHash = removeHashFromHex(hex);
 
-	// Handle short form (e.g., "ABC")
-	if (hex.length === 3) {
-		hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-	}
+	const rgb = convert.hex.rgb(hexWithoutHash);
 
-	// Parse the hex value to integers
-	const r = parseInt(hex.substring(0, 2), 16);
-	const g = parseInt(hex.substring(2, 4), 16);
-	const b = parseInt(hex.substring(4, 6), 16);
-
-	return `rgba(${r},${g},${b},${alpha.toFixed(2)})`;
+	return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha.toFixed(2)})`;
 };

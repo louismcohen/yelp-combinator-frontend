@@ -1,7 +1,7 @@
-import * as IconSvgs from '../icons';
 import { convertToKebabCase, getHexColorByName } from '.';
+import type { ColorName } from '../constants/ColorPalette';
 import { iconMapping } from '../constants/IconMapping';
-import { ColorName } from '../constants/ColorPalette';
+import * as IconSvgs from '../icons';
 
 type IconKey = keyof typeof IconSvgs;
 
@@ -61,8 +61,14 @@ const generateIconPngFromCategoryAlias = (
 	props: IconProps = defaultProps,
 ) => {
 	const icon = generateIconPngUrl(categoryAlias);
+	const category = iconMapping.find(
+		(category) => category.alias === categoryAlias,
+	);
+	const altText = category
+		? `${category.icon} icon for ${categoryAlias}`
+		: `Icon for ${categoryAlias}`;
 
-	return <img src={icon} alt={icon} {...props} />;
+	return <img src={icon} {...props} alt={altText} />;
 };
 
 const generateIconFromCategoryAlias = (
@@ -93,9 +99,11 @@ export const IconGenerated = ({
 	const category = iconMapping.find(
 		(category) => category.alias === categoryAlias,
 	);
-	const categoryIcon = category?.icon || (DEFAULT_ICON as IconKey);
+	const categoryIcon = (category?.icon || DEFAULT_ICON) as IconKey;
 
-	const IconComponent = (IconSvgs as any)[categoryIcon];
+	const IconComponent = IconSvgs[
+		categoryIcon
+	] as React.ComponentType<IconProps>;
 
 	const props = { ...defaultProps, ...iconProps };
 

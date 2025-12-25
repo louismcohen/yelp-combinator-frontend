@@ -33,6 +33,7 @@ export default defineConfig(({ mode }) => {
 					name: 'Yelp Combinator',
 					short_name: 'Yelp Combinator',
 					theme_color: '#111827',
+					// background_color: '#111827',
 					icons: [
 						{
 							src: 'yelp-combinator-64.png',
@@ -134,7 +135,7 @@ export default defineConfig(({ mode }) => {
 							path.resolve(__dirname, './certificates/localhost.pem'),
 						),
 					},
-					host: 'localhost',
+					host: '0.0.0.0', // Allow access from network
 					port: 3000,
 			  }
 			: undefined,
