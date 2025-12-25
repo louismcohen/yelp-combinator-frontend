@@ -33,8 +33,6 @@ export const SearchBar = () => {
 		updateAiSearchEnabled,
 	} = useSearchFilterStore();
 
-	const { viewport } = useMapStore();
-
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === 'Enter') {
@@ -46,13 +44,7 @@ export const SearchBar = () => {
 
 		window.addEventListener('keydown', handleKeyDown);
 		return () => window.removeEventListener('keydown', handleKeyDown);
-	}, [
-		searchTerm,
-		aiSearchEnabled,
-		searchInputFocused,
-		viewport,
-		mutation.mutate,
-	]);
+	}, [searchTerm, aiSearchEnabled, searchInputFocused, mutation.mutate]);
 
 	useEffect(() => {
 		if (searchBarRef.current) {
@@ -144,24 +136,26 @@ export const SearchBar = () => {
 						className="w-full h-[48px] bg-transparent outline-none md:text-lg text-md text-neutral-900 text-ellipsis focus:outline-none"
 					/>
 				</div>
-				<ActiveFilters filters={filters} />
-				<AnimatePresence>
-					{aiSearchEnabled && (
-						<SearchButton
-							searchTerm={searchTerm}
-							onClick={handleSearchClick}
-							isLoading={mutation.isPending}
-						/>
-					)}
-				</AnimatePresence>
-				<AnimatePresence>
-					{!aiSearchEnabled && searchTerm !== '' && (
-						<ClearButton
-							searchTerm={searchTerm}
-							updateSearchTerm={updateSearchTerm}
-						/>
-					)}
-				</AnimatePresence>
+				<div className="inline-flex flex-row gap-2 justify-end items-center">
+					<ActiveFilters filters={filters} />
+					<AnimatePresence>
+						{aiSearchEnabled && (
+							<SearchButton
+								searchTerm={searchTerm}
+								onClick={handleSearchClick}
+								isLoading={mutation.isPending}
+							/>
+						)}
+					</AnimatePresence>
+					<AnimatePresence>
+						{!aiSearchEnabled && searchTerm !== '' && (
+							<ClearButton
+								searchTerm={searchTerm}
+								updateSearchTerm={updateSearchTerm}
+							/>
+						)}
+					</AnimatePresence>
+				</div>
 			</div>
 			<AnimatePresence>
 				{searchInputFocused && (

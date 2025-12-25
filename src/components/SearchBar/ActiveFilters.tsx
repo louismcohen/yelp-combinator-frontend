@@ -13,8 +13,8 @@ export const ActiveFilters = ({ filters }: Pick<SearchFilter, 'filters'>) => {
 	const returnRelevantIcon = (filter: Filter): React.ReactNode => {
 		if (filter.mode === FilterMode.True) {
 			return filter.trueIcon;
-		} 
-			return filter.falseIcon;
+		}
+		return filter.falseIcon;
 	};
 
 	const animationSettings = {
@@ -25,18 +25,18 @@ export const ActiveFilters = ({ filters }: Pick<SearchFilter, 'filters'>) => {
 	};
 
 	return (
-		<AnimatePresence>
-			<div className="flex flex-grow flex-row gap-2 justify-end items-center transition-all text-md px-4">
-				<AnimatePresence>
-					{showOpenFilter && (
-						<motion.div
-							{...animationSettings}
-							className={textColorVariants[filters.open.color]}
-						>
-							{returnRelevantIcon(filters.open)}
-						</motion.div>
-					)}
-				</AnimatePresence>
+		<div className="flex flex-grow flex-row gap-2 justify-end items-center transition-all text-md pr-1">
+			<AnimatePresence>
+				{showOpenFilter && (
+					<motion.div
+						{...animationSettings}
+						className={textColorVariants[filters.open.color]}
+					>
+						{returnRelevantIcon(filters.open)}
+					</motion.div>
+				)}
+			</AnimatePresence>
+			<AnimatePresence>
 				{showVisitedFilter && (
 					<motion.div
 						{...animationSettings}
@@ -45,6 +45,8 @@ export const ActiveFilters = ({ filters }: Pick<SearchFilter, 'filters'>) => {
 						{returnRelevantIcon(filters.visited)}
 					</motion.div>
 				)}
+			</AnimatePresence>
+			<AnimatePresence>
 				{showClaimedFilter && (
 					<motion.div
 						{...animationSettings}
@@ -53,7 +55,7 @@ export const ActiveFilters = ({ filters }: Pick<SearchFilter, 'filters'>) => {
 						{returnRelevantIcon(filters.claimed)}
 					</motion.div>
 				)}
-			</div>
-		</AnimatePresence>
+			</AnimatePresence>
+		</div>
 	);
 };
