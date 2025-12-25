@@ -1,21 +1,15 @@
-import type { Map } from '@vis.gl/react-google-maps';
 import { useCallback } from 'react';
 import type { MapRef } from 'react-map-gl';
 import type Supercluster from 'supercluster';
-import { MapService } from '../../../types';
 import { MAX_ZOOM } from '../constants';
 
 interface UseClusterClickParams {
-	googleMap: Map | null;
 	mapboxMapRef: React.RefObject<MapRef>;
-	mapService: MapService;
 	supercluster: Supercluster<Supercluster.AnyProps, Supercluster.AnyProps>;
 }
 
 export const useClusterClick = ({
-	googleMap,
 	mapboxMapRef,
-	mapService,
 	supercluster,
 }: UseClusterClickParams) => {
 	const handleClusterClick = useCallback(
@@ -37,27 +31,19 @@ export const useClusterClick = ({
 			const zoomOffset = pointCount > 10 ? 3 : pointCount > 5 ? 2 : 1;
 
 			// Calculate final zoom level, ensuring it doesn't exceed maxZoom
-			const maxZoom = mapService === MapService.GOOGLE ? 15 : MAX_ZOOM + 0.5;
+			const maxZoom = MAX_ZOOM + 0.5;
 			const expansionZoom = Math.min(baseExpansionZoom + zoomOffset, maxZoom);
 
-			if (mapService === MapService.GOOGLE) {
-				if (googleMap) {
-					googleMap.panTo({ lat: latitude, lng: longitude });
-					googleMap.setZoom(expansionZoom);
-				}
-			} else if (mapService === MapService.MAPBOX) {
-				if (mapboxMapRef.current) {
-					const map = mapboxMapRef.current;
-					map.flyTo({
-						center: [longitude, latitude],
-						zoom: expansionZoom,
-					});
-				}
+			if (mapboxMapRef.current) {
+				const map = mapboxMapRef.current;
+				map.flyTo({
+					center: [longitude, latitude],
+					zoom: expansionZoom,
+				});
 			}
 		},
-		[googleMap, mapService, supercluster, mapboxMapRef],
+		[supercluster, mapboxMapRef],
 	);
 
 	return handleClusterClick;
 };
-

@@ -1,10 +1,4 @@
-import {
-	AdvancedMarker,
-	useAdvancedMarkerRef,
-} from '@vis.gl/react-google-maps';
-import { useEffect } from 'react';
 import { Marker } from 'react-map-gl';
-import { MapService } from '../types';
 import { getRandomMarkerDelay } from '../utils';
 
 const ClusterBubble = ({ text }: { text: string | number }) => {
@@ -16,7 +10,6 @@ const ClusterBubble = ({ text }: { text: string | number }) => {
 };
 
 interface ClusterMarkerProps {
-	mapService: MapService;
 	points: number;
 	latitude: number;
 	longitude: number;
@@ -24,37 +17,11 @@ interface ClusterMarkerProps {
 }
 
 export const ClusterMarker = ({
-	mapService,
 	points,
 	latitude,
 	longitude,
 	onClick,
 }: ClusterMarkerProps) => {
-	if (mapService === MapService.GOOGLE) {
-		const [markerRef, marker] = useAdvancedMarkerRef();
-
-		useEffect(() => {
-			if (marker) {
-				(marker.content as HTMLElement).style.setProperty(
-					'--delay-time',
-					getRandomMarkerDelay(),
-				);
-			}
-		}, [marker]);
-
-		return (
-			<AdvancedMarker
-				key={`${latitude}-${longitude}`}
-				position={{ lat: latitude, lng: longitude }}
-				className="pop-in"
-				ref={markerRef}
-				onClick={onClick}
-			>
-				<ClusterBubble text={points.toLocaleString()} />
-			</AdvancedMarker>
-		);
-	}
-
 	const handleMarkerRef = (marker: mapboxgl.Marker | null) => {
 		if (marker) {
 			marker

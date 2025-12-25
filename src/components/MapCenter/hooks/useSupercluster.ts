@@ -2,27 +2,24 @@ import type { BBox } from 'geojson';
 import { useMemo } from 'react';
 import Supercluster from 'supercluster';
 import type { Business } from '../../../types';
-import { MapService } from '../../../types';
 import { MAX_ZOOM } from '../constants';
 
 interface UseSuperclusterParams {
 	filteredMarkers: Business[];
 	debouncedBounds: BBox | undefined;
 	debouncedZoom: number | undefined;
-	mapService: MapService;
 }
 
 export const useSupercluster = ({
 	filteredMarkers,
 	debouncedBounds,
 	debouncedZoom,
-	mapService,
 }: UseSuperclusterParams) => {
 	const supercluster = useMemo(() => {
 		const instance = new Supercluster({
-			extent: mapService === MapService.GOOGLE ? 256 : 512,
+			extent: 512,
 			radius: import.meta.env.VITE_SUPERCLUSTER_RADIUS ?? 50,
-			maxZoom: mapService === MapService.GOOGLE ? 15 : MAX_ZOOM - 1,
+			maxZoom: MAX_ZOOM - 1,
 			minPoints: 2, // Minimum points to form a cluster
 		});
 
@@ -42,7 +39,7 @@ export const useSupercluster = ({
 		instance.load(points);
 
 		return instance;
-	}, [filteredMarkers, mapService]);
+	}, [filteredMarkers]);
 
 	const clusters = useMemo(() => {
 		if (!debouncedBounds || !supercluster || !debouncedZoom) return [];
@@ -57,4 +54,3 @@ export const useSupercluster = ({
 
 	return { supercluster, clusters };
 };
-

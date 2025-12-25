@@ -1,16 +1,11 @@
+import type { BBox } from 'geojson';
+import type { MapEvent } from 'mapbox-gl';
+import { forwardRef } from 'react';
 import {
-	Map as GoogleMap,
-	type MapCameraChangedEvent,
-	useMap as useGoogleMap,
-} from '@vis.gl/react-google-maps';
-import React, { forwardRef } from 'react';
-import {
-	Map as MapboxMap,
 	type MapRef,
+	Map as MapboxMap,
 	type ViewStateChangeEvent,
 } from 'react-map-gl';
-import type { MapEvent } from 'mapbox-gl';
-import type { BBox } from 'geojson';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 const mapClassName = 'w-screen h-screen outline-none focus:outline-none';
@@ -32,46 +27,11 @@ interface SharedMapScreenProps {
 	children?: React.ReactNode;
 }
 
-interface GoogleMapScreenProps extends SharedMapScreenProps {
-	onBoundsChanged: (e: MapCameraChangedEvent) => void;
-}
-
 interface MapboxMapScreenProps extends SharedMapScreenProps {
 	onLoad: (m: MapEvent) => void;
 	onMoveEnd: (e: ViewStateChangeEvent) => void;
 	ref: React.RefObject<MapRef>;
 }
-
-export const GoogleMapScreen = React.memo(
-	({
-		defaultCenter,
-		defaultZoom,
-		onBoundsChanged,
-		onClick,
-		onMove,
-		children,
-	}: GoogleMapScreenProps) => {
-		const map = useGoogleMap();
-
-		map?.setClickableIcons(false);
-
-		return (
-			<GoogleMap
-				className={mapClassName}
-				mapId={import.meta.env.VITE_GOOGLE_MAP_ID}
-				defaultCenter={defaultCenter}
-				defaultZoom={defaultZoom}
-				onBoundsChanged={onBoundsChanged}
-				onCameraChanged={onMove}
-				onClick={onClick}
-				gestureHandling="greedy"
-				disableDefaultUI
-			>
-				{children}
-			</GoogleMap>
-		);
-	},
-);
 
 export const MapboxMapScreen = forwardRef<MapRef, MapboxMapScreenProps>(
 	(

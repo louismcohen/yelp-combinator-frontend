@@ -1,15 +1,13 @@
-import type { MapCameraChangedEvent } from '@vis.gl/react-google-maps';
-import { useMap as useGoogleMap } from '@vis.gl/react-google-maps';
 import type { BBox } from 'geojson';
 import type { MapEvent } from 'mapbox-gl';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MapRef, ViewStateChangeEvent } from 'react-map-gl';
 import { useDebounce } from 'use-debounce';
 import useBusinesses from '../../hooks/useBusinesses';
 import useLocation, { type LocationState } from '../../hooks/useLocation';
 import { useSearchFilterStore } from '../../store/searchFilterStore';
-import { type Business, MapService } from '../../types';
-import { GoogleMapScreen, MapboxMapScreen, getBbox } from '../MapRender';
+import type { Business } from '../../types';
+import { MapboxMapScreen, getBbox } from '../MapRender';
 import { SearchBar } from '../SearchBar';
 import UserLocationMarker from '../UserLocationMarker';
 import { CurrentLocationButton } from './components/CurrentLocationButton';
@@ -32,8 +30,7 @@ const DEFAULT_DEBOUNCE = 300;
 const OVERRIDE_USER_LOCATION =
 	JSON.parse(import.meta.env.VITE_OVERRIDE_USER_LOCATION) ?? false;
 
-const MapCenter = ({ mapService }: { mapService: MapService }) => {
-	const googleMap = mapService === MapService.GOOGLE && useGoogleMap();
+const MapCenter = () => {
 	const mapboxMapRef = useRef<MapRef>(null);
 	const overrideLocation = OVERRIDE_USER_LOCATION
 		? ({
@@ -45,9 +42,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		: null;
 	const userLocation = useLocation(overrideLocation);
 	const [bounds, setBounds] = useState<BBox>();
-	const [zoom, setZoom] = useState<number>(
-		mapService === MapService.GOOGLE ? DEFAULT_ZOOM : DEFAULT_ZOOM + 1,
-	);
+	const [zoom, setZoom] = useState<number>(DEFAULT_ZOOM + 1);
 	const { data: businesses, isFetching } = useBusinesses();
 
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
@@ -75,9 +70,7 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 
 	const { handleMapPress, handleMapInitialInteraction } = useMapInteractions({
 		userLocation,
-		googleMap,
 		mapboxMapRef,
-		mapService,
 		deselectBusiness,
 		updateSearchInputFocused,
 	});
@@ -97,13 +90,10 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		filteredMarkers,
 		debouncedBounds,
 		debouncedZoom,
-		mapService,
 	});
 
 	const handleClusterClick = useClusterClick({
-		googleMap,
 		mapboxMapRef,
-		mapService,
 		supercluster,
 	});
 
@@ -123,89 +113,55 @@ const MapCenter = ({ mapService }: { mapService: MapService }) => {
 		}
 	}, [businesses, selectedBusiness, deselectBusiness]);
 
-	if (mapService === MapService.GOOGLE) {
-		return (
-			<GoogleMapScreen
+	const handleMapMoveEnd = (e: ViewStateChangeEvent) => {
+		if (mapboxMapRef.current) {
+			checkAndUpdateViewport(mapboxMapRef.current);
+			setBounds(getBbox(mapboxMapRef.current));
+			setZoom(e.viewState.zoom);
+		}
+	};
+
+	const handleMapLoad = (m: MapEvent) => {
+		if (mapboxMapRef.current) {
+			checkAndUpdateViewport(mapboxMapRef.current);
+			setBounds(getBbox(mapboxMapRef.current));
+		}
+	};
+
+	return (
+		<>
+			<MapboxMapScreen
 				defaultCenter={DEFAULT_CENTER}
 				defaultZoom={DEFAULT_ZOOM}
-				onBoundsChanged={(e: MapCameraChangedEvent) => {
-					setBounds([
-						e.detail.bounds.west,
-						e.detail.bounds.south,
-						e.detail.bounds.east,
-						e.detail.bounds.north,
-					]);
-					setZoom(e.detail.zoom);
-				}}
 				onClick={handleMapPress}
+				onLoad={handleMapLoad}
+				onMoveEnd={handleMapMoveEnd}
 				onMove={handleMapInitialInteraction}
+				ref={mapboxMapRef}
 			>
-				<MapOverlay
-					isFetching={isFetching}
+				<SearchBar />
+				<MapMarkers
+					clusters={clusters}
 					selectedBusiness={selectedBusiness}
+					handleClusterClick={handleClusterClick}
+					handleMarkerPress={handleMarkerPress}
 				/>
-			</GoogleMapScreen>
-		);
-	}
-
-	if (mapService === MapService.MAPBOX) {
-		const handleMapMoveEnd = (e: ViewStateChangeEvent) => {
-			if (mapboxMapRef.current) {
-				checkAndUpdateViewport(mapboxMapRef.current);
-				setBounds(getBbox(mapboxMapRef.current));
-				setZoom(e.viewState.zoom);
-			}
-		};
-
-		const handleMapLoad = (m: MapEvent) => {
-			if (mapboxMapRef.current) {
-				checkAndUpdateViewport(mapboxMapRef.current);
-				setBounds(getBbox(mapboxMapRef.current));
-			}
-		};
-
-		return (
-			<>
-				<MapboxMapScreen
-					defaultCenter={DEFAULT_CENTER}
-					defaultZoom={DEFAULT_ZOOM}
-					onClick={handleMapPress}
-					onLoad={handleMapLoad}
-					onMoveEnd={handleMapMoveEnd}
-					onMove={handleMapInitialInteraction}
-					ref={mapboxMapRef}
-				>
-					<SearchBar />
-					<MapMarkers
-						clusters={clusters}
-						selectedBusiness={selectedBusiness}
-						handleClusterClick={handleClusterClick}
-						handleMarkerPress={handleMarkerPress}
-						mapService={mapService}
-					/>
-					<UserLocationMarker
-						mapService={mapService}
-						userLocation={userLocation}
-					/>
-				</MapboxMapScreen>
-				<CurrentLocationButton
-					userLocation={userLocation}
-					onClick={() =>
-						userLocation.latitude &&
-						userLocation.longitude &&
-						mapboxMapRef?.current?.flyTo({
-							center: [userLocation.longitude, userLocation.latitude],
-							maxDuration: 1000,
-						})
-					}
-				/>
-				<MapOverlay
-					isFetching={isFetching}
-					selectedBusiness={selectedBusiness}
-				/>
-			</>
-		);
-	}
+				<UserLocationMarker userLocation={userLocation} />
+			</MapboxMapScreen>
+			<CurrentLocationButton
+				userLocation={userLocation}
+				onClick={() =>
+					userLocation.latitude &&
+					userLocation.longitude &&
+					mapboxMapRef?.current?.flyTo({
+						center: [userLocation.longitude, userLocation.latitude],
+						maxDuration: 1000,
+					})
+				}
+			/>
+			<MapOverlay isFetching={isFetching} selectedBusiness={selectedBusiness} />
+		</>
+	);
 };
 
 export default MapCenter;

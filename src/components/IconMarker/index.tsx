@@ -1,12 +1,7 @@
-import {
-	AdvancedMarker,
-	useAdvancedMarkerRef,
-} from '@vis.gl/react-google-maps';
 import { motion } from 'motion/react';
 import { memo, useEffect } from 'react';
 import { Marker } from 'react-map-gl';
 import type { Business } from '../../types';
-import { MapService } from '../../types';
 import { getRandomMarkerDelay } from '../../utils';
 import {
 	IconGenerated,
@@ -20,39 +15,6 @@ interface MapMarkerProps {
 	onMarkerPress: (marker: Business) => void;
 	children: React.ReactNode;
 }
-
-const GoogleMarker = ({
-	business,
-	onMarkerPress,
-	children,
-}: MapMarkerProps) => {
-	if (!business.yelpData) return null;
-
-	const [markerRef, marker] = useAdvancedMarkerRef();
-
-	useEffect(() => {
-		if (marker) {
-			(marker.content as HTMLElement).style.setProperty(
-				'--delay-time',
-				getRandomMarkerDelay(),
-			);
-		}
-	}, [marker]);
-
-	return (
-		<AdvancedMarker
-			position={{
-				lat: business.yelpData.coordinates.latitude,
-				lng: business.yelpData.coordinates.longitude,
-			}}
-			onClick={() => onMarkerPress(business)}
-			ref={markerRef}
-			className="pop-in"
-		>
-			{children}
-		</AdvancedMarker>
-	);
-};
 
 export const MapboxMarker = ({
 	business,
@@ -85,14 +47,12 @@ export const MapboxMarker = ({
 };
 
 interface IconMapMarkerProps {
-	mapService: MapService;
 	business: Business;
 	onMarkerPress: (marker: Business) => void;
 	selected: boolean;
 }
 
 const IconMarkerComponent = ({
-	mapService,
 	business,
 	onMarkerPress,
 	selected = false,
@@ -142,14 +102,6 @@ const IconMarkerComponent = ({
 			</div>
 		</motion.div>
 	);
-
-	if (mapService === MapService.GOOGLE) {
-		return (
-			<GoogleMarker business={business} onMarkerPress={onMarkerPress}>
-				{markerContent}
-			</GoogleMarker>
-		);
-	}
 
 	return (
 		<MapboxMarker business={business} onMarkerPress={onMarkerPress}>

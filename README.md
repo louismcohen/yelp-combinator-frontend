@@ -13,7 +13,6 @@ A new representation of Yelp bookmarks to fill feature gaps in the standard Yelp
   - Unique map marker icons based on business category
   - Visual distinction between visited and not visited businesses
   - Marker clustering for better performance with many locations
-  - Platform agnostic - supports both Google Maps and Mapbox
   - Beautiful, smooth animations for marker and business info interactions
 - **Responsive Design**: Fully optimized for both desktop and mobile devices
 
@@ -35,7 +34,6 @@ A new representation of Yelp bookmarks to fill feature gaps in the standard Yelp
 - **Styling**: Tailwind CSS
 - **Animation**: Framer Motion
 - **Map Platforms**:
-  - Google Maps (via @vis.gl/react-google-maps)
   - Mapbox (via react-map-gl)
 - **Map Clustering**:
   - Supercluster for efficient point clustering
@@ -69,7 +67,7 @@ src/
 - Node.js 18+
 - npm or yarn
 - A Yelp Fusion API key
-- Google Maps API key or Mapbox access token
+- Mapbox access token
 
 ### Installation
 

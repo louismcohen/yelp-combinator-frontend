@@ -4,10 +4,8 @@ import './index.css';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { persistQueryClient } from '@tanstack/react-query-persist-client';
-import { APIProvider } from '@vis.gl/react-google-maps';
 import { MapProvider } from 'react-map-gl';
 import MapCenter from './components/MapCenter/index.tsx';
-import { MapService } from './types/index.ts';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -29,27 +27,12 @@ const queryClient = new QueryClient({
 // 	buster: 'bust-yelp-cache',
 // });
 
-const MAP_SERVICE =
-	(import.meta.env.VITE_MAP_SERVICE as MapService) || MapService.MAPBOX;
-
-const MapContextProvider = ({ children }: { children: React.ReactNode }) => {
-	if (MAP_SERVICE === MapService.GOOGLE) {
-		return (
-			<APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-				{children}
-			</APIProvider>
-		);
-	}
-
-	return <MapProvider>{children}</MapProvider>;
-};
-
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root') as HTMLElement).render(
 	<StrictMode>
 		<QueryClientProvider client={queryClient}>
-			<MapContextProvider>
-				<MapCenter mapService={MAP_SERVICE} />
-			</MapContextProvider>
+			<MapProvider>
+				<MapCenter />
+			</MapProvider>
 		</QueryClientProvider>
 	</StrictMode>,
 );

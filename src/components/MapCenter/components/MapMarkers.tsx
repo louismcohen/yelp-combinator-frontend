@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
-import Supercluster from 'supercluster';
+import type Supercluster from 'supercluster';
 import type { Business } from '../../../types';
-import { MapService } from '../../../types';
 import { ClusterMarker } from '../../ClusterMarker';
 import { IconMarker } from '../../IconMarker';
 
@@ -15,7 +14,6 @@ interface MapMarkersProps {
 		cluster: Supercluster.ClusterFeature<Supercluster.AnyProps>,
 	) => void;
 	handleMarkerPress: (marker: Business) => void;
-	mapService: MapService;
 }
 
 export const MapMarkers = ({
@@ -23,7 +21,6 @@ export const MapMarkers = ({
 	selectedBusiness,
 	handleClusterClick,
 	handleMarkerPress,
-	mapService,
 }: MapMarkersProps) => {
 	const renderMarkers = useMemo(() => {
 		return clusters.map((cluster) => {
@@ -34,7 +31,6 @@ export const MapMarkers = ({
 			if (isCluster) {
 				return (
 					<ClusterMarker
-						mapService={mapService}
 						key={cluster.id}
 						latitude={latitude}
 						longitude={longitude}
@@ -52,7 +48,6 @@ export const MapMarkers = ({
 			const marker = cluster.properties as Business;
 			return (
 				<IconMarker
-					mapService={mapService}
 					key={marker.alias}
 					business={marker}
 					selected={selectedBusiness?.alias === marker.alias}
@@ -60,14 +55,7 @@ export const MapMarkers = ({
 				/>
 			);
 		});
-	}, [
-		clusters,
-		selectedBusiness,
-		handleClusterClick,
-		handleMarkerPress,
-		mapService,
-	]);
+	}, [clusters, selectedBusiness, handleClusterClick, handleMarkerPress]);
 
 	return <>{renderMarkers}</>;
 };
-
