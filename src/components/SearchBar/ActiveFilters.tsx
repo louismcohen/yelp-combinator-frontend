@@ -18,15 +18,15 @@ export const ActiveFilters = ({ filters }: Pick<SearchFilter, 'filters'>) => {
 	};
 
 	const animationSettings = {
-		initial: { opacity: 0 },
-		animate: { opacity: 1 },
-		exit: { opacity: 0 },
+		initial: { opacity: 0, scale: 0.9 },
+		animate: { opacity: 1, scale: 1 },
+		exit: { opacity: 0, scale: 0.9 },
 		transition: { duration: 0.15 },
 	};
 
 	return (
-		<div className="flex flex-grow flex-row gap-2 justify-end items-center transition-all text-md pr-1">
-			<AnimatePresence>
+		<div className="flex flex-grow flex-row gap-2 justify-end items-center transition-all duration-150 text-md pr-1">
+			<AnimatePresence mode="popLayout">
 				{showOpenFilter && (
 					<motion.div
 						{...animationSettings}
@@ -36,7 +36,7 @@ export const ActiveFilters = ({ filters }: Pick<SearchFilter, 'filters'>) => {
 					</motion.div>
 				)}
 			</AnimatePresence>
-			<AnimatePresence>
+			<AnimatePresence mode="popLayout">
 				{showVisitedFilter && (
 					<motion.div
 						{...animationSettings}
@@ -46,7 +46,7 @@ export const ActiveFilters = ({ filters }: Pick<SearchFilter, 'filters'>) => {
 					</motion.div>
 				)}
 			</AnimatePresence>
-			<AnimatePresence>
+			<AnimatePresence mode="popLayout">
 				{showClaimedFilter && (
 					<motion.div
 						{...animationSettings}

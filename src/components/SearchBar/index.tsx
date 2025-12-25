@@ -138,7 +138,7 @@ export const SearchBar = () => {
 				</div>
 				<div className="inline-flex flex-row gap-2 justify-end items-center">
 					<ActiveFilters filters={filters} />
-					<AnimatePresence>
+					<AnimatePresence mode="popLayout">
 						{aiSearchEnabled && (
 							<SearchButton
 								searchTerm={searchTerm}
@@ -147,7 +147,7 @@ export const SearchBar = () => {
 							/>
 						)}
 					</AnimatePresence>
-					<AnimatePresence>
+					<AnimatePresence mode="popLayout">
 						{!aiSearchEnabled && searchTerm !== '' && (
 							<ClearButton
 								searchTerm={searchTerm}
