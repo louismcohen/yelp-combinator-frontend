@@ -52,10 +52,31 @@ fi
 echo "Setting up mkcert local certificate authority..."
 mkcert -install
 
-# Generate certificates for localhost
-echo "Generating certificates for localhost..."
+# Detect local network IP address
+echo "Detecting local network IP address..."
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    NETWORK_IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo "")
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Linux
+    NETWORK_IP=$(hostname -I | awk '{print $1}' 2>/dev/null || echo "")
+else
+    NETWORK_IP=""
+fi
+
+# Generate certificates for localhost and network IP
+echo "Generating certificates for localhost and network access..."
 cd certificates
-mkcert -key-file localhost-key.pem -cert-file localhost.pem localhost 127.0.0.1 ::1
+
+if [ -n "$NETWORK_IP" ]; then
+    echo "Including network IP: $NETWORK_IP"
+    mkcert -key-file localhost-key.pem -cert-file localhost.pem localhost 127.0.0.1 ::1 "$NETWORK_IP"
+else
+    echo "Warning: Could not detect network IP. Certificate will only work for localhost."
+    echo "You can manually add your IP by running:"
+    echo "  mkcert -key-file localhost-key.pem -cert-file localhost.pem localhost 127.0.0.1 ::1 YOUR_IP_ADDRESS"
+    mkcert -key-file localhost-key.pem -cert-file localhost.pem localhost 127.0.0.1 ::1
+fi
 
 echo ""
 echo "✅ Certificates successfully created in the 'certificates' directory"

@@ -13,7 +13,7 @@ export const DebugOverlay = ({
 
 	return (
 		<div className="absolute top-0 h-screen w-screen flex justify-center items-center p-4">
-			<div className="bg-red-500/80 backdrop-blur-md px-6 py-3 flex flex-col justify-center items-center gap-0 text-gray-50 text-lg rounded-lg shadow-lg border border-red-600/25 ">
+			<div className="bg-red-500/80 backdrop-blur-md px-6 py-3 flex flex-col justify-center items-center gap-0 text-neutral-50 text-lg rounded-lg shadow-lg border border-red-600/25 ">
 				<p className="text-lg font-bold uppercase">{title}</p>
 				<p className="text-md">{message}</p>
 			</div>

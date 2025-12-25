@@ -12,7 +12,7 @@
 
 	color-scheme: light dark;
 	color: rgba(255, 255, 255, 0.87);
-	background-color: 'transparent';
+	background-color: transparent;
 
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
@@ -38,7 +38,7 @@ body {
 	min-width: 320px;
 	min-height: 100dvh;
 	overflow: hidden;
-	background-color: 'transparent';
+	background-color: #262626;
 }
 
 h1 {

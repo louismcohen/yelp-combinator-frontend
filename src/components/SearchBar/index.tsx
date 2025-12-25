@@ -89,11 +89,11 @@ export const SearchBar = () => {
 					'pl-1 pr-3',
 					outline.hover,
 					searchInputFocused
-						? `${outline.focused} bg-gray-50/90 backdrop-blur-md shadow-xl`
+						? `${outline.focused} bg-neutral-50/90 backdrop-blur-md shadow-xl`
 						: `shadow-lg ${outline.normal}`,
 					mutation.isPending
 						? 'bg-teal-50/85'
-						: 'bg-gray-50/85 backdrop-blur-sm',
+						: 'bg-neutral-50/85 backdrop-blur-sm',
 				)}
 			>
 				<div className="flex flex-row w-full gap-0 justify-center items-center">
@@ -141,7 +141,7 @@ export const SearchBar = () => {
 							updateSearchTerm(e.target.value);
 						}}
 						onFocus={() => updateSearchInputFocused(true)}
-						className="w-full h-[48px] bg-transparent outline-none md:text-lg text-md text-gray-900 text-ellipsis focus:outline-none"
+						className="w-full h-[48px] bg-transparent outline-none md:text-lg text-md text-neutral-900 text-ellipsis focus:outline-none"
 					/>
 				</div>
 				<ActiveFilters filters={filters} />

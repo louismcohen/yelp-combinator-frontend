@@ -66,10 +66,10 @@ const IconMarkerComponent = ({
 	const backgroundColor = isVisited ? `${iconHexColor}F2` : '';
 	const backgroundHighlight =
 		!isVisited &&
-		'bg-gradient-to-t from-gray-200/95 via-gray-200/95 to-gray-50/95';
+		'bg-gradient-to-t from-neutral-200/95 via-neutral-200/95 to-neutral-50/95';
 	const borderColor = isVisited ? 'rgba(255,255,255,0.1)' : iconHexColor;
 	const highlightGradient = isVisited
-		? 'from-transparent via-transparent to-gray-50/20'
+		? 'from-transparent via-transparent to-neutral-50/20'
 		: '';
 
 	const markerContent = (

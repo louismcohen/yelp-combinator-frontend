@@ -8,15 +8,15 @@ interface VisitedButtonProps {
 }
 
 export const VisitedButton = ({ visited, onClick }: VisitedButtonProps) => {
-	const visitedColor = visited ? 'text-gray-50' : 'text-green-400';
+	const visitedColor = visited ? 'text-neutral-50' : 'text-green-400';
 
 	return (
 		<motion.button
 			whileHover={{ scale: 1.02 }}
 			whileTap={{ scale: 0.95 }}
 			className={cn(
-				'h-[24px] flex px-3 py-4 gap-2 pointer-events-auto cursor-pointer justify-center items-center transition-all duration-150 ease-in-out bg-gray-900/50 rounded-lg outline-none hover:outline-none focus:outline-none hover:border-green-400/50 shadow-md hover:drop-shadow-lg backdrop-blur-sm text-sm text-gray-50',
-				visited ? 'bg-green-600/75 text-gray-50 font-medium' : '',
+				'h-[24px] flex px-3 py-4 gap-2 pointer-events-auto cursor-pointer justify-center items-center transition-all duration-150 ease-in-out bg-neutral-900/50 rounded-lg outline-none hover:outline-none focus:outline-none hover:border-green-400/50 shadow-md hover:drop-shadow-lg backdrop-blur-sm text-sm text-neutral-50',
+				visited ? 'bg-green-600/75 text-neutral-50 font-medium' : '',
 			)}
 			onClick={onClick}
 		>

@@ -135,7 +135,7 @@ export default defineConfig(({ mode }) => {
 							path.resolve(__dirname, './certificates/localhost.pem'),
 						),
 					},
-					host: 'localhost',
+					host: '0.0.0.0', // Allow access from network
 					port: 3000,
 			  }
 			: undefined,

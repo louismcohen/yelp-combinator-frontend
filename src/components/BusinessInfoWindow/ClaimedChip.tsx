@@ -6,13 +6,13 @@ interface ClaimedChipProps {
 }
 
 export const ClaimedChip = ({ claimed }: ClaimedChipProps) => {
-	const claimedColor = claimed ? 'text-blue-400' : 'text-gray-50';
+	const claimedColor = claimed ? 'text-blue-400' : 'text-neutral-50';
 
 	return (
 		<div
 			className={cn(
-				'h-[24px] flex px-3 py-4 gap-2 pointer-events-none justify-center items-center transition-all duration-150 ease-in-out bg-gray-900/50 rounded-lg outline-none hover:outline-none focus:outline-none shadow-md backdrop-blur-sm text-sm text-gray-50',
-				claimed ? '' : 'bg-blue-600/75 text-gray-50 font-medium',
+				'h-[24px] flex px-3 py-4 gap-2 pointer-events-none justify-center items-center transition-all duration-150 ease-in-out bg-neutral-900/50 rounded-lg outline-none hover:outline-none focus:outline-none shadow-md backdrop-blur-sm text-sm text-neutral-50',
+				claimed ? '' : 'bg-blue-600/75 text-neutral-50 font-medium',
 			)}
 		>
 			<span className={`${claimedColor}`}>
