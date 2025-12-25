@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import "tailwindcss-safe-area";
 
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
@@ -37,16 +38,6 @@
 	--delay-time: 0s;
 }
 
-a {
-	font-weight: 500;
-	color: #646cff;
-	text-decoration: inherit;
-}
-
-a:hover {
-	color: #535bf2;
-}
-
 body {
 	margin: 0;
 	display: flex;
@@ -79,9 +70,6 @@ button:focus-visible {
 		background-color: #ffffff;
 	}
 
-	a:hover {
-		color: #747bff;
-	}	
 }
 
 @keyframes bounce {

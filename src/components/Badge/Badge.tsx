@@ -73,7 +73,10 @@ export const Badge = ({
 					getStateClasses(),
 					className,
 				)}
-				onClick={onClick}
+				onClick={(e) => {
+					e.preventDefault();
+					onClick?.();
+				}}
 			>
 				{children}
 			</motion.button>
