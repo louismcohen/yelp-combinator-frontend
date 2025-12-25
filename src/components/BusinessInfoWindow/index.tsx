@@ -14,7 +14,7 @@ import { VisitedButton } from './VisitedButton';
 import { YelpLogo } from './YelpLogo';
 
 const Divider = () => {
-	return <div className="h-[1px] my-2 w-full bg-neutral-700/10" />;
+	return <div className="h-px my-2 w-full bg-neutral-700/10" />;
 };
 
 export const BusinessInfoWindow = ({ business }: { business?: Business }) => {
@@ -54,7 +54,7 @@ export const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 				transition: { duration: 0.15 },
 			}}
 			transition={{ duration: 0.2 }}
-			className="absolute flex justify-center bottom-safe z-50 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none pointer-events-none"
+			className="absolute flex justify-center bottom-safe z-50 outline-hidden sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-hidden pointer-events-none"
 		>
 			<motion.div
 				layout
@@ -77,7 +77,7 @@ export const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 					{/* <div className="absolute top-0 right-0 p-4">
 						<CloseButton onClick={handleClose} />
 					</div> */}
-					<div className="flex flex-col w-full justify-between items-start p-4 bg-gradient-to-b from-transparent via-25% via-transparent to-black/75 pointer-events-auto">
+					<div className="flex flex-col w-full justify-between items-start p-4 bg-linear-to-b from-transparent via-25% via-transparent to-black/75 pointer-events-auto">
 						<div className="w-full flex flex-row justify-between items-center">
 							<VisitedButton
 								visited={business.visited}
@@ -85,8 +85,8 @@ export const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 							/>
 							<ClaimedChip claimed={business.yelpData.is_claimed} />
 						</div>
-						<div className="flex flex-grow w-full flex-row justify-between items-end gap-3">
-							<div className="flex flex-shrink flex-col gap-0">
+						<div className="flex grow w-full flex-row justify-between items-end gap-3">
+							<div className="flex shrink flex-col gap-0">
 								<a
 									href={business?.website}
 									target="_blank"
@@ -112,7 +112,7 @@ export const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 						backgroundImage: `linear-gradient(to top, ${categoryColor}34 0%, transparent 40px)`,
 					}}
 				>
-					<div className="relative flex-grow flex-col p-4 gap-4">
+					<div className="relative grow flex-col p-4 gap-4">
 						{business.yelpData.hours && business.yelpData.hours.length > 0 && (
 							<>
 								<InfoSection title="hours" icon={<FaRegClock />}>

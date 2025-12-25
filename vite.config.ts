@@ -1,7 +1,8 @@
-import { defineConfig } from 'vite';
+import fs from 'node:fs';
+import path from 'node:path';
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react-swc';
-import fs from 'fs';
-import path from 'path';
+import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vite.dev/config/
@@ -10,6 +11,7 @@ export default defineConfig(({ mode }) => {
 
 	return {
 		plugins: [
+			tailwindcss(),
 			react(),
 			VitePWA({
 				registerType: 'autoUpdate',
@@ -135,7 +137,7 @@ export default defineConfig(({ mode }) => {
 							path.resolve(__dirname, './certificates/localhost.pem'),
 						),
 					},
-					host: '0.0.0.0', // Allow access from network
+					host: 'localhost',
 					port: 3000,
 			  }
 			: undefined,

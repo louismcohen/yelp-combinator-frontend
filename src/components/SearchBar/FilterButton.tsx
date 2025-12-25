@@ -42,9 +42,9 @@ export const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 			whileHover={{ scale: 1.02 }}
 			whileTap={{ scale: 0.95 }}
 			className={cn(
-				'h-[38px] relative w-1/3 flex flex-row gap-1 md:gap-2 justify-center items-center outline-none transition-all',
+				'h-[38px] relative w-1/3 flex flex-row gap-1 md:gap-2 justify-center items-center outline-hidden transition-all',
 				hoverColorVariants[filter.color],
-				'focus:outline-none bg-neutral-50/95 border rounded-xl py-2 px-0 md:px-3 shadow-lg z-10 text-xs md:text-sm',
+				'!focus:outline-hidden bg-neutral-50/95 border rounded-xl py-2 shadow-lg z-10',
 				determineFilterStyles(filter.mode, filter.color),
 			)}
 			onClick={onClick}
@@ -54,7 +54,7 @@ export const FilterButton = ({ text, filter, onClick }: FilterButtonProps) => {
 				{filter.mode === FilterMode.False ? filter.falseIcon : filter.trueIcon}
 			</div>
 			{/* <div className="relative w-full flex flex-row justify-end md:justify-center items-center"></div> */}
-			<p className="font-semibold">{text}</p>
+			<p className="font-semibold text-xs md:text-sm">{text}</p>
 		</motion.button>
 	);
 };

@@ -76,7 +76,7 @@ export const SearchBar = () => {
 		<div className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4 pointer-events-none">
 			<div
 				className={cn(
-					'w-full max-w-[500px] transition-all duration-150 rounded-full overflow-hidden pointer-events-auto outline-none outline-offset-1 hover:outline-2 hover:outline-offset-0',
+					'w-full max-w-[500px] transition-all duration-150 rounded-full overflow-hidden pointer-events-auto outline-offset-1 hover:outline-2 hover:outline-offset-0',
 					'flex flex-row items-center',
 					'pl-1 pr-3',
 					outline.hover,
@@ -100,8 +100,8 @@ export const SearchBar = () => {
 							}
 						}}
 						className={cn(
-							'cursor-pointer flex justify-center items-center h-[48px] w-[48px] transition-all duration-300 text-lg text-neutral-400 bg-transparent border-none outline-none p-0',
-							'focus:outline-none',
+							'cursor-pointer flex justify-center items-center h-[48px] w-[48px] transition-all duration-300 text-lg text-neutral-400 bg-transparent border-none outline-hidden p-0',
+							'focus:outline-hidden',
 							aiSearchEnabled
 								? 'hover:text-teal-500'
 								: ENABLE_AI_SEARCH_FEATURE && 'hover:text-red-500',
@@ -133,7 +133,7 @@ export const SearchBar = () => {
 							updateSearchTerm(e.target.value);
 						}}
 						onFocus={() => updateSearchInputFocused(true)}
-						className="w-full h-[48px] bg-transparent outline-none md:text-lg text-md text-neutral-900 text-ellipsis focus:outline-none"
+						className="w-full h-[48px] bg-transparent outline-hidden md:text-lg text-md text-neutral-900 text-ellipsis focus:outline-hidden"
 					/>
 				</div>
 				<div className="inline-flex flex-row gap-2 justify-end items-center">

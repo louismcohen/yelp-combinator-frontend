@@ -19,7 +19,7 @@ export const ClearButton = ({
 				whileHover={{ scale: 1.02 }}
 				whileTap={{ scale: 0.95 }}
 				className={cn(
-					'w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-700/40 rounded-full outline-none hover:outline-none hover:border-none focus:outline-none p-0',
+					'w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-700/40 rounded-full outline-hidden hover:outline-hidden hover:border-none focus:outline-hidden p-0',
 					'hover:bg-neutral-700/50',
 				)}
 			>
