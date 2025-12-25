@@ -27,8 +27,10 @@ export const SearchButton = ({
 				onClick={onClick}
 				whileHover={{ scale: 1.02 }}
 				className={cn(
-					'w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-none hover:outline-none hover:border-none focus:outline-none p-0',
-					searchTerm === '' ? 'disabled opacity-50 cursor-default' : ' hover:bg-teal-500 hover:shadow-md hover:shadow-teal-500/25 active:bg-teal-600',
+					'w-[24px] h-[24px] flex justify-center items-center transition-all bg-neutral-400 rounded-full outline-hidden hover:outline-hidden hover:border-none focus:outline-hidden p-0',
+					searchTerm === ''
+						? 'disabled opacity-50 cursor-default'
+						: ' hover:bg-teal-500 hover:shadow-md hover:shadow-teal-500/25 active:bg-teal-600',
 					isLoading && 'bg-teal-500 shadow-md shadow-teal-500/25',
 				)}
 			>

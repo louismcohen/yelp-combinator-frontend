@@ -54,7 +54,7 @@ export const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 				transition: { duration: 0.15 },
 			}}
 			transition={{ duration: 0.2 }}
-			className="absolute flex justify-center bottom-safe z-50 outline-none sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-none pointer-events-none"
+			className="absolute flex justify-center bottom-safe z-50 outline-hidden sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-hidden pointer-events-none"
 		>
 			<motion.div
 				layout

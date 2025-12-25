@@ -5,7 +5,7 @@ export const AiSearchButton = () => {
 	return (
 		<motion.button
 			whileHover={{ scale: 1.02 }}
-			className="w-[36px] h-[36px] flex justify-center items-center transition-all bg-neutral-50/95 rounded-full outline-none hover:outline-none focus:outline-none p-0"
+			className="w-[36px] h-[36px] flex justify-center items-center transition-all bg-neutral-50/95 rounded-full outline-hidden hover:outline-hidden focus:outline-hidden p-0"
 		>
 			<FaMagnifyingGlass size={16} color={'black'} />
 		</motion.button>

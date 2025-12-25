@@ -15,7 +15,7 @@ export const ResetButton = ({
 			whileHover={{ scale: 1.02 }}
 			whileTap={{ scale: 0.95 }}
 			className={cn(
-				'aspect-[1.1] h-[38px] self-stretch py-0 px-0 flex justify-center items-center transition-all bg-neutral-50/95 text-sm md:text-md text-neutral-500 border-neutral-400 border rounded-xl shadow-lg outline-none hover:outline-none focus:outline-none hover:border-amber-500 hover:bg-amber-50/95',
+				'aspect-[1.1] h-[38px] self-stretch py-0 px-0 flex justify-center items-center transition-all bg-neutral-50/95 text-sm md:text-md text-neutral-500 border-neutral-400 border rounded-xl shadow-lg outline-hidden hover:outline-hidden focus:outline-hidden hover:border-amber-500 hover:bg-amber-50/95',
 				isReset && 'pointer-events-none text-neutral-400 border-neutral-300',
 			)}
 			onClick={onClick}

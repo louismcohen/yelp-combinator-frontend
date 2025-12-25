@@ -36,7 +36,7 @@ export const Badge = ({
 	const label = isActive ? trueLabel : falseLabel;
 
 	const baseClasses =
-		'h-[24px] flex px-3 py-4 gap-2 justify-center items-center transition-all duration-150 ease-in-out bg-neutral-900/50 rounded-lg outline-none hover:outline-none focus:outline-none shadow-md backdrop-blur-sm text-sm text-neutral-50';
+		'h-[24px] flex px-3 py-4 gap-2 justify-center items-center transition-all duration-150 ease-in-out bg-neutral-900/50 rounded-lg outline-hidden hover:outline-hidden focus:outline-hidden shadow-md backdrop-blur-sm text-sm text-neutral-50';
 
 	const isButton = onClick !== undefined;
 
