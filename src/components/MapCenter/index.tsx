@@ -97,6 +97,7 @@ const MapCenter = () => {
 	const handleClusterClick = useClusterClick({
 		mapboxMapRef,
 		supercluster,
+		deselectBusiness,
 	});
 
 	const checkAndUpdateViewport = useMapboxViewport();
