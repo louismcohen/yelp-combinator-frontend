@@ -6,26 +6,26 @@ import { useDebounce } from 'use-debounce';
 import useBusinesses from '../../hooks/useBusinesses';
 import useLocation, { type LocationState } from '../../hooks/useLocation';
 import { useSearchFilterStore } from '../../store/searchFilterStore';
-import type { Business } from '../../types';
+import type { Business, ElementBounds } from '../../types';
 import { MapboxMapScreen, getBbox } from '../MapRender';
 import { SearchBar } from '../SearchBar';
 import UserLocationMarker from '../UserLocationMarker';
 import { CurrentLocationButton } from './components/CurrentLocationButton';
 import { MapMarkers } from './components/MapMarkers';
 import { MapOverlay } from './components/MapOverlay';
+import {
+	DEFAULT_CENTER,
+	DEFAULT_DEBOUNCE,
+	DEFAULT_ZOOM,
+	MAX_MAP_ANIMATION_DURATION_MS,
+	PAN_DELAY_MS,
+} from './constants';
 import { useClusterClick } from './hooks/useClusterClick';
 import { useFilteredBusinesses } from './hooks/useFilteredBusinesses';
 import { useMapInteractions } from './hooks/useMapInteractions';
 import { useMapboxViewport } from './hooks/useMapboxViewport';
+import { useMarkerPanning } from './hooks/useMarkerPanning';
 import { useSupercluster } from './hooks/useSupercluster';
-
-const DEFAULT_CENTER: google.maps.LatLngLiteral = {
-	lat: 34.04162072763611,
-	lng: -118.26326182991187,
-};
-
-const DEFAULT_ZOOM = 13;
-const DEFAULT_DEBOUNCE = 300;
 
 const OVERRIDE_USER_LOCATION =
 	JSON.parse(import.meta.env.VITE_OVERRIDE_USER_LOCATION) ?? false;
@@ -46,6 +46,8 @@ const MapCenter = () => {
 	const { data: businesses, isFetching } = useBusinesses();
 
 	const [selectedBusiness, setSelectedBusiness] = useState<Business>();
+	const [infoWindowBounds, setInfoWindowBounds] =
+		useState<ElementBounds | null>(null);
 
 	const {
 		searchTerm,
@@ -95,9 +97,21 @@ const MapCenter = () => {
 	const handleClusterClick = useClusterClick({
 		mapboxMapRef,
 		supercluster,
+		deselectBusiness,
 	});
 
 	const checkAndUpdateViewport = useMapboxViewport();
+
+	const panToKeepMarkerVisible = useMarkerPanning({
+		mapboxMapRef,
+	});
+
+	const handleInfoWindowBoundsMeasured = useCallback(
+		(bounds: ElementBounds) => {
+			setInfoWindowBounds(bounds);
+		},
+		[],
+	);
 
 	// Update selected business when businesses data changes
 	useEffect(() => {
@@ -112,6 +126,31 @@ const MapCenter = () => {
 			}
 		}
 	}, [businesses, selectedBusiness, deselectBusiness]);
+
+	// Pan map to keep marker visible when business is selected and bounds are measured
+	useEffect(() => {
+		if (
+			selectedBusiness?.yelpData?.coordinates &&
+			infoWindowBounds &&
+			infoWindowBounds.height > 0 &&
+			mapboxMapRef.current
+		) {
+			const { latitude, longitude } = selectedBusiness.yelpData.coordinates;
+			// Use setTimeout to ensure the map is ready and measurements are complete
+			const timeoutId = setTimeout(() => {
+				panToKeepMarkerVisible(latitude, longitude, infoWindowBounds);
+			}, PAN_DELAY_MS);
+
+			return () => clearTimeout(timeoutId);
+		}
+	}, [selectedBusiness, infoWindowBounds, panToKeepMarkerVisible]);
+
+	// Reset info window bounds when business is deselected
+	useEffect(() => {
+		if (!selectedBusiness) {
+			setInfoWindowBounds(null);
+		}
+	}, [selectedBusiness]);
 
 	const handleMapMoveEnd = (e: ViewStateChangeEvent) => {
 		if (mapboxMapRef.current) {
@@ -155,11 +194,15 @@ const MapCenter = () => {
 					userLocation.longitude &&
 					mapboxMapRef?.current?.flyTo({
 						center: [userLocation.longitude, userLocation.latitude],
-						maxDuration: 1000,
+						maxDuration: MAX_MAP_ANIMATION_DURATION_MS,
 					})
 				}
 			/>
-			<MapOverlay isFetching={isFetching} selectedBusiness={selectedBusiness} />
+			<MapOverlay
+				isFetching={isFetching}
+				selectedBusiness={selectedBusiness}
+				onInfoWindowBoundsMeasured={handleInfoWindowBoundsMeasured}
+			/>
 		</>
 	);
 };

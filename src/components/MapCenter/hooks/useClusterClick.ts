@@ -6,14 +6,18 @@ import { MAX_ZOOM } from '../constants';
 interface UseClusterClickParams {
 	mapboxMapRef: React.RefObject<MapRef>;
 	supercluster: Supercluster<Supercluster.AnyProps, Supercluster.AnyProps>;
+	deselectBusiness: () => void;
 }
 
 export const useClusterClick = ({
 	mapboxMapRef,
 	supercluster,
+	deselectBusiness,
 }: UseClusterClickParams) => {
 	const handleClusterClick = useCallback(
 		(cluster: Supercluster.ClusterFeature<Supercluster.AnyProps>) => {
+			deselectBusiness();
+
 			const [longitude, latitude] = cluster.geometry.coordinates;
 
 			// Get the base cluster expansion zoom
@@ -42,7 +46,7 @@ export const useClusterClick = ({
 				});
 			}
 		},
-		[supercluster, mapboxMapRef],
+		[supercluster, mapboxMapRef, deselectBusiness],
 	);
 
 	return handleClusterClick;

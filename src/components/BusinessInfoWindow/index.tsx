@@ -1,9 +1,10 @@
 import { motion } from 'motion/react';
+import { useEffect, useRef } from 'react';
 import { FaRegClock, FaRegMap, FaRegNoteSticky } from 'react-icons/fa6';
 import useMutateBusiness, {
 	useUpdateVisitedBusiness,
 } from '../../hooks/useMutateBusiness';
-import type { Business } from '../../types';
+import type { Business, ElementBounds } from '../../types';
 import { convertHexToRgb } from '../../utils';
 import { generateHexColorFromCategoryAlias } from '../../utils/IconGenerator';
 import { getBusinessHoursStatus } from '../../utils/businessHours';
@@ -17,7 +18,15 @@ const Divider = () => {
 	return <div className="h-px my-2 w-full bg-neutral-700/10" />;
 };
 
-export const BusinessInfoWindow = ({ business }: { business?: Business }) => {
+export const BusinessInfoWindow = ({
+	business,
+	onBoundsMeasured,
+}: {
+	business?: Business;
+	onBoundsMeasured?: (bounds: ElementBounds) => void;
+}) => {
+	const containerRef = useRef<HTMLDivElement>(null);
+
 	if (!business || !business.yelpData) return;
 
 	const updateVisitedMutation = useUpdateVisitedBusiness();
@@ -44,6 +53,41 @@ export const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 		? 'text-green-600'
 		: 'text-red-600';
 
+	// Measure height and bounds, notify parent when mounted or content changes
+	useEffect(() => {
+		if (!containerRef.current) return;
+
+		const measureBounds = () => {
+			if (containerRef.current) {
+				const rect = containerRef.current.getBoundingClientRect();
+				const bounds = {
+					width: rect.width,
+					height: rect.height,
+					left: rect.left,
+					bottom: rect.bottom,
+				};
+
+				if (onBoundsMeasured) {
+					onBoundsMeasured(bounds);
+				}
+			}
+		};
+
+		// Measure after initial render
+		measureBounds();
+
+		// Use ResizeObserver to handle dynamic content changes
+		const resizeObserver = new ResizeObserver(() => {
+			measureBounds();
+		});
+
+		resizeObserver.observe(containerRef.current);
+
+		return () => {
+			resizeObserver.disconnect();
+		};
+	}, [onBoundsMeasured]);
+
 	return (
 		<motion.div
 			initial={{ opacity: 0, scale: 0.95, y: 16 }}
@@ -57,6 +101,7 @@ export const BusinessInfoWindow = ({ business }: { business?: Business }) => {
 			className="absolute flex justify-center bottom-safe z-50 outline-hidden sm:min-h-[50%] md:min-h-[200px] w-full p-2 focus:outline-hidden pointer-events-none"
 		>
 			<motion.div
+				ref={containerRef}
 				layout
 				transition={{ duration: 0.15 }}
 				className="relative pointer-events-auto overflow-hidden *:flex flex-col items-start h-fit w-screen max-w-[500px] rounded-3xl md:rounded-xl bg-neutral-50/95  backdrop-blur-sm"
