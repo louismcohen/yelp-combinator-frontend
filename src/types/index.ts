@@ -72,3 +72,10 @@ export enum MapService {
 	GOOGLE = 'GOOGLE',
 	MAPBOX = 'MAPBOX',
 }
+
+export interface ElementBounds {
+	width: number;
+	height: number;
+	left: number;
+	bottom: number;
+}
