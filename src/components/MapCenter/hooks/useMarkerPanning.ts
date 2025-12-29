@@ -2,13 +2,42 @@ import { useCallback } from 'react';
 import type { MapRef } from 'react-map-gl';
 import type { ElementBounds } from '../../../types';
 import {
+	MARKER_BUFFER_PIXELS,
 	MARKER_PAN_ANIMATION_DURATION_MS,
-	MAX_MAP_ANIMATION_DURATION_MS,
 } from '../constants';
 
 interface UseMarkerPanningParams {
 	mapboxMapRef: React.RefObject<MapRef>;
 }
+
+const calculateHorizontalPanOffset = (
+	pointX: number,
+	viewportWidth: number,
+	bufferPixels: number,
+	isTooCloseToLeftEdge: boolean,
+	isTooCloseToRightEdge: boolean,
+): number => {
+	if (isTooCloseToLeftEdge) {
+		return bufferPixels - pointX;
+	}
+	if (isTooCloseToRightEdge) {
+		return viewportWidth - bufferPixels - pointX;
+	}
+	return 0;
+};
+
+const calculateVerticalPanOffset = (
+	pointY: number,
+	windowTop: number,
+	bufferPixels: number,
+	needsVerticalPan: boolean,
+): number => {
+	if (needsVerticalPan) {
+		const targetMarkerY = windowTop - bufferPixels;
+		return pointY - targetMarkerY;
+	}
+	return 0;
+};
 
 export const useMarkerPanning = ({ mapboxMapRef }: UseMarkerPanningParams) => {
 	const panToKeepMarkerVisible = useCallback(
@@ -33,6 +62,7 @@ export const useMarkerPanning = ({ mapboxMapRef }: UseMarkerPanningParams) => {
 
 			// Get viewport dimensions
 			const viewportHeight = window.innerHeight;
+			const viewportWidth = window.innerWidth;
 
 			// Calculate the vertical bounds of the info window
 			// The window's top edge is at (bottom - height), and bottom edge is at bottom
@@ -43,25 +73,48 @@ export const useMarkerPanning = ({ mapboxMapRef }: UseMarkerPanningParams) => {
 			const windowLeft = infoWindowBounds.left;
 			const windowRight = infoWindowBounds.left + infoWindowBounds.width;
 
+			// Buffer values: vertical is 2x horizontal
+			const horizontalBufferPixels = MARKER_BUFFER_PIXELS;
+			const verticalBufferPixels = MARKER_BUFFER_PIXELS * 2;
+
 			// Check if marker is within the vertical bounds of the info window
 			// Add a small buffer to account for marker size and ensure it's clearly obscured
-			const bufferPixels = 50;
 			const isVerticallyWithinBounds =
-				point.y >= windowTop - bufferPixels &&
-				point.y <= windowBottom + bufferPixels;
+				point.y >= windowTop - verticalBufferPixels &&
+				point.y <= windowBottom + verticalBufferPixels;
 
 			// Check if marker is within the horizontal bounds of the info window
 			const isHorizontallyWithinBounds =
-				point.x >= windowLeft - bufferPixels &&
-				point.x <= windowRight + bufferPixels;
+				point.x >= windowLeft - horizontalBufferPixels &&
+				point.x <= windowRight + horizontalBufferPixels;
 
-			// Only pan if marker is within BOTH vertical AND horizontal bounds of the window
-			if (isVerticallyWithinBounds && isHorizontallyWithinBounds) {
-				// Calculate target position: move marker above the window with buffer
-				const targetMarkerY = windowTop - bufferPixels;
-				// Marker would be obscured, calculate how much we need to pan
-				// To move marker up on screen, we need to pan the map down (move map content up)
-				const panOffsetPixels = point.y - targetMarkerY;
+			// Check if marker is too close to left/right screen edges
+			const isTooCloseToLeftEdge = point.x < horizontalBufferPixels;
+			const isTooCloseToRightEdge =
+				point.x > viewportWidth - horizontalBufferPixels;
+
+			// Calculate horizontal pan offset if marker is too close to edges
+			const panOffsetX = calculateHorizontalPanOffset(
+				point.x,
+				viewportWidth,
+				horizontalBufferPixels,
+				isTooCloseToLeftEdge,
+				isTooCloseToRightEdge,
+			);
+
+			// Pan if marker is obscured by info window OR too close to screen edges
+			const needsVerticalPan =
+				isVerticallyWithinBounds && isHorizontallyWithinBounds;
+			const needsHorizontalPan = isTooCloseToLeftEdge || isTooCloseToRightEdge;
+
+			if (needsVerticalPan || needsHorizontalPan) {
+				// Calculate vertical pan offset if marker is obscured by info window
+				const panOffsetPixels = calculateVerticalPanOffset(
+					point.y,
+					windowTop,
+					verticalBufferPixels,
+					needsVerticalPan,
+				);
 
 				// Get current map center
 				const currentCenter = map.getCenter();
@@ -70,10 +123,12 @@ export const useMarkerPanning = ({ mapboxMapRef }: UseMarkerPanningParams) => {
 					currentCenter.lat,
 				]);
 
-				// Calculate new center point by panning down (moving map up)
+				// Calculate new center point by panning both vertically and horizontally
 				// To move content up by X pixels, we move the center down by X pixels
+				// To move content right by X pixels, we move the center left by X pixels (subtract)
+				// To move content left by X pixels, we move the center right by X pixels (add)
 				const newCenterPoint: [number, number] = [
-					currentCenterPoint.x,
+					currentCenterPoint.x - panOffsetX,
 					currentCenterPoint.y + panOffsetPixels,
 				];
 
