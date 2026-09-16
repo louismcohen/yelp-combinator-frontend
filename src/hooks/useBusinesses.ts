@@ -1,7 +1,7 @@
-import axios from 'axios';
-import type { Business, Category } from '../types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { useEffect } from 'react';
+import type { Business, Category } from '../types';
 
 interface Collection {
 	_id: string;

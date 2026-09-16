@@ -1,5 +1,6 @@
 import type { BBox } from 'geojson';
 import type { MapEvent } from 'mapbox-gl';
+import { AnimatePresence } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MapRef, ViewStateChangeEvent } from 'react-map-gl';
 import { useDebounce } from 'use-debounce';
@@ -7,6 +8,7 @@ import useBusinesses from '../../hooks/useBusinesses';
 import useLocation, { type LocationState } from '../../hooks/useLocation';
 import { useSearchFilterStore } from '../../store/searchFilterStore';
 import type { Business, ElementBounds } from '../../types';
+import { LoadingOverlay } from '../LoadingOverlay';
 import { MapboxMapScreen, getBbox } from '../MapRender';
 import { SearchBar } from '../SearchBar';
 import UserLocationMarker from '../UserLocationMarker';
@@ -178,7 +180,13 @@ const MapCenter = () => {
 				onMove={handleMapInitialInteraction}
 				ref={mapboxMapRef}
 			>
-				<SearchBar />
+				<AnimatePresence mode="wait">
+					{isFetching ? (
+						<LoadingOverlay key="businesses-loading" />
+					) : (
+						<SearchBar key="search-bar" />
+					)}
+				</AnimatePresence>
 				<MapMarkers
 					clusters={clusters}
 					selectedBusiness={selectedBusiness}
@@ -199,7 +207,6 @@ const MapCenter = () => {
 				}
 			/>
 			<MapOverlay
-				isFetching={isFetching}
 				selectedBusiness={selectedBusiness}
 				onInfoWindowBoundsMeasured={handleInfoWindowBoundsMeasured}
 			/>

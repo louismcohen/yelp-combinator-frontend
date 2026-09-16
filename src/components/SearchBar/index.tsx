@@ -73,10 +73,16 @@ export const SearchBar = () => {
 	}, [aiSearchEnabled, searchTerm, mutation.mutate]);
 
 	return (
-		<div className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4 pointer-events-none">
+		<motion.div
+			initial={{ opacity: 0, scale: 0.92 }}
+			animate={{ opacity: 1, scale: 1 }}
+			exit={{ opacity: 0, scale: 1.05 }}
+			transition={{ duration: 0.15 }}
+			className="absolute top-0 flex flex-col gap-2 justify-center items-center w-full p-4 pointer-events-none"
+		>
 			<div
 				className={cn(
-					'w-full max-w-[500px] transition-all duration-150 rounded-full overflow-hidden pointer-events-auto outline-offset-1 hover:outline-2 hover:outline-offset-0',
+					'w-full max-w-125 transition-all duration-150 rounded-full overflow-hidden pointer-events-auto outline-offset-1 hover:outline-2 hover:outline-offset-0',
 					'flex flex-row items-center',
 					'pl-1 pr-3',
 					outline.hover,
@@ -200,6 +206,6 @@ export const SearchBar = () => {
 					</motion.div>
 				)}
 			</AnimatePresence>
-		</div>
+		</motion.div>
 	);
 };
