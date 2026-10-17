@@ -1,12 +1,31 @@
 import tz_lookup from '@photostructure/tz-lookup';
 import { DateTime } from 'luxon';
-import type { Business } from '../types';
+import type { Business, OpeningHours } from '../types';
 
 interface BusinessStatus {
 	isOpen: boolean;
 	status: string;
 	auxStatus: string | null;
 }
+
+interface ClosingTime {
+	minutesFromToday: number;
+	time: string;
+	tomorrow: boolean;
+}
+
+const MINUTES_PER_DAY = 24 * 60;
+
+// Yelp numbers days Monday = 0 through Sunday = 6
+const WEEKDAYS = [
+	'Monday',
+	'Tuesday',
+	'Wednesday',
+	'Thursday',
+	'Friday',
+	'Saturday',
+	'Sunday',
+];
 
 const formatTime = (timeStr: string): string => {
 	const hour = Number.parseInt(timeStr.slice(0, 2));
@@ -15,6 +34,14 @@ const formatTime = (timeStr: string): string => {
 	const hour12 = hour % 12 || 12;
 	return `${hour12}:${minute.toString().padStart(2, '0')} ${period}`;
 };
+
+const toMinutes = (timeStr: string): number =>
+	Number.parseInt(timeStr.slice(0, 2)) * 60 +
+	Number.parseInt(timeStr.slice(2));
+
+// An end of "0000" means midnight, so it crosses into the next day even when is_overnight is false
+const crossesMidnight = (interval: OpeningHours): boolean =>
+	interval.is_overnight || toMinutes(interval.end) <= toMinutes(interval.start);
 
 // const getTimeZone = async (latitude: number, longitude: number) => await GeoTZ.find(latitude, longitude);
 
@@ -32,110 +59,80 @@ export const getBusinessHoursStatus = (business: Business): BusinessStatus => {
 		business.yelpData.coordinates.latitude,
 		business.yelpData.coordinates.longitude,
 	);
-	const hoursData = business.yelpData.hours;
+	const intervals = business.yelpData.hours[0].open;
 
 	const now = DateTime.now().setZone(timeZone);
 	const currentDay = now.weekday - 1;
-	const currentTime = now.hour * 100 + now.minute;
+	const previousDay = (currentDay + 6) % 7;
+	const currentMinutes = now.hour * 60 + now.minute;
 
-	// Check if open from previous day's overnight hours
-	const previousDay = (currentDay - 1 + 7) % 7;
-	const previousDayHours = hoursData[0].open.find((h) => h.day === previousDay);
+	let closingTime: ClosingTime | null = null;
 
-	if (previousDayHours?.is_overnight) {
-		const endTime = Number.parseInt(previousDayHours.end);
-		if (currentTime < endTime) {
-			return {
-				isOpen: true,
-				status: 'Open ',
-				auxStatus: `until ${formatTime(previousDayHours.end)}`,
+	for (const interval of intervals) {
+		const start = toMinutes(interval.start);
+		const end = toMinutes(interval.end);
+		const overnight = crossesMidnight(interval);
+		let minutesFromToday: number | null = null;
+
+		if (interval.day === previousDay && overnight && currentMinutes < end) {
+			minutesFromToday = end;
+		} else if (
+			interval.day === currentDay &&
+			currentMinutes >= start &&
+			(overnight || currentMinutes < end)
+		) {
+			minutesFromToday = overnight ? MINUTES_PER_DAY + end : end;
+		}
+
+		if (
+			minutesFromToday !== null &&
+			(!closingTime || minutesFromToday < closingTime.minutesFromToday)
+		) {
+			closingTime = {
+				minutesFromToday,
+				time: interval.end,
+				tomorrow: minutesFromToday >= MINUTES_PER_DAY,
 			};
 		}
 	}
 
-	// Get the current day's hours
-	const todayHours = hoursData[0].open.find((h) => h.day === currentDay);
-
-	if (todayHours) {
-		const startTime = Number.parseInt(todayHours.start);
-		const endTime = Number.parseInt(todayHours.end);
-
-		// Check if currently open
-		if (todayHours.is_overnight) {
-			// For overnight hours, we're open if:
-			// 1. We're past the start time on the current day (before midnight)
-			// 2. We're before the end time on the next day (after midnight)
-			if (currentTime >= startTime || currentTime < endTime) {
-				const nextDay = currentTime >= startTime ? 'tomorrow' : 'today';
-				return {
-					isOpen: true,
-					status: 'Open ',
-					auxStatus: `until ${formatTime(todayHours.end)} ${nextDay}`,
-				};
-			}
-		} else {
-			if (currentTime >= startTime && currentTime < endTime) {
-				return {
-					isOpen: true,
-					status: 'Open ',
-					auxStatus: `until ${formatTime(todayHours.end)}`,
-				};
-			}
-		}
-
-		// If we're before today's opening time
-		if (currentTime < startTime) {
-			const timeString = formatTime(todayHours.start);
-			return {
-				isOpen: false,
-				status: 'Closed',
-				auxStatus: ` | Opens at ${timeString}`,
-			};
-		}
+	if (closingTime) {
+		return {
+			isOpen: true,
+			status: 'Open ',
+			auxStatus: `until ${formatTime(closingTime.time)}${
+				closingTime.tomorrow ? ' tomorrow' : ''
+			}`,
+		};
 	}
 
-	// Find next opening time
-	let daysToCheck = 7; // Prevent infinite loop
-	let nextDay = currentDay;
-	let daysAhead = 0;
+	for (let daysAhead = 0; daysAhead <= 7; daysAhead++) {
+		const day = (currentDay + daysAhead) % 7;
+		const nextOpening = intervals
+			.filter(
+				(interval) =>
+					interval.day === day &&
+					(daysAhead > 0 || toMinutes(interval.start) > currentMinutes),
+			)
+			.sort((a, b) => toMinutes(a.start) - toMinutes(b.start))[0];
 
-	while (daysToCheck > 0) {
-		nextDay = (nextDay + 1) % 7;
-		daysAhead++;
-		const nextDayHours = hoursData[0].open.find((h) => h.day === nextDay);
+		if (!nextOpening) continue;
 
-		if (nextDayHours) {
-			const timeString = formatTime(nextDayHours.start);
+		const timeString = formatTime(nextOpening.start);
+		let auxStatus = ` | Opens ${WEEKDAYS[day]} at ${timeString}`;
+		if (daysAhead === 0) auxStatus = ` | Opens at ${timeString}`;
+		if (daysAhead === 1) auxStatus = ` | Opens tomorrow at ${timeString}`;
 
-			if (daysAhead === 1) {
-				return {
-					isOpen: false,
-					status: 'Closed',
-					auxStatus: ` | Opens tomorrow at ${timeString}`,
-				};
-			}
-			const days = [
-				'Sunday',
-				'Monday',
-				'Tuesday',
-				'Wednesday',
-				'Thursday',
-				'Friday',
-				'Saturday',
-			];
-			return {
-				isOpen: false,
-				status: 'Closed',
-				auxStatus: ` | Opens ${days[nextDay]} at ${timeString}`,
-			};
-		}
-
-		daysToCheck--;
+		return {
+			isOpen: false,
+			status: 'Closed',
+			auxStatus,
+		};
 	}
 
 	return {
-		isOpen: true,
-		status: '',
-		auxStatus: null,
+		isOpen: false,
+		status: 'Closed',
+		auxStatus: '',
 	};
 };
